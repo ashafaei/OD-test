@@ -1,6 +1,26 @@
 # Code Organization
 
+- [Code Structure](#code-structure)
 - [Global Variables](#global-variables)
+- [Important Classes](#important-classes)
+
+## Code Structure
+
+- `<od-test>`
+    - **setup** this folder contains all the setup scripts.
+        - `setup.py` the script to setup the environment, the initial setup of the project.
+        - `model_setup.py` to do the initial reference model training before the evaluation. See the [info](train_reference_models.md).
+        - **categories** contains the training scripts for each category of model used during the evaluation.
+    - **utils** this folder contains the helper classes that we use.
+        - `args.py` the script responsible for argument parsing and environment experiment setup.
+        - `iterative_trainer.py` is the iterative training class that handles various training scenarios.
+        - `logger.py` is the logging helper class.
+    - **datasets** has the classes for the datasets that we use.
+        - `init.py` has some important base definitions that we need for the datasets.
+            - `SubDataset` is the dataset wrapper that we use to facilitate data splitting and several other useful operations such as on-air modification of the labels or additional preprocessing steps.
+            - `AbstractDomainInterface` is the dataset interface that each dataset class must implement. You can read more about it in [Important Classes](#important-classes).
+            - `MirroredDataset` this class wrapper mirrors the images of another dataset.
+        - `<dataset_name>.py` the implementation of individual datasets. All the classes download and preprocess the dataset automatically upon first instantiation. The downloaded files are stored in `workspace/datasets/<dataset_name>`. All the classes implement the `AbstractDomainInterface`.
 
 ## Global Variables
 There are a few global variables that we use throughout the project. You can examine [global_vars.py](../global_vars.py) to get an idea. In this file, we include the list of the available **datasets**, **network architectures**, and **methods** to be used. If you wish to add a new dataset, network architecture, or method you must remember to add the necessary information in the `global_vars.py`.
@@ -39,3 +59,7 @@ all_methods = {
 }
 ```
 For more information on the implemented methods see the first page.
+
+## Important Classes
+
+### AbstractDomainInterface
