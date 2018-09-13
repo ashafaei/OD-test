@@ -19,7 +19,7 @@ The problem of interest is out-of-distribution (OOD) sample detection. In our pa
 The OOD detection problem arises in settings where the input of the neural network in a deployed system is not guaranteed to follow a fixed distribution. OOD inputs can lead to unpredictable behaviour in neural network pipelines. For instance, the neural network might be trained to recognize the MNIST digits, but then when deployed, it might encounter a natural image which it has never seen. Counter-intuitively, the trained neural networks often fail silently and make over-confident predictions on previously unseen input. We need to develop methods that detect OOD samples to prevent unpredictable behaviour. Unfortunately, we cannot filter out these problematic instances by thresholding the output probability of the most likely class. In the above image, we show the output of several popular CNNs trained on ImageNet but tested on random images that do not belong to ImageNet.
 
 The code in this repository allows
-1. Painless replication of all the results in the paper.
+1. Painless replication of all the results in the paper. You can run from scratch or use the pretrained models.
 2. Easy method development and testing for future work.
 3. Quickly adding more datasets for evaluation.
 
@@ -53,7 +53,7 @@ I have spent a long time refining this code. The final result is a modularized c
 | 8     | DeepEnsemble  | Similar to MCDropout, except we average over the predictions of 5 networks that are trained independently with adversarial data augmentation.| [link]() | 
 | 9     | PixelCNN++    | A threshold on the log-likelihood of each input.                                     | [link]() |
 | 10    | OpenMax       | Calibrated probability with additional unknown class and an SVM on top.              | [link]() |
-| 11    | K-MNNSVM, K-BNNSVM, K-VNNSVM | Similar to KNNSVM, but uses the latent representation of different (variational)-autoencoders | [link]() |
+| 11    | K-MNNSVM, K-BNNSVM, K-VNNSVM | Similar to KNNSVM, but uses the latent representation of different (variational)-autoencoders. | [link]() |
 
 # Setup
 This project has been tested on:
