@@ -32,3 +32,6 @@ For the classification task, we instantiate datasets and network architectures a
 Note that these networks are only trained with `D1_train` set. We further randomly split `D1_train` into [0.8, 0.2] sets and only train on the 0.8 portion of the data while using the remainder 0.2 as the test set. Therefore, the performance of the trained networks cannot be directly compared with the state-of-the-art performance in the respective datasets as the measurements and the training sets are different.
 
 For data augmentation, we explicitly instantiate mirror augmented data instead of random on-air augmentation. *We do not allow any other augmentation* to ensure fair comparison in our paper. But if you would rather augment the hell of out of the data you should (i) explicitly document the type of data augmentation, and (ii) be extremely careful with fair comparison on other methods.
+
+# References
+1. Lakshminarayanan, B., Pritzel, A., & Blundell, C. (2017). Simple and Scalable Predictive Uncertainty Estimation using Deep Ensembles. In NIPS.

@@ -107,3 +107,8 @@ With this you can have a single `visdom` running locally, but having multiple ma
 
 - Replicating all the results of the paper.
     - Training the *reference models* with an explanation of the training mechanics [here](docs/train_reference_models.md).
+    - Get the pretrained models [here](docs/pretrained.md).
+- Learn about the code organization [here](docs/code_organization.md).
+- How to add
+    - A new method for evaluation [here]().
+    - A new dataset for evaluation [here]().
