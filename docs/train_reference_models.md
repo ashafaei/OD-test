@@ -1,7 +1,7 @@
 # Setting up the Reference Models
 Most of the methods rely on some underlying model to make the rejct decision for `OD-test`. For instance, `PbThreshold` would threshold the maximum probability of the output of a discriminative neural network to reject out-of-distribution samples. Therefore, we need to provide a set of pre-trained reference models on which these methods would operate. In the original paper we evaluated the performance on `ResNet-50` and `VGG-16` variant networks. Note that each dataset would have its own pre-trained model, and also the architectures would slightly vary between the datasets as the spatial dimension and the number of classes of each dataset is different.
 
-Since the training of the reference models is time consuming, we separately train all the reference models before running the evaluation. You can alternatively download the pretrained reference models from [here](pretrained.md). The script that takes care of this time-consuming training is [model_setup.py](setup/model_setup.py).
+Since the training of the reference models is time consuming, we separately train all the reference models before running the evaluation. You can alternatively download the pretrained reference models from [here](pretrained.md). The script that takes care of this time-consuming training is [model_setup.py](../setup/model_setup.py).
 
 To train all the reference models run the following command:
 
@@ -25,7 +25,7 @@ There are multiple types of reference model training.
 4. (Variational)-Autoencoder training with `BCE` loss or `MSE` loss.
 5. Pixel-CNN++ training.
 
-Each type has a list of _datasets_ and the corresponding _networks_ to be trained with a _training function_ to be called (see `task_list` in [model_setup.py](../setup/model_setup.py)).
+Each type has a list of _datasets_ and the corresponding _networks_ to be trained with a _training function_ to be called (see `task_list` in [model_setup.py](../setup/model_setup.py)). You can follow the training functions to see how each model is trained. Individual implementations are in [setup/categories/](../setup/categories/).
 
 For the classification task, we instantiate datasets and network architectures according to the information in [global_vars.py](../global_vars.py). See Global Variables in [code organization](code_organization.md) for more information.
 
