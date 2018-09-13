@@ -22,6 +22,10 @@
             - `AbstractDomainInterface` is the dataset interface that each dataset class must implement. You can read more about it in [Important Classes](#important-classes).
             - `MirroredDataset` this class wrapper mirrors the images of another dataset.
         - `<dataset_name>.py` the implementation of individual datasets. All the classes download and preprocess the dataset automatically upon first instantiation. The downloaded files are stored in `workspace/datasets/<dataset_name>`. All the classes implement the `AbstractDomainInterface`.
+    - **models** contains all the model definitions we use.
+        - `classifiers.py` contains all the predictive models.
+        - `autoencoders.py` contains all the (variational) autoencoder models.
+        - **pixelcnn** contains the PixelCNN++ implementations taken from https://github.com/pclucas14/pixel-cnn-pp
 
 ## Global Variables
 There are a few global variables that we use throughout the project. You can examine [global_vars.py](../global_vars.py) to get an idea. In this file, we include the list of the available **datasets**, **network architectures**, and **methods** to be used. If you wish to add a new dataset, network architecture, or method you must remember to add the necessary information in the `global_vars.py`.
