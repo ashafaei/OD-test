@@ -15,6 +15,7 @@
         - `args.py` the script responsible for argument parsing and environment experiment setup.
         - `iterative_trainer.py` is the iterative training class that handles various training scenarios.
         - `logger.py` is the logging helper class.
+        - `experiment_merger.py` merges the *results* of multiple experiments into a single experiment. Useful for figure generation.
     - **datasets** has the classes for the datasets that we use.
         - `init.py` has some important base definitions that we need for the datasets.
             - `SubDataset` is the dataset wrapper that we use to facilitate data splitting and several other useful operations such as on-air modification of the labels or additional preprocessing steps.
