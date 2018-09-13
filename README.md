@@ -23,7 +23,7 @@ The code in this repository allows
 2. Easy method development and testing for future work.
 3. Quickly adding more datasets for evaluation.
 
-I have spent a long time refining this code. The final result is a modularized codebase that is reasonably efficient. I recommend that you take the time to understand the general architecture of the project before making substantial changes. Pull-requests are welcome. In particular, if you wish to add a new method to the evaluation or improve a part of the code. You can ask questions in [Issues](https://github.com/ashafaei/OD-test/issues).
+I have spent a long time refining this code. The final result is a modularized codebase that is reasonably efficient. I recommend that you take the time to understand the general architecture of the project before making substantial changes. I welcome pull-requests. In particular, if you wish to add a new method to the evaluation or improve a part of the code. You can ask questions in [Issues](https://github.com/ashafaei/OD-test/issues).
 
 ## List of the Datasets
 
@@ -84,3 +84,26 @@ source workspace/env/bin/activate
 ```
 
 _You must run all the scripts within the generated environment_.
+
+## Visualization
+
+In this project we use `visdom` for visualization mid-training. We use `seaborn` to generate the figures in the paper. I wrote this code assuming that visdom is available for visualization at first. I then rewrote the code to make it functional without `visdom` as well. However, some parts of the code may still require `visdom` to be accessible. To be on the safe side, I recommend having `visdom` in the background just in case until I make sure the entire project would function correctly without `visdom` as well. (pull request to resolve this issue are welcomed!)
+
+In a new terminal tab run this:
+```bash
+> cd <root_folder>
+> bash launch_visdom.sh
+```
+
+If you execute the code on a remote server, but you want to run `visdom` on your local machine, you can do a remote port forwarding for port `8097` to your machine with SSH like this:
+
+```bash
+ssh -L 8097:localhost:8097 user@machine
+```
+
+With this you can have a single `visdom` running locally, but having multiple machines reporting to the same `visdom`.
+
+## What is next?
+
+- Replicating all the results of the paper.
+    - Training the *reference models* with an explanation of the training mechanics [here](docs/train_reference_models.md).
