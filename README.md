@@ -25,6 +25,17 @@ The code in this repository allows
 
 I have spent a long time refining this code. The final result is a modularized codebase that is reasonably efficient. I recommend that you take the time to understand the general architecture of the project before making substantial changes. I welcome pull-requests. In particular, if you wish to add a new method to the evaluation or improve a part of the code. You can ask questions in [Issues](https://github.com/ashafaei/OD-test/issues).
 
+## What is next?
+- First step: [setting up the project](#setup).
+- Replicating all the results of the paper.
+    - Training the *reference models* with an explanation of the training mechanics [here](docs/train_reference_models.md).
+    - Get the pretrained models [here](docs/pretrained.md).
+- Learn about the code organization [here](docs/code_organization.md).
+- How to add
+    - A new network architecture [here]().
+    - A new method for evaluation [here]().
+    - A new dataset for evaluation [here]().
+
 ## List of the Datasets
 
 | Index | Name          | Train     | Valid     | Test      | Input Dim         | #Classes  | D1?   |
@@ -102,14 +113,3 @@ ssh -R 8097:localhost:8097 user@machine
 ```
 
 With this you can have a single `visdom` running locally, but having multiple machines reporting to the same `visdom`.
-
-## What is next?
-
-- Replicating all the results of the paper.
-    - Training the *reference models* with an explanation of the training mechanics [here](docs/train_reference_models.md).
-    - Get the pretrained models [here](docs/pretrained.md).
-- Learn about the code organization [here](docs/code_organization.md).
-- How to add
-    - A new network architecture [here]().
-    - A new method for evaluation [here]().
-    - A new dataset for evaluation [here]().
