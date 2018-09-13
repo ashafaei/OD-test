@@ -110,5 +110,6 @@ With this you can have a single `visdom` running locally, but having multiple ma
     - Get the pretrained models [here](docs/pretrained.md).
 - Learn about the code organization [here](docs/code_organization.md).
 - How to add
+    - A new network architecture [here]().
     - A new method for evaluation [here]().
     - A new dataset for evaluation [here]().

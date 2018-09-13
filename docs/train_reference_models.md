@@ -27,7 +27,7 @@ There are multiple types of reference model training.
 
 Each type has a list of _datasets_ and the corresponding _networks_ to be trained with a _training function_ to be called (see `task_list` in [model_setup.py](../setup/model_setup.py)). You can follow the training functions to see how each model is trained. Individual implementations are in [setup/categories/](../setup/categories/).
 
-For the classification task, we instantiate datasets and network architectures according to the information in [global_vars.py](../global_vars.py). See Global Variables in [code organization](code_organization.md) for more information.
+For the classification task, we instantiate datasets and network architectures according to the information in [global_vars.py](../global_vars.py). See Global Variables in [code organization](code_organization.md#global-variables) for more information.
 
 Note that these networks are only trained with `D1_train` set. We further randomly split `D1_train` into [0.8, 0.2] sets and only train on the 0.8 portion of the data while using the remainder 0.2 as the test set. Therefore, the performance of the trained networks cannot be directly compared with the state-of-the-art performance in the respective datasets as the measurements and the training sets are different.
 
