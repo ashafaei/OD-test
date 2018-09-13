@@ -1,0 +1,12 @@
+termcolor
+http://download.pytorch.org/whl/cu91/torch-0.4.0-cp27-cp27mu-linux_x86_64.whl
+torchvision==0.2.1
+visdom==0.1.8.3
+tqdm
+argparse
+pytablewriter
+git+https://github.com/mwaskom/seaborn.git
+enum34
+scipy
+cffi
+sklearn
