@@ -1,7 +1,7 @@
 # Publication Information
-This repository accompanies the paper "Does Your Model Know the Digit 6 Is Not a Cat? A Less Biased Evaluation of Outlier Detectors." [ArXiv]() (to be added).
+This repository accompanies the paper "Does Your Model Know the Digit 6 Is Not a Cat? A Less Biased Evaluation of Outlier Detectors." [[ArXiv]()] (to be added).
 
-Bibex:
+Bibtex:
 ```bibtex
 @article{Shafaei2018,
 author = {Shafaei, Alireza and Schmidt, Mark and Little, James J.},
@@ -16,7 +16,7 @@ year = {2018}
 
 The problem of interest is out-of-distribution (OOD) sample detection. In our paper, we present an evaluation framework called OD-test for methods that address OOD sample detection. In this repository, we implement the OD-test for image recognition problems with deep neural networks. You can replicate all the results of our paper here.
 
-The OOD detection problem arises in settings where the input of the neural network in a deployed system is not guaranteed to follow a fixed distribution. OOD inputs can lead to unpredictable behaviour in neural network pipelines. For instance, the neural network might be trained to recognize the MNIST digits, but then when deployed, it might encounter a natural image which it has never seen. Counter-intuitively, the trained neural networks often fail silently and make over-confident predictions on previously unseen input. We cannot filter out these problematic instances by thresholding the output probability of the most likely class. In the above image, we show the output of several popular CNNs trained on ImageNet but tested on random images that do not belong to ImageNet.
+The OOD detection problem arises in settings where the input of the neural network in a deployed system is not guaranteed to follow a fixed distribution. OOD inputs can lead to unpredictable behaviour in neural network pipelines. For instance, the neural network might be trained to recognize the MNIST digits, but then when deployed, it might encounter a natural image which it has never seen. Counter-intuitively, the trained neural networks often fail silently and make over-confident predictions on previously unseen input. We need to develop methods that detect OOD samples to prevent unpredictable behaviour. Unfortunately, we cannot filter out these problematic instances by thresholding the output probability of the most likely class. In the above image, we show the output of several popular CNNs trained on ImageNet but tested on random images that do not belong to ImageNet.
 
 The code in this repository allows
 1. Painless replication of all the results in the paper.
@@ -46,14 +46,14 @@ I have spent a long time refining this code. The final result is a modularized c
 | 1     | PbThreshold   | A threshold on the maximum probability.                                              | [link]() |
 | 2     | ScoreSVM      | A SVM on the logits (pre-softmax).                                                   | [link]() |
 | 3     | LogisticSVM   | A SVM on the logits of a network trained with k-way logistic loss function.          | [link]() | 
-| 4     | MCDropout     | MC-Dropout evaluation over 7 samples followed by a threshold on entropy of average   | [link]() | 
-| 5     | KNNSVM        | An SVM on the Euclidean distance to K-nearest-neighbours.                            | [link]() |
-| 6     | ODIN          |                                                                                      | [link]() |
-| 7     | AEThreshold   |                                                                                      | [link]() |
-| 8     | DeepEnsemble  |                                                                                      | [link]() | 
-| 9     | PixelCNN++    |                                                                                      | [link]() |
-| 10    | OpenMax       |                                                                                      | [link]() |
-| 11    | K-MNNSVM, K-BNNSVM, K-VNNSVM |                                                                       | [link]() |
+| 4     | MCDropout     | MC-Dropout evaluation over 7 samples followed by a threshold on the entropy of average prediction.   | [link]() | 
+| 5     | KNNSVM        | An SVM on the sorted Euclidean distance to K-nearest-neighbours.                     | [link]() |
+| 6     | ODIN          | A threshold on the scaled softmax outputs of the perturbed input.                    | [link]() |
+| 7     | AEThreshold   | A threshold on the autoencoder reconstruction error of the given input.              | [link]() |
+| 8     | DeepEnsemble  | Similar to MCDropout, except we average over the predictions of 5 networks that are trained independently with adversarial data augmentation.| [link]() | 
+| 9     | PixelCNN++    | A threshold on the log-likelihood of each input.                                     | [link]() |
+| 10    | OpenMax       | Calibrated probability with additional unknown class and an SVM on top.              | [link]() |
+| 11    | K-MNNSVM, K-BNNSVM, K-VNNSVM | Similar to KNNSVM, but uses the latent representation of different (variational)-autoencoders | [link]() |
 
 # Setup
 This project has been tested on:
