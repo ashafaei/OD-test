@@ -31,6 +31,13 @@
             - `AbstractMethodInterface` is the method interfae that each method must implement. You can read more about it in [Important Classes](#important-classes).
             - `AbstractModelWrapper` is the wrapper class used to abstract away the underlying model used in the operations. You do not have to use it for your own methods, but it should simplify some of the tasks.
             - `<method_name>.py` the implementation of each method. All the classes implement the `AbstractMethodInterface`.
+    - **workspace** contains every result and output of the framework. You must set up the project for this folder to appear.
+        - **datasets** will be where all the downloaded datasets are stored.
+        - **env** will containt the virtual environment within which the code would work.
+        - **visdom** is the default visdom home.
+        - **experiments** is the location of all the experiments.
+            - **model_ref** is where the reference models will be stored.
+            - `<exp-name>` will be the home directory to each experiment.
 
 ## Global Variables
 There are a few global variables that we use throughout the project. You can examine [global_vars.py](../global_vars.py) to get an idea. In this file, we include the list of the available **datasets**, **network architectures**, and **methods** to be used. If you wish to add a new dataset, network architecture, or method you must remember to add the necessary information in the `global_vars.py`.
@@ -72,6 +79,40 @@ For more information on the implemented methods see the first page.
 
 ## Important Classes
 
+Here is the description of the important classes that you should be aware of.
+
 ### AbstractDomainInterface
+This is the dataset interface that each dataset must implement. You can examine sample implementations such as [MNIST](../datasets/MNIST.py) to better familiarize yourself with the usage. The following definition is in [datasets/init.py](../datasets/__init__.py)
+
+```python
+class AbstractDomainInterface(object):
+    def get_D1_train(self):  # required
+    def get_D1_valid(self):  # required
+    def get_D1_test(self):   # required
+
+    def get_D2_valid(self, D1):  # required
+    def get_D2_test(self, D1):   # required
+
+    def is_compatible(self, D1): # optional
+    def conformity_transform(self): # required
+```
+`get_D1_{train, valid, test}` must return the split of the dataset for train, valid, and test when used as `D_s`.
+
+`get_D2_{valid, test}` must return the split of the dataset for valid, and test when used as `D_v` or `D_t`. We also provide the `D_s` being used so that the method can take the necessary actions for spatial resizing and label filtering if necessary.
+
+The output of these functions must be a `SubDataset` class. `SubDataset` is a dataset wrapper that simplifies several tasks. You should check out the implementation from [here](../datasets/__init__.py) for more information.
+
+`is_compatible` says whether the provided `D_s` is compatible with this object as `D_v` or `D_t`. There's a default implementation here that relies on the compatibility table in [global_vars](../global_vars.py).
+
+`conformity_transform` must return a series of transformations that would make other datasets compatible with this dataset. For instance, for MNIST we have
+
+```python
+return transforms.Compose([transforms.ToPILImage(),
+                            transforms.Resize((28, 28)),
+                            transforms.Grayscale(),
+                            transforms.ToTensor()
+                            ])
+```
+Which would resize every input to 28 x 28 and make the images grayscale. This is used in `get_D2_{valid, test}` where we wish to return a dataset that is compatible with `D_s`.
 
 ### AbstractMethodInterface
