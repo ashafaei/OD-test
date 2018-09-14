@@ -33,9 +33,9 @@ I have spent a long time refining this code. The final result is a modularized c
     - Running the evaluations with a quick example [here](docs/eval3d.md).
 - Learn about the code organization [here](docs/code_organization.md).
 - How to add
-    - A new network architecture [here]().
-    - A new method for evaluation [here]().
-    - A new dataset for evaluation [here]().
+    - A new network architecture [here](docs/new.md#architecture).
+    - A new dataset for evaluation [here](docs/new.md#dataset).
+    - A new method for evaluation [here](docs/new.md#method).
 
 ## List of the Datasets
 
