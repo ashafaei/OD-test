@@ -30,7 +30,7 @@ The program should terminate with the following output:
 1	prob_threshold/0	MNIST-NormalNoise	UniformNoise   	98.55% / 94.99%
 ```
 
-The second column is the method and the config. `prob_threshold/0` means the probability threshold method was run with the config `0` which is the VGG architecture (the index of architecture in the `global_vars`). The third column is `D_s - D_v` and the fourth column is `train_error / test_error` for the method. We only use the `test_error` for figures and anlysis.
+The second column is the method and the config. `prob_threshold/0` means the probability threshold method was run with the config `0` which is the VGG architecture (the index of architecture in the `global_vars`). The third column is `D_s - D_v` and the fourth column is `D_t`. The fifth column is `train_error / test_error` for the method. We only use the `test_error` for figures and anlysis.
 
 These results are also saved under `workspace/experiments/test-eval/results.pth` as a simple table that you can use to generate figures.
 
