@@ -30,6 +30,7 @@ I have spent a long time refining this code. The final result is a modularized c
 - Replicating all the results of the paper.
     - Training the *reference models* with an explanation of the training mechanics [here](docs/train_reference_models.md).
     - Get the pretrained models [here](docs/pretrained.md).
+    - Running the evaluations with a quick example [here](docs/eval3d.md).
 - Learn about the code organization [here](docs/code_organization.md).
 - How to add
     - A new network architecture [here]().
