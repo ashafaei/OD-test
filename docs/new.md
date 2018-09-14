@@ -139,3 +139,9 @@ After adding a new dataset, we must now add it to the [global variables](../glob
 Now you can run the evaluation with your newly defined dataset. Keep in mind that you must also train proper architectures for your dataset if you are running the exisitng implementations. See the previous section of this document.
 
 ## Method
+
+The methods must implement `AbstractMethodInterface`. You can read more about it in [code organization](code_organization.md#abstractmethodinterface), I will not repeat the info here. You can examine the existing implementations to familiarize yourself with the procedure.
+
+After you have implemeneted your method, you must add it to the [global variable](../global_vars.py) `all_methods`. You can read more about this step in [code organization](code_organization.md#methods).
+
+After that, you should be good to go.
