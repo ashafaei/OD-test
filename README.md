@@ -54,17 +54,21 @@ I have spent a long time refining this code. The final result is a modularized c
 
 | Index | Name          | Short Description                                                                    | Code |
 |-------|---------------|--------------------------------------------------------------------------------------|------|
-| 1     | PbThreshold   | A threshold on the maximum probability.                                              | [link](methods/base_threshold.py) |
+| 1     | PbThreshold [1]   | A threshold on the maximum probability.                                              | [link](methods/base_threshold.py) |
 | 2     | ScoreSVM      | A SVM on the logits (pre-softmax).                                                   | [link](methods/score_svm.py) |
 | 3     | LogisticSVM   | A SVM on the logits of a network trained with k-way logistic loss function.          | [link](methods/logistic_threshold.py) | 
-| 4     | MCDropout     | MC-Dropout evaluation over 7 samples followed by a threshold on the entropy of average prediction.   | [link](methods/mcdropout.py) | 
+| 4     | MCDropout [2]     | MC-Dropout evaluation over 7 samples followed by a threshold on the entropy of average prediction.   | [link](methods/mcdropout.py) | 
 | 5     | KNNSVM        | An SVM on the sorted Euclidean distance to K-nearest-neighbours.                     | [link](methods/nearest_neighbor.py) |
-| 6     | ODIN          | A threshold on the scaled softmax outputs of the perturbed input.                    | [link](methods/odin.py) |
+| 6     | ODIN [3]          | A threshold on the scaled softmax outputs of the perturbed input.                    | [link](methods/odin.py) |
 | 7     | AEThreshold   | A threshold on the autoencoder reconstruction error of the given input.              | [link](methods/reconstruction_error.py) |
-| 8     | DeepEnsemble  | Similar to MCDropout, except we average over the predictions of 5 networks that are trained independently with adversarial data augmentation.| [link](methods/deep_ensemble.py) | 
-| 9     | PixelCNN++    | A threshold on the log-likelihood of each input.                                     | [link](methods/pixelcnn.py) |
-| 10    | OpenMax       | Calibrated probability with additional unknown class and an SVM on top.              | [link](methods/openmax.py) |
+| 8     | DeepEnsemble [4]  | Similar to MCDropout, except we average over the predictions of 5 networks that are trained independently with adversarial data augmentation.| [link](methods/deep_ensemble.py) | 
+| 9     | PixelCNN++ [5]    | A threshold on the log-likelihood of each input.                                     | [link](methods/pixelcnn.py) |
+| 10    | OpenMax [6]       | Calibrated probability with additional unknown class and an SVM on top.              | [link](methods/openmax.py) |
 | 11    | K-MNNSVM, K-BNNSVM, K-VNNSVM | Similar to KNNSVM, but uses the latent representation of different (variational)-autoencoders. | [link](methods/nearest_neighbor.py) |
+
+## Average Performance (Sept. 13, 2018)
+![Fig1](docs/performance.png)
+
 
 # Setup
 This project has been tested on:
@@ -113,3 +117,12 @@ ssh -R 8097:localhost:8097 user@machine
 ```
 
 With this you can have a single `visdom` running locally, but having multiple machines reporting to the same `visdom`.
+
+# References
+
+1. D. Hendrycks and K. Gimpel, “A Baseline for Detecting Misclassified and Out-of-Distribution Examples in Neural Networks,” ICLR, 2017.
+2. Y. Gal and Z. Ghahramani, “Dropout as a Bayesian Approximation: Representing Model Uncertainty in Deep Learning,” in ICML, 2016.
+3. S. Liang, Y. Li, and R. Srikant, “Enhancing The Reliability of Out-of-distribution Image Detection in Neural Networks,” ICLR, 2018.
+4. B. Lakshminarayanan, A. Pritzel, and C. Blundell, “Simple and Scalable Predictive Uncertainty Estimation using Deep Ensembles,” in NIPS, 2017.
+5. T. Salimans, A. Karpathy, X. Chen, and D. P. Kingma, “Pixelcnn++: Improving the pixelcnn with discretized logistic mixture likelihood and other modifications,” ICLR, 2017.
+6. A. Bendale and T. E. Boult, “Towards Open Set Deep Networks,” in CVPR, 2016.
