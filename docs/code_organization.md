@@ -116,3 +116,77 @@ return transforms.Compose([transforms.ToPILImage(),
 Which would resize every input to 28 x 28 and make the images grayscale. This is used in `get_D2_{valid, test}` where we wish to return a dataset that is compatible with `D_s`.
 
 ### AbstractMethodInterface
+This is the method interface that each method must implement for the evaluation. The `ProbabilityThreshold` class in [base_threshold.py](../methods/base_threshold.py) is a simple example to learn more.
+
+The `AbstractMethodInterface` is defined in [methods/init.py](../methods/__init__.py). The structure is fairly simple.
+
+```python
+class AbstractMethodInterface(object):
+    def propose_H(self, dataset): # Step 1
+
+    def train_H(self, dataset): # Step 2
+
+    def test_H(self, dataset): # Step 3
+    
+    def method_identifier(self): # A string that identifies the model.
+```
+
+The input of `Step 1` is a classification dataset. Each item in the dataset is the image and its corresponding label `(x_i, y_i)`. This is the Line 3 of Algorithm 1 in the paper. You must use the given dataset in any way you need. For example:
+
+- PBThreshold: uses this dataset to train a classifier. The classifier is then saved for the next step where the optimal threshold must be identified.
+- K-NNSVM: Simply saves every `x` in the dataset as the reference within which we will later find the nearest neighbours.
+- AEThreshold: Trains an autoencoder on the dataset and saves the model.
+
+The function does not have to return anything, but then it must be ready to process `train_H`, which is the next step in the pipeline.
+
+The input of `Step 2` is a mixture dataset for binary classification: `{D_s:0, D_t:1}`. Your method in this step must train a binary classifier. The output of the function should be the train error. The method should save the reject function inside the object and be ready to evaluate the reject function in `test_H`.
+
+- PBThreshold: learns the optimal threshold on the output of the predicitve neural network trained in the previous step.
+- K-NNSVM: trains an SVM on the sorted Euclidean distance of samples from the reference set.
+- AEThreshold: learn the threshold for reconstruction error to separate the outliers.
+
+The input of `Step 3` is a mixture dataset for binary classification, just like `Step 2`. In this step, you must evaluate the performance of the learned reject function on the given dataset and return its accuracy.
+
+### AbstractModelWrapper
+This is a helper wrapper. Your method does not have to use this. But then you may want to. Sometimes, the method depends on the output of a previously trained network. For instance, PBThreshold is thresholding the max probability of some neural network. (i) when we are learning the parameters, we only want to tune the threshold parameters and not change the underlying network, (ii) when we are doing the iterative training, we do not have to pass the input image into the network on each iteration, because the output of the underlying network does not change and it would be much slower to do this every time. This wrapper class is meant to simplify the process by implementing the general parts and allowing you to focus on the part of the implementation that is more relevant to your method.
+
+For instance, in PBThreshold we have:
+
+```python
+class PTModelWrapper(AbstractModelWrapper):
+    """ The wrapper class for H.
+        For Base Threshold, we simply apply f(x) = sign(t-x), where x is the max probability and t is the threshold.
+        We learn the the threshold with an SVM loss and a zero margin. This yields exactly the optimal threshold learning problem.
+    """
+    def __init__(self, base_model):
+        super(PTModelWrapper, self).__init__(base_model)
+        self.H = nn.Module()
+        self.H.register_parameter('threshold', nn.Parameter(torch.Tensor([0.5]))) # initialize to prob=0.5 for faster convergence.
+
+    """
+        This function implements the part of the procedure where you have to retrieve
+        the output of a subnetwork. For PBThreshold, we simply need the max probability.
+        During the optimization of the threshold, the method would cache these valus. 
+    """
+    def subnetwork_eval(self, x):
+        base_output = self.base_model(x)
+        # Get the max probability out
+        input = base_output.exp().max(1)[0].unsqueeze_(1)
+        return input.detach()
+
+    """
+        Now, given the output of subnetwork_eval, how would you process the result.
+        For PBThreshold, it is only a threshold operation. The inputs are max probabilities.
+    """
+    def wrapper_eval(self, x):
+        # Threshold hold the max probability.
+        output = self.H.threshold - x
+        return output
+    
+    """
+        Given the output of wrapper_eval, how would you classify?
+        For PBThreshold, it's simply the sign. The output must be long.
+    """
+    def classify(self, x):
+        return (x > 0).long()
+```
