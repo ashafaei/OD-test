@@ -78,4 +78,64 @@ You can similarly try out different autoencoder architectures and so on ...
 
 ## Dataset
 
+Adding a dataset is perhaps the easiest of the three. There are two types of datasets. The ones that you could use as a `D_s`, like MNIST, and the ones that you could use as `D_v, D_t`, the outliers. For instance, the noise dataset can only be used as an outlier.
+
+To add a new dataset you must implement the AbstractDomainInterface. You can read more about it in [code organization](code_organization.md).
+
+A dataset in this project is not the same dataset concept as in PyTorch. The datasets here are the parent objects that return datasets for each use case, like a dataset factory. The returned datasets must be an instance of `SubDataset` class, which is a simple wrapper around the PyTorch datasets. The [MNIST](../datasets/MNIST.py) implementation for instance is an easy example of how you can use an existing dataset for this project.
+
+If your method can be used as `D_s` you must implement
+```python
+def get_D1_train(self):
+    raise NotImplementedError("%s has no implementation for this function."%(self.__class__.__name__))
+def get_D1_valid(self):
+    raise NotImplementedError("%s has no implementation for this function."%(self.__class__.__name__))
+def get_D1_test(self):
+    raise NotImplementedError("%s has no implementation for this function."%(self.__class__.__name__))
+def conformity_transform(self):
+    raise NotImplementedError("%s has no implementation for this function."%(self.__class__.__name__))        
+```
+
+For `D1_train` the `(x_i, y_i)` should be the actual underlying class. For `D1_valid` and `D1_test` however, it should be `(x_i, 0)`, 0 for the label. The `SubDataset` class allows you to easily override the label with minimum effort.
+
+You must also implement a function that returns the transformation which would make any image compatible with the current dataset in terms of spatial size and image channels. For instance, in MNIST we return
+
+```python
+def conformity_transform(self):
+    return transforms.Compose([transforms.ToPILImage(),
+                                transforms.Resize((28, 28)),
+                                transforms.Grayscale(),
+                                transforms.ToTensor()
+                                ])
+```
+
+Any outlier transformed like above would be compatible with MNIST.
+
+If the dataset is going to be used as an outlier, you should implement the following:
+```python
+def get_D2_valid(self, D1):
+    raise NotImplementedError("%s has no implementation for this function."%(self.__class__.__name__))
+def get_D2_test(self, D1):
+    raise NotImplementedError("%s has no implementation for this function."%(self.__class__.__name__))    
+```
+The outputs are similar to `D1_valid` and `D1_test`, except the label must be 1 instead of 0. It is perhaps easier to look at an existing implementation to higlight the important steps that must be taken.
+
+```python
+def get_D2_valid(self, D1):
+    assert self.is_compatible(D1)
+    return SubDataset(self.name, self.ds_train, self.D2_valid_ind, label=1, transform=D1.conformity_transform())
+
+def get_D2_test(self, D1):
+    assert self.is_compatible(D1)
+    return SubDataset(self.name, self.ds_test, self.D2_test_ind, label=1, transform=D1.conformity_transform())
+```
+
+The input `D1` is the `D_s` for which we will be using the `self` object as an outlier. We first make sure that `self` and `D1` are compatible. For instance, if there are classes in common, we should make sure that we do not have overlapping classes. `CIFAR10` and `STL10` are for example not compatible with each other, because 9/10 classes are the same.
+
+Then we return a `SubDataset` and transform the image according to the `conformity_transform` of the other dataset. The conformity transform ensures the outliers have the same spatial size and number of channels as `D1` samples.
+
+After adding a new dataset, we must now add it to the [global variables](../global_vars.py) `all_dataset_classes` and `d2_compatiblity`. You can read more about this step in [code organization](code_organization.md#datasets).
+
+Now you can run the evaluation with your newly defined dataset. Keep in mind that you must also train proper architectures for your dataset if you are running the exisitng implementations. See the previous section of this document.
+
 ## Method
