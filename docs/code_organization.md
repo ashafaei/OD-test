@@ -26,6 +26,11 @@
         - `classifiers.py` contains all the predictive models.
         - `autoencoders.py` contains all the (variational) autoencoder models.
         - **pixelcnn** contains the PixelCNN++ implementations taken from https://github.com/pclucas14/pixel-cnn-pp
+    - **methods** contains all the methods.
+        - `init.py` has some important base definitions that we need for the methods.
+            - `AbstractMethodInterface` is the method interfae that each method must implement. You can read more about it in [Important Classes](#important-classes).
+            - `AbstractModelWrapper` is the wrapper class used to abstract away the underlying model used in the operations. You do not have to use it for your own methods, but it should simplify some of the tasks.
+            - `<method_name>.py` the implementation of each method. All the classes implement the `AbstractMethodInterface`.
 
 ## Global Variables
 There are a few global variables that we use throughout the project. You can examine [global_vars.py](../global_vars.py) to get an idea. In this file, we include the list of the available **datasets**, **network architectures**, and **methods** to be used. If you wish to add a new dataset, network architecture, or method you must remember to add the necessary information in the `global_vars.py`.
@@ -68,3 +73,5 @@ For more information on the implemented methods see the first page.
 ## Important Classes
 
 ### AbstractDomainInterface
+
+### AbstractMethodInterface
