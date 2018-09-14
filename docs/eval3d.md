@@ -35,3 +35,55 @@ The second column is the method and the config. `prob_threshold/0` means the pro
 If you have made it this far, it means everything is set up and ready to use. Next we explain what is going on in the script.
 
 ## Evaluation
+
+The evaluation script is simply a for-loop over all combinations of *datasets* and *methods*. At the time of this writing, the master configuration, which includes all the datasets and methods is as follows:
+```python
+    d1_tasks     = ['MNIST', 'FashionMNIST', 'CIFAR10', 'CIFAR100', 'STL10', 'TinyImagenet']
+    d2_tasks     = ['UniformNoise', 'NormalNoise', 'MNIST', 'FashionMNIST', 'NotMNIST', 'CIFAR10', 'CIFAR100', 'STL10', 'TinyImagenet']
+    d3_tasks     = ['UniformNoise', 'NormalNoise', 'MNIST', 'FashionMNIST', 'NotMNIST', 'CIFAR10', 'CIFAR100', 'STL10', 'TinyImagenet']
+    method_tasks = [
+                    'pixelcnn/0',
+                    'mcdropout/0',
+                    'prob_threshold/0',     'prob_threshold/1',
+                    'score_svm/0',          'score_svm/1',
+                    'logistic_svm/0',       'logistic_svm/1',
+                    'openmax/0',            'openmax/1',
+                    'binclass/0',           'binclass/1',
+                    'deep_ensemble/0',      'deep_ensemble/1',
+                    'odin/0',               'odin/1',
+                    'reconst_thresh/0',     'reconst_thresh/1',
+                    'knn/1', 'knn/2', 'knn/4', 'knn/8',
+                    'bceaeknn/1', 'vaeaeknn/1', 'mseaeknn/1',
+                    'bceaeknn/2', 'vaeaeknn/2', 'mseaeknn/2',
+                    'bceaeknn/4', 'vaeaeknn/4', 'mseaeknn/4',
+                    'bceaeknn/8', 'vaeaeknn/8', 'mseaeknn/8',
+                    ]
+```
+
+You can run your own subset of evaluations by simply commenting out the unnecessary evaluations. The majority of evaluation logic is as follows:
+
+```python
+    for d1 in d1_tasks:
+        for d2 in d2_tasks:
+            for d3 in d3_tasks:
+                for method in method_tasks:
+                    # Algorithm 1 - Line 3 (in the paper)
+                    d1_train = d1.get_D1_train()
+                    method.propose_H(d1_train)
+
+                    # Algorithm 1 - Line 5
+                    d1_valid = d1.get_D1_valid()
+                    d2_valid = d2.get_D2_valid(d1)
+                    valid_mixture = d1_valid + d2_valid
+                    train_acc = method.train_H(valid_mixture)
+
+                    # Algorithm 1 - Line 7
+                    d1_test = d1.get_D1_test()
+                    d2_test = d3.get_D2_test(d1)
+                    test_mixture = d1_test + d2_test
+                    test_acc = method.test_H(test_mixture)
+```
+
+The actual implementation has more bells and whistles for efficiency and various other reasons. For `BinClass` which is a direct binary classification of `D_s` vs `D_v` the logic is slightly different.
+
+As you can see, the datasets and the methods must implement certain functions for this evaluation to work correctly. See [code organization](code_organization.md) to learn more.
