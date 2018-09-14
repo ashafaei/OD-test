@@ -54,17 +54,17 @@ I have spent a long time refining this code. The final result is a modularized c
 
 | Index | Name          | Short Description                                                                    | Code |
 |-------|---------------|--------------------------------------------------------------------------------------|------|
-| 1     | PbThreshold   | A threshold on the maximum probability.                                              | [link]() |
-| 2     | ScoreSVM      | A SVM on the logits (pre-softmax).                                                   | [link]() |
-| 3     | LogisticSVM   | A SVM on the logits of a network trained with k-way logistic loss function.          | [link]() | 
-| 4     | MCDropout     | MC-Dropout evaluation over 7 samples followed by a threshold on the entropy of average prediction.   | [link]() | 
-| 5     | KNNSVM        | An SVM on the sorted Euclidean distance to K-nearest-neighbours.                     | [link]() |
-| 6     | ODIN          | A threshold on the scaled softmax outputs of the perturbed input.                    | [link]() |
-| 7     | AEThreshold   | A threshold on the autoencoder reconstruction error of the given input.              | [link]() |
-| 8     | DeepEnsemble  | Similar to MCDropout, except we average over the predictions of 5 networks that are trained independently with adversarial data augmentation.| [link]() | 
-| 9     | PixelCNN++    | A threshold on the log-likelihood of each input.                                     | [link]() |
-| 10    | OpenMax       | Calibrated probability with additional unknown class and an SVM on top.              | [link]() |
-| 11    | K-MNNSVM, K-BNNSVM, K-VNNSVM | Similar to KNNSVM, but uses the latent representation of different (variational)-autoencoders. | [link]() |
+| 1     | PbThreshold   | A threshold on the maximum probability.                                              | [link](methods/base_threshold.py) |
+| 2     | ScoreSVM      | A SVM on the logits (pre-softmax).                                                   | [link](methods/score_svm.py) |
+| 3     | LogisticSVM   | A SVM on the logits of a network trained with k-way logistic loss function.          | [link](methods/logistic_threshold.py) | 
+| 4     | MCDropout     | MC-Dropout evaluation over 7 samples followed by a threshold on the entropy of average prediction.   | [link](methods/mcdropout.py) | 
+| 5     | KNNSVM        | An SVM on the sorted Euclidean distance to K-nearest-neighbours.                     | [link](methods/nearest_neighbor.py) |
+| 6     | ODIN          | A threshold on the scaled softmax outputs of the perturbed input.                    | [link](methods/odin.py) |
+| 7     | AEThreshold   | A threshold on the autoencoder reconstruction error of the given input.              | [link](methods/reconstruction_error.py) |
+| 8     | DeepEnsemble  | Similar to MCDropout, except we average over the predictions of 5 networks that are trained independently with adversarial data augmentation.| [link](methods/deep_ensemble.py) | 
+| 9     | PixelCNN++    | A threshold on the log-likelihood of each input.                                     | [link](methods/pixelcnn.py) |
+| 10    | OpenMax       | Calibrated probability with additional unknown class and an SVM on top.              | [link](methods/openmax.py) |
+| 11    | K-MNNSVM, K-BNNSVM, K-VNNSVM | Similar to KNNSVM, but uses the latent representation of different (variational)-autoencoders. | [link](methods/nearest_neighbor.py) |
 
 # Setup
 This project has been tested on:
