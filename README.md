@@ -114,7 +114,8 @@ In a new terminal tab run this:
 If you execute the code on a remote server, but you want to run `visdom` on your local machine, you can do a remote (reverse) port forwarding for port `8097` to your machine with SSH like this:
 
 ```bash
-ssh -R 8097:localhost:8097 user@machine
+# Run this from the local machine to connect to the remote machine which will execute the scripts.
+ssh -R 8097:localhost:8097 user@remote-machine
 ```
 
 With this you can have a single `visdom` running locally, but having multiple machines reporting to the same `visdom`.
