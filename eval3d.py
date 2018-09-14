@@ -45,6 +45,17 @@ if args.exp == 'test-eval':
     method_tasks     = [
                         'prob_threshold/0',
                         ]
+########################################################
+"""
+    Default Evaluation
+"""
+if len(d1_tasks) == 0:
+    d1_tasks     = ['MNIST']
+    d2_tasks     = ['UniformNoise', 'NormalNoise', 'MNIST', 'FashionMNIST', 'NotMNIST', 'CIFAR10', 'CIFAR100', 'STL10', 'TinyImagenet']
+    d3_tasks     = ['UniformNoise', 'NormalNoise', 'MNIST', 'FashionMNIST', 'NotMNIST', 'CIFAR10', 'CIFAR100', 'STL10', 'TinyImagenet']
+    method_tasks     = [
+                        'prob_threshold/0',
+                        ]
 
 # Construct the dataset cache
 ds_cache = {}
