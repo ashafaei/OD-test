@@ -1,7 +1,7 @@
 # Publication Information
 This repository accompanies the paper "Does Your Model Know the Digit 6 Is Not a Cat? A Less Biased Evaluation of Outlier Detectors." [[ArXiv](https://arxiv.org/abs/1809.04729)].
 
-Keywords: out-of-distribution sample detection, outlier detection, anomlay detection, deep neural networks.
+Keywords: out-of-distribution sample detection, outlier detection, anomaly detection, deep neural networks.
 
 Bibtex:
 ```bibtex
