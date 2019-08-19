@@ -1,26 +1,34 @@
 # Publication Information
-This repository accompanies the paper "Does Your Model Know the Digit 6 Is Not a Cat? A Less Biased Evaluation of Outlier Detectors." [[ArXiv](https://arxiv.org/abs/1809.04729)].
+This repository accompanies the paper:
+
+- A. Shafaei, J. J. Little, Mark Schmidt. A Less Biased Evaluation of OOD Sample Detectors. in _BMVC_ 2019.
+- "Does Your Model Know the Digit 6 Is Not a Cat? A Less Biased Evaluation of Outlier Detectors." [[ArXiv](https://arxiv.org/abs/1809.04729)].
 
 Keywords: out-of-distribution sample detection, outlier detection, anomaly detection, deep neural networks.
 
-Bibtex:
+**Bibtex**:
 ```bibtex
-@article{Shafaei2018,
-author = {Shafaei, Alireza and Schmidt, Mark and Little, James J.},
-journal = {ArXiv e-prints},
-title = {{Does Your Model Know the Digit 6 Is Not a Cat? A Less Biased Evaluation of Outlier Detectors}},
-year = {2018}
+@inproceedings{Shafaei2019,
+    title={A Less Biased Evaluation of OOD Sample Detectors},
+    author={Alireza Shafaei, Mark Schmidt and James Little},
+    year={2019},
+    booktitle={Proceedings of the British Machine Vision Conference (BMVC)},
+    publisher={BMVA Press},
 }
 ```
+
+* **Raw Results** with a list of experiments: [[Google Sheets](https://docs.google.com/spreadsheets/d/1OgDgxngBgDZyQ22FX85fA6tsu2ke8yuCz--IrjhSiYE/edit?usp=sharing)]
+* **Experiment Files**: Get the pretrained models [[Document](docs/pretrained.md)]
 
 # Introduction
 ![Fig1](docs/fig1.png)
 
-The problem of interest is out-of-distribution (OOD) sample detection. In our paper, we present an evaluation framework called OD-test for methods that address OOD sample detection. In this repository, we implement the OD-test for image recognition problems with deep neural networks. You can replicate all the results of our paper here.
+The problem of interest is out-of-distribution (OOD) sample detection. In our paper, we present an evaluation framework called OD-test for methods that address OOD sample detection. We show that the traditional evaluation strategy yields overly-optimistic results, hence the need for more reliable evaluation. In this repository, we implement the OD-test for image recognition problems with deep neural networks. You can replicate all the results of our paper here.
 
-The OOD detection problem arises in settings where the input of the neural network in a deployed system is not guaranteed to follow a fixed distribution. OOD inputs can lead to unpredictable behaviour in neural network pipelines. For instance, the neural network might be trained to recognize the MNIST digits, but then when deployed, it might encounter a natural image which it has never seen. Counter-intuitively, the trained neural networks often fail silently and make over-confident predictions on previously unseen input. We need to develop methods that detect OOD samples to prevent unpredictable behaviour. Unfortunately, we cannot filter out these problematic instances by thresholding the output probability of the most likely class. In the above image, we show the output of several popular CNNs trained on ImageNet but tested on random images that do not belong to ImageNet.
+The OOD detection problem arises in settings where the input of the neural network in a deployed system is not guaranteed to follow a fixed distribution. OOD inputs can lead to unpredictable behaviour in neural network pipelines. For instance, the neural network might be trained to recognize the MNIST digits, but then when deployed, it might encounter a natural image which it has never seen. Counter-intuitively, the trained neural networks often fail silently and make over-confident predictions on previously unseen input. We need to develop methods that detect OOD samples to prevent unpredictable behaviour. Unfortunately, we cannot filter out these problematic instances by thresholding the output probability of the most likely class. In the above image, we show the output of several popular CNNs trained on ImageNet but tested on random benign images that do not belong to ImageNet.
 
 The code in this repository allows
+
 1. Painless replication of all the results in the paper. You can run from scratch or use the pretrained models.
 2. Easy method development and testing for future work.
 3. Quickly adding more datasets for evaluation.
@@ -28,6 +36,7 @@ The code in this repository allows
 I have spent a long time refining this code. The final result is a modularized codebase that is reasonably efficient. I recommend that you take the time to understand the general architecture of the project before making substantial changes. I welcome pull-requests. In particular, if you wish to add a new method to the evaluation or improve a part of the code. You can ask questions in [Issues](https://github.com/ashafaei/OD-test/issues).
 
 ## What is next?
+
 - First step: [setting up the project](#setup).
 - Replicating all the results of the paper.
     - Training the *reference models* with an explanation of the training mechanics [here](docs/train_reference_models.md).
