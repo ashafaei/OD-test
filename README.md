@@ -1,7 +1,7 @@
 # Publication Information
 This repository accompanies the paper:
 
-- A. Shafaei, J. J. Little, Mark Schmidt. A Less Biased Evaluation of OOD Sample Detectors. in _BMVC_ 2019.
+- A. Shafaei, J. J. Little, Mark Schmidt. A Less Biased Evaluation of Out-of-distribution Sample Detectors. in _BMVC_ 2019.
 - "Does Your Model Know the Digit 6 Is Not a Cat? A Less Biased Evaluation of Outlier Detectors." [[ArXiv](https://arxiv.org/abs/1809.04729)].
 
 Keywords: out-of-distribution sample detection, outlier detection, anomaly detection, deep neural networks.
@@ -9,7 +9,7 @@ Keywords: out-of-distribution sample detection, outlier detection, anomaly detec
 **Bibtex**:
 ```bibtex
 @inproceedings{Shafaei2019,
-    title={A Less Biased Evaluation of OOD Sample Detectors},
+    title={A Less Biased Evaluation of Out-of-distribution Sample Detectors},
     author={Alireza Shafaei, Mark Schmidt and James Little},
     year={2019},
     booktitle={Proceedings of the British Machine Vision Conference (BMVC)},
