@@ -9,11 +9,10 @@ Keywords: out-of-distribution sample detection, outlier detection, anomaly detec
 **Bibtex**:
 ```bibtex
 @inproceedings{Shafaei2019,
-    title={A Less Biased Evaluation of Out-of-distribution Sample Detectors},
-    author={Alireza Shafaei, Mark Schmidt and James Little},
-    year={2019},
-    booktitle={Proceedings of the British Machine Vision Conference (BMVC)},
-    publisher={BMVA Press},
+    author = {Shafaei, Alireza and Schmidt, Mark and Little, James},
+    booktitle = {BMVC},
+    title = {{A Less Biased Evaluation of Out-of-distribution Sample Detectors}},
+    year = {2019}
 }
 ```
 
