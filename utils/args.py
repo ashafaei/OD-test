@@ -41,7 +41,7 @@ if not args.no_cuda:
 else:
     args.device = torch.device("cpu")
 
-assert torch.cuda.is_available(), colored('A cuda device is required!', 'red')
+assert torch.cuda.is_available(), 'A cuda device is required!'
 
 # Reproducability.
 # Set up the random seed based on the arg.
@@ -76,7 +76,7 @@ for exp_id in exp_list:
 if len(exp_list) == 1:
     args.experiment_path = exp_paths[0]
 else:
-    print(colored('Operating in multi experiment mode.', 'red'))
+    print('Operating in multi experiment mode.')
     args.experiment_path = exp_paths
 
 args.hostname = socket.gethostname()
