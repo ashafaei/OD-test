@@ -1,12 +1,9 @@
-from __future__ import print_function
-
 import torch.nn as nn
 import torch.optim as optim
 
 from torch.utils.data import DataLoader
 from utils.iterative_trainer import IterativeTrainerConfig
 from utils.logger import Logger
-from termcolor import colored
 
 from methods import AbstractModelWrapper, SVMLoss
 from methods.base_threshold import ProbabilityThreshold
@@ -52,7 +49,7 @@ class ScoreSVM(ProbabilityThreshold):
         train_ds, valid_ds = dataset.split_dataset(0.8)
 
         if self.args.D1 in Global.mirror_augment:
-            print(colored("Mirror augmenting %s"%self.args.D1, 'green'))
+            print(self.args.D1)
             new_train_ds = train_ds + MirroredDataset(train_ds)
             train_ds = new_train_ds
 
@@ -63,6 +60,7 @@ class ScoreSVM(ProbabilityThreshold):
         # Set up the criterion
         # margin must be non-zero.
         criterion = SVMLoss(margin=1.0).cuda()
+        criterion.size_average = True
 
         # Set up the model
         model = ScoreSVMModelWrapper(self.base_model).cuda()

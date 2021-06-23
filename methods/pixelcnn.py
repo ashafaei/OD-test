@@ -75,6 +75,7 @@ class PixelCNN(ProbabilityThreshold):
 
         # Set up the criterion
         criterion = PCNN_Loss(one_d = (model.input_channels==1)).to(self.args.device)
+        criterion.size_average = True
 
         # Set up the config
         config = IterativeTrainerConfig()
@@ -127,6 +128,7 @@ class PixelCNN(ProbabilityThreshold):
         # To make the threshold learning, actually threshold learning
         # the margin must be set to 0.
         criterion = SVMLoss(margin=0.0).to(self.args.device)
+        criterion.size_average = True
 
         # Set up the model
         model = PixelCNNModelWrapper(self.base_model).to(self.args.device)

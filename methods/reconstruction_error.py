@@ -80,8 +80,10 @@ class ReconstructionThreshold(ProbabilityThreshold):
         criterion = None
         if self.default_model == 0:
             criterion = nn.BCEWithLogitsLoss().to(self.args.device)
+            criterion.size_average = True
         else:
             criterion = nn.MSELoss().to(self.args.device)
+            criterion.size_average = True
             model.default_sigmoid = True
 
         # Set up the config
@@ -152,6 +154,7 @@ class ReconstructionThreshold(ProbabilityThreshold):
         # To make the threshold learning, actually threshold learning
         # the margin must be set to 0.
         criterion = SVMLoss(margin=0.0).to(self.args.device)
+        criterion.size_average = True
 
         # Set up the model
         model = RTModelWrapper(self.base_model, loss_variant=self.default_model).to(self.args.device)

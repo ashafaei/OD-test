@@ -78,6 +78,7 @@ class MCDropout(ProbabilityThreshold):
         # To make the threshold learning, actually threshold learning
         # the margin must be set to 0.
         criterion = SVMLoss(margin=0.0).to(self.args.device)
+        criterion.size_average = True
 
         # Set up the model
         model = MCDropoutModelWrapper(self.base_model).to(self.args.device)

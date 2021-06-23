@@ -66,6 +66,7 @@ class BinaryClassifier(ProbabilityThreshold):
 
         # Set up the criterion
         criterion = nn.BCEWithLogitsLoss().cuda()
+        criterion.size_average = True
 
         # Set up the model
         model = Global.get_ref_classifier(self.args.D1)[self.default_model]().to(self.args.device)
@@ -102,7 +103,7 @@ class BinaryClassifier(ProbabilityThreshold):
         
         if hasattr(model, 'train_config'):
             model_train_config = model.train_config()
-            for key, value in model_train_config.iteritems():
+            for key, value in model_train_config.items():
                 print('Overriding config.%s'%key)
                 config.__setattr__(key, value)
 

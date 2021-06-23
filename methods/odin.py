@@ -49,6 +49,7 @@ class ODINModelWrapper(AbstractModelWrapper):
         self.H.register_buffer('temperature', torch.FloatTensor([1./temperature]))
 
         self.criterion = nn.CrossEntropyLoss()
+        criterion.size_average = True
 
     def subnetwork_eval(self, x):
         # We have to backpropagate through the input.
@@ -117,6 +118,7 @@ class ODIN(ProbabilityThreshold):
         # To make the threshold learning, actually threshold learning
         # the margin must be set to 0.
         criterion = SVMLoss(margin=0.0).to(self.args.device)
+        criterion.size_average = True
 
         # Set up the model
         model = ODINModelWrapper(self.base_model, epsilon=epsilon, temperature=temperature).to(self.args.device)

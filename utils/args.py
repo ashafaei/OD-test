@@ -1,12 +1,10 @@
 from __future__ import print_function
 
 import os
-assert 'VIRTUAL_ENV' in os.environ, 'Please activate the environment first.'
 
 import random
 import socket
 from argparse import ArgumentParser
-from termcolor import colored
 
 import torch
 import torch.backends.cudnn as cudnn
@@ -57,7 +55,8 @@ cudnn.benchmark = True
 # Set up the default workspace for each experiment.
 exp_data = []
 workspace_path = os.path.abspath('workspace')
-assert os.path.isdir(workspace_path), colored('Have you run setup.py?', 'red')
+if not os.path.isdir(workspace_path):
+    os.makedirs(os.path.abspath('workspace'))
 
 # Make the experiment folder(s).
 # In some usecases you may specify multiple comma separated experiments.

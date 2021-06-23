@@ -64,7 +64,7 @@ def get_classifier_config(args, model, dataset, mid=0):
     
     if hasattr(model.model, 'train_config'):
         model_train_config = model.model.train_config()
-        for key, value in model_train_config.iteritems():
+        for key, value in model_train_config.items():
             print('Overriding config.%s'%key)
             config.__setattr__(key, value)
 

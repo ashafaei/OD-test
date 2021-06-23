@@ -55,12 +55,12 @@ class AbstractModelWrapper(nn.Module):
         output = None
         cache  = None
 
-        if self.cache.has_key(group):
+        if group in self.cache:
             cache = self.cache[group]
         else:
             cache = {}
 
-        all_indices = [cache.has_key(ind) for ind in indices]
+        all_indices = [ind in cache for ind in indices]
         if torch.ByteTensor(all_indices).all():
             # Then fetch from the cache.
             all_outputs = [cache[ind] for ind in indices]
@@ -109,16 +109,12 @@ class SVMLoss(nn.Module):
         return loss
 
 def get_cached(model, dataset_loader, device):
-    from tqdm import tqdm
 
     outputX, outputY = [], []
     with torch.set_grad_enabled(False):
-        with tqdm(total=len(dataset_loader)) as pbar:
-            pbar.set_description('Caching data')
-            for i, (image, label) in enumerate(dataset_loader):
-                pbar.update()
-                input, target = image.to(device), label.to(device)
-                new_input = model.subnetwork_eval(input)
-                outputX.append(new_input)
-                outputY.append(target)
+        for i, (image, label) in enumerate(dataset_loader):
+            input, target = image.to(device), label.to(device)
+            new_input = model.subnetwork_eval(input)
+            outputX.append(new_input)
+            outputY.append(target)
     return torch.cat(outputX, 0), torch.cat(outputY, 0)

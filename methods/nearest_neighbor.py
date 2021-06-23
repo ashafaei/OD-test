@@ -11,8 +11,6 @@ import models as Models
 from datasets import MirroredDataset
 from methods.score_svm import ScoreSVM
 
-from tqdm import tqdm
-
 class KNNModel(nn.Module):
     """
         This is our Nearest Neighbour "neural network".
@@ -74,11 +72,8 @@ class KNNSVM(ScoreSVM):
         n_dim  = dataset[0][0].numel()
         self.base_data = torch.zeros(n_data, n_dim, dtype=torch.float32)
 
-        with tqdm(total=n_data) as pbar:
-            pbar.set_description('Caching X_train for %d-nn'%self.default_model)
-            for i, (x, _) in enumerate(dataset):
-                self.base_data[i].copy_(x.view(-1))
-                pbar.update()
+        for i, (x, _) in enumerate(dataset):
+            self.base_data[i].copy_(x.view(-1))
         # self.base_data = torch.cat([x.view(1, -1) for x,_ in dataset])
         self.base_model = KNNModel(self.base_data, k=self.default_model).to(self.args.device)
         self.base_model.eval()
@@ -170,14 +165,11 @@ class AEKNNSVM(ScoreSVM):
         self.base_data = torch.zeros(n_data, n_dim, dtype=torch.float32)
         base_ind = 0
         with torch.set_grad_enabled(False):
-            with tqdm(total=len(all_loader)) as pbar:
-                pbar.set_description('Caching X_train for %d-nn'%self.default_model)
-                for i, (x, _) in enumerate(all_loader):
-                    n_data = x.size(0)
-                    output = base_model.encode(x.to(self.args.device)).data
-                    self.base_data[base_ind:base_ind+n_data].copy_(output)
-                    base_ind = base_ind + n_data
-                    pbar.update()
+            for i, (x, _) in enumerate(all_loader):
+                n_data = x.size(0)
+                output = base_model.encode(x.to(self.args.device)).data
+                self.base_data[base_ind:base_ind+n_data].copy_(output)
+                base_ind = base_ind + n_data
         # self.base_data = torch.cat([x.view(1, -1) for x,_ in dataset])
         self.base_model = AEKNNModel(base_model, self.base_data, k=self.default_model).to(self.args.device)
         self.base_model.eval()
