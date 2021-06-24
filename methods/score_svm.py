@@ -43,7 +43,7 @@ class ScoreSVM(ProbabilityThreshold):
     
     def get_H_config(self, dataset, will_train=True):
         print("Preparing training D1+D2 (H)")
-        print("Mixture size: %s"%colored('%d'%len(dataset), 'green'))
+        print("Mixture size: %s"%len(dataset))
 
         # 80%, 20% for local train+test
         train_ds, valid_ds = dataset.split_dataset(0.8)

@@ -68,7 +68,7 @@ class LogisticSVM(ScoreSVM):
         if not path.isfile(best_h_path):      
             raise NotImplementedError("Please use setup_model to pretrain the networks first!")
         else:
-            print(colored('Loading H1 model from %s'%best_h_path, 'red'))
+            print('Loading H1 model from %s'%best_h_path)
             config.model.load_state_dict(torch.load(best_h_path))
         
         trainer.run_epoch(0, phase='all')
