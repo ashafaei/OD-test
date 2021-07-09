@@ -68,6 +68,7 @@ import methods.logistic_threshold as KL
 import methods.binary_classifier as BinClass
 import methods.score_svm as SSVM
 import methods.mcdropout as MCD
+import methods.deep_ensemble as DE
 
 all_methods = {
     'prob_threshold':   BT.ProbabilityThreshold,
@@ -75,6 +76,7 @@ all_methods = {
     'logistic_svm':     KL.LogisticSVM,
     'mcdropout':        MCD.MCDropout,
     'binclass':         BinClass.BinaryClassifier,
+    'deep_ensemble':    DE.DeepEnsemble,
 }
 
 ##################################################################
