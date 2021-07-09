@@ -223,20 +223,6 @@ class ProbabilityThreshold(AbstractMethodInterface):
                 h_config.logger.log('LRs', lrs, epoch)
                 h_config.logger.get_measure('LRs').legend = ['LR%d'%i for i in range(len(lrs))]
 
-                #viz_params = ['threshold', 'transfer']
-                #for viz_param in viz_params:
-                #    if hasattr(h_config.model, 'H') and hasattr(h_config.model.H, viz_param):
-                #        h_config.logger.log(viz_param, getattr(h_config.model.H, viz_param).cpu().numpy(), epoch-1)
-                #        h_config.logger.get_measure(viz_param).legend = [viz_param]
-                #        if h_config.visualize:
-                #            h_config.logger.get_measure(viz_param).visualize_all_epochs(trainer.visdom)
-
-                #if h_config.visualize:
-                #    # Show the average losses for all the phases in one figure.
-                #    h_config.logger.visualize_average_keys('.*_loss', 'Average Loss', trainer.visdom)
-                #    h_config.logger.visualize_average_keys('.*_accuracy', 'Average Accuracy', trainer.visdom)
-                #    h_config.logger.visualize_average('LRs', trainer.visdom)
-
                 test_average_acc = h_config.logger.get_measure('test_accuracy').mean_epoch()
 
                 # Save the logger for future reference.
