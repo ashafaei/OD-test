@@ -65,10 +65,12 @@ dataset_reference_autoencoders = {
 
 import methods.base_threshold as BT
 import methods.logistic_threshold as KL
+import methods.binary_classifier as BinClass
 
 all_methods = {
     'prob_threshold':   BT.ProbabilityThreshold,
     'logistic_svm':     KL.LogisticSVM,
+    'binclass':         BinClass.BinaryClassifier,
 }
 
 ##################################################################

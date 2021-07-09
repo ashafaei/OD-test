@@ -9,7 +9,6 @@ from utils.iterative_trainer import IterativeTrainerConfig, IterativeTrainer
 from utils.logger import Logger
 import os
 from os import path
-from termcolor import colored
 
 from methods.base_threshold import ProbabilityThreshold
 from datasets import MirroredDataset
@@ -48,14 +47,14 @@ class BinaryClassifier(ProbabilityThreshold):
 
     def get_H_config(self, dataset, will_train=True):
         print("Preparing training D1+D2 (H)")
-        print("Mixture size: %s"%colored('%d'%len(dataset), 'green'))
+        print("Mixture size:'%d'", len(dataset))
         import global_vars as Global
 
         # 80%, 20% for local train+test
         train_ds, valid_ds = dataset.split_dataset(0.8)
 
         if self.args.D1 in Global.mirror_augment:
-            print(colored("Mirror augmenting %s"%self.args.D1, 'green'))
+            print("Mirror augmenting %s"%self.args.D1)
             new_train_ds = train_ds + MirroredDataset(train_ds)
             train_ds = new_train_ds
 
@@ -133,7 +132,7 @@ class BinaryClassifier(ProbabilityThreshold):
         trainer = IterativeTrainer(h_config, self.args)
 
         if will_train:
-            print(colored('Training from scratch', 'green'))
+            print('Training from scratch')
             best_accuracy = -1
             trainer.run_epoch(0, phase='test')
             for epoch in range(1, h_config.max_epoch):
@@ -160,7 +159,7 @@ class BinaryClassifier(ProbabilityThreshold):
                 torch.save(h_config.logger.measures, path.join(h_parent, 'logger.%s->%s.pth'%(self.args.D1, self.args.D2)))
 
                 if best_accuracy < test_average_acc:
-                    print('Updating the on file model with %s'%(colored('%.4f'%test_average_acc, 'red')))
+                    print('Updating the on file model with %s'%('%.4f'%test_average_acc))
                     best_accuracy = test_average_acc
                     torch.save(h_config.model.state_dict(), h_path)
 
@@ -173,12 +172,12 @@ class BinaryClassifier(ProbabilityThreshold):
                 trainer.visdom.save([trainer.visdom.env])
 
         # Load the best model.
-        print(colored('Loading H model from %s'%h_path, 'red'))
+        print('Loading H model from %s'%h_path)
         h_config.model.load_state_dict(torch.load(h_path))
         
         trainer.run_epoch(0, phase='testU')
         test_average_acc = h_config.logger.get_measure('testU_accuracy').mean_epoch(epoch=0)
-        print("Valid/Test average accuracy %s"%colored('%.4f%%'%(test_average_acc*100), 'red'))
+        print("Valid/Test average accuracy %s"%('%.4f%%'%(test_average_acc*100)))
         self.H_class = h_config.model
         self.H_class.eval()
         return test_average_acc
