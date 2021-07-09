@@ -5,7 +5,6 @@ import errno
 import torch
 import torch.utils.data as data
 from PIL import Image
-from termcolor import colored
 import torchvision.transforms as transforms
 from datasets import SubDataset, AbstractDomainInterface, ExpandRGBChannels
 
@@ -243,7 +242,7 @@ class TinyImagenet(AbstractDomainInterface):
         if os.path.isfile(index_file):
             train_indices = torch.load(index_file)
         else:
-            print(colored('GENERATING PERMUTATION FOR <TinyImagenet train>', 'red'))
+            print('GENERATING PERMUTATION FOR <TinyImagenet train>')
             train_indices = torch.randperm(len(self.ds_train))
             torch.save(train_indices, index_file)
 
