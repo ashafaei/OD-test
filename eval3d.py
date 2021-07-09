@@ -17,8 +17,12 @@ if args.exp == 'master':
     d2_tasks     = ['UniformNoise', 'NormalNoise', 'MNIST', 'FashionMNIST']
     d3_tasks     = ['UniformNoise', 'NormalNoise', 'MNIST', 'FashionMNIST']
     method_tasks = [
+                    'mcdropout/0',
                     'prob_threshold/0',     'prob_threshold/1',
                     'logistic_svm/0',       'logistic_svm/1',
+                    'score_svm/0',          'score_svm/1',
+                    'binclass/0',           'binclass/1',
+                    'deep_ensemble/0',      'deep_ensemble/1',
                     ]
 ########################################################
 """
