@@ -6,6 +6,8 @@ This is a development of Shafei's original OD-test. The goal is to achieve the f
 - Add in more support for Distributed Pytorch.
 - Add new models, methods etc from the huge number published since Shafei's paper.
 
+Very little is currently complete! I'll update this readme as we go.
+
 Original Readme:
 
 # Publication Information
