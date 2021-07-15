@@ -1,3 +1,13 @@
+# OD-Test Python 3 / Serial version
+
+This is a development of Shafei's original OD-test. The goal is to achieve the following:
+- Upgrade to Python 3.
+- Removal of libraries not easily usable in a serialized/HPC context such as termcolor and visdom.
+- Add in more support for Distributed Pytorch.
+- Add new models, methods etc from the huge number published since Shafei's paper.
+
+Original Readme:
+
 # Publication Information
 This repository accompanies the paper:
 
