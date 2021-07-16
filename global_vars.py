@@ -90,6 +90,7 @@ import methods.nearest_neighbor as KNN
 import methods.score_svm as SSVM
 import methods.mcdropout as MCD
 import methods.deep_ensemble as DE
+import methods.odin as ODIN
 
 all_methods = {
     'prob_threshold':   BT.ProbabilityThreshold,
@@ -102,6 +103,7 @@ all_methods = {
     'vaeaeknn':         KNN.VAEKNNSVM,
     'binclass':         BinClass.BinaryClassifier,
     'deep_ensemble':    DE.DeepEnsemble,
+    'odin':             ODIN.ODIN,
 }
 
 ##################################################################
