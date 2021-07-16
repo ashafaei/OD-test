@@ -52,16 +52,6 @@ mirror_augment = {
 import models.classifiers as CLS
 import models.autoencoders as AES
 
-"""
-    Each dataset has a list of compatible neural netwok architectures.
-    Your life would be simpler if you keep the same family as the same index within each dataset.
-    For instance, VGGs are all 0 and Resnets are all 1.
-"""
-dataset_reference_classifiers = {
-    'MNIST':                  [CLS.MNIST_VGG,         CLS.MNIST_Resnet],
-    'FashionMNIST':           [CLS.MNIST_VGG,         CLS.MNIST_Resnet]
-}
-
 class ModelFactory(object):
     def __init__(self, parent_class, **kwargs):
         self.parent_class = parent_class
@@ -69,14 +59,31 @@ class ModelFactory(object):
     def __call__(self):
         return self.parent_class(**self.kwargs)
 
+
+"""
+    Each dataset has a list of compatible neural netwok architectures.
+    Your life would be simpler if you keep the same family as the same index within each dataset.
+    For instance, VGGs are all 0 and Resnets are all 1.
+"""
+dataset_reference_classifiers = {
+    'MNIST':                  [CLS.MNIST_VGG,         CLS.MNIST_Resnet],
+    'FashionMNIST':           [CLS.MNIST_VGG,         CLS.MNIST_Resnet],
+    'CIFAR10':                [CLS.CIFAR10_VGG,       CLS.CIFAR10_Resnet],
+    'CIFAR100':               [CLS.CIFAR100_VGG,      CLS.CIFAR100_Resnet],
+}
+
 dataset_reference_autoencoders = {
     'MNIST':              [ModelFactory(AES.Generic_AE, dims=(1, 28, 28), max_channels=256, depth=8, n_hidden=96)],
-    'FashionMNIST':       [ModelFactory(AES.Generic_AE, dims=(1, 28, 28), max_channels=256, depth=8, n_hidden=96)]
+    'FashionMNIST':       [ModelFactory(AES.Generic_AE, dims=(1, 28, 28), max_channels=256, depth=8, n_hidden=96)],
+    'CIFAR10':            [ModelFactory(AES.Generic_AE, dims=(3, 32, 32), max_channels=512, depth=10, n_hidden=256)],
+    'CIFAR100':           [ModelFactory(AES.Generic_AE, dims=(3, 32, 32), max_channels=512, depth=10, n_hidden=256)],
 }
 
 dataset_reference_vaes = {
     'MNIST':              [ModelFactory(AES.Generic_VAE, dims=(1, 28, 28), max_channels=256, depth=8, n_hidden=96)],
     'FashionMNIST':       [ModelFactory(AES.Generic_VAE, dims=(1, 28, 28), max_channels=256, depth=8, n_hidden=96)],
+    'CIFAR10':            [ModelFactory(AES.Generic_VAE, dims=(3, 32, 32), max_channels=512, depth=10, n_hidden=256)],
+    'CIFAR100':           [ModelFactory(AES.Generic_VAE, dims=(3, 32, 32), max_channels=512, depth=10, n_hidden=256)],
 }
 
 """
