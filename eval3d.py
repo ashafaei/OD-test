@@ -21,6 +21,7 @@ if args.exp == 'master':
                     'prob_threshold/0',     'prob_threshold/1',
                     'logistic_svm/0',       'logistic_svm/1',
                     'score_svm/0',          'score_svm/1',
+                    'binclass/0',           'binclass/1',
                     'deep_ensemble/0',      'deep_ensemble/1',
                     ]
 ########################################################
@@ -33,6 +34,7 @@ if args.exp == 'test-eval':
     d3_tasks     = ['UniformNoise', 'NormalNoise']
     method_tasks     = [
                         'prob_threshold/0',
+                        'binclass/0',
                         ]
 ########################################################
 """

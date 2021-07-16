@@ -36,6 +36,7 @@ class MNIST_VGG(nn.Module):
         self.cfg = [64, 'M', 128, 128, 'M', 256, 256, 'M', 512, 512, 'M']
         self.model = VGG.VGG(self.make_layers(self.cfg, batch_norm=True), num_classes=10)
         # MNIST would have a different sized feature map.
+        self.model.avgpool = nn.AdaptiveAvgPool2d((1,1))
         self.model.classifier = nn.Sequential(
             nn.Linear(512 * 1 * 1, 256), nn.ReLU(True), nn.Dropout(),
             nn.Linear(256, 256), nn.ReLU(True), nn.Dropout(),
@@ -121,6 +122,7 @@ class CIFAR10_VGG(nn.Module):
         self.cfg = [64, 64, 'M', 128, 128, 'M', 256, 256, 256, 'M', 512, 512, 512, 'M', 512, 512, 512]
         self.model = VGG.VGG(VGG.make_layers(self.cfg, batch_norm=True), num_classes=10)
         # Cifar 10 would have a different sized feature map.
+        self.model.avgpool = nn.AdaptiveAvgPool2d((2,2))
         self.model.classifier = nn.Sequential(
             nn.Linear(512 * 2 * 2, 4096), nn.ReLU(True), nn.Dropout(),
             nn.Linear(4096, 4096), nn.ReLU(True), nn.Dropout(),
@@ -206,6 +208,7 @@ class CIFAR100_VGG(nn.Module):
         self.cfg = [64, 64, 'M', 128, 128, 'M', 256, 256, 256, 'M', 512, 512, 512, 'M', 512, 512, 512]
         self.model = VGG.VGG(VGG.make_layers(self.cfg, batch_norm=True), num_classes=100)
         # Cifar 10 would have a different sized feature map.
+        self.model.avgpool = nn.AdaptiveAvgPool2d((2,2))
         self.model.classifier = nn.Sequential(
             nn.Linear(512 * 2 * 2, 4096), nn.ReLU(True), nn.Dropout(),
             nn.Linear(4096, 4096), nn.ReLU(True), nn.Dropout(),
@@ -291,6 +294,7 @@ class STL10_VGG(nn.Module):
         self.cfg = [64, 64, 'M', 128, 128, 'M', 256, 256, 256, 'M', 512, 512, 512, 'M', 512, 512, 512, 'M']
         self.model = VGG.VGG(VGG.make_layers(self.cfg, batch_norm=True), num_classes=10)
         # Cifar 10 would have a different sized feature map.
+        self.model.avgpool = nn.AdaptiveAvgPool2d((3,3))
         self.model.classifier = nn.Sequential(
             nn.Linear(512 * 3 * 3, 4096), nn.ReLU(True), nn.Dropout(),
             nn.Linear(4096, 4096), nn.ReLU(True), nn.Dropout(),
@@ -375,6 +379,7 @@ class TinyImagenet_VGG(nn.Module):
         self.cfg = [64, 64, 'M', 128, 128, 'M', 256, 256, 256, 'M', 512, 512, 512, 'M', 512, 512, 512, 'M']
         self.model = VGG.VGG(VGG.make_layers(self.cfg, batch_norm=True), num_classes=200)
         # TinyImagenet would have a different sized feature map.
+        self.model.avgpool = nn.AdaptiveAvgPool2d((2,2))
         self.model.classifier = nn.Sequential(
             nn.Linear(512 * 2 * 2, 4096), nn.ReLU(True), nn.Dropout(),
             nn.Linear(4096, 4096), nn.ReLU(True), nn.Dropout(),

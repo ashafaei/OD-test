@@ -80,7 +80,7 @@ dataset_reference_autoencoders = {
 
 import methods.base_threshold as BT
 import methods.logistic_threshold as KL
-#import methods.binary_classifier as BinClass
+import methods.binary_classifier as BinClass
 import methods.score_svm as SSVM
 import methods.mcdropout as MCD
 import methods.deep_ensemble as DE
@@ -90,7 +90,7 @@ all_methods = {
     'score_svm':        SSVM.ScoreSVM,
     'logistic_svm':     KL.LogisticSVM,
     'mcdropout':        MCD.MCDropout,
-#    'binclass':         BinClass.BinaryClassifier,
+    'binclass':         BinClass.BinaryClassifier,
     'deep_ensemble':    DE.DeepEnsemble,
 }
 

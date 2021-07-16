@@ -12,6 +12,7 @@ from os import path
 
 from methods.base_threshold import ProbabilityThreshold
 from datasets import MirroredDataset
+from torchinfo import summary
 
 class BinaryModelWrapper(nn.Module):
     """ The wrapper class for H.
@@ -63,6 +64,9 @@ class BinaryClassifier(ProbabilityThreshold):
         valid_loader = DataLoader(valid_ds, batch_size=self.args.batch_size, num_workers=self.args.workers, pin_memory=True)
         all_loader   = DataLoader(dataset,  batch_size=self.args.batch_size, num_workers=self.args.workers, pin_memory=True)
 
+        im,l = dataset[0]
+        input_size = im.size() #datasets in pytorch are assumed to be uniform size
+
         # Set up the criterion
         criterion = nn.BCEWithLogitsLoss().cuda()
         criterion.size_average = True
@@ -72,7 +76,18 @@ class BinaryClassifier(ProbabilityThreshold):
         self.add_identifier = model.__class__.__name__
         if hasattr(model, 'preferred_name'):
             self.add_identifier = model.preferred_name()
+
+        #print("model before")
+        #summary(model, input_size=(self.args.batch_size, input_size[0], input_size[1], input_size[2]), depth=10)
+
         model = BinaryModelWrapper(model).to(self.args.device)
+
+        #print("model after")
+        #summary(model, input_size=(self.args.batch_size, input_size[0], input_size[1], input_size[2]), depth=10)
+
+        g = summary(model, input_size=(self.args.batch_size, input_size[0], input_size[1], input_size[2]), depth=100, verbose=0)
+        model_ram = g.to_megabytes(g.total_input) + g.float_to_megabytes(g.total_output + g.total_params)
+        print("Estimated Model Size:" + str(model_ram) + " Mb")
 
         # Set up the config
         config = IterativeTrainerConfig()
@@ -81,7 +96,7 @@ class BinaryClassifier(ProbabilityThreshold):
         if hasattr(model, 'preferred_name'):
             base_model_name = model.preferred_name()
 
-        config.name = '_%s[%s](%s->%s)'%(self.__class__.__name__, base_model_name, self.args.D1, self.args.D2)
+        config.name = '_%s[%s](%s-%s)'%(self.__class__.__name__, base_model_name, self.args.D1, self.args.D2)
         config.train_loader = train_loader
         config.valid_loader = valid_loader
         config.phases = {
@@ -119,7 +134,7 @@ class BinaryClassifier(ProbabilityThreshold):
 
         h_path = path.join(self.args.experiment_path, '%s'%(self.__class__.__name__),
                                                       '%d'%(self.default_model),
-                                                      '%s->%s.pth'%(self.args.D1, self.args.D2))
+                                                      '%s-%s.pth'%(self.args.D1, self.args.D2))
         h_parent = path.dirname(h_path)
         if not path.isdir(h_parent):
             os.makedirs(h_parent)
@@ -146,17 +161,11 @@ class BinaryClassifier(ProbabilityThreshold):
                 lrs = [float(param_group['lr']) for param_group in h_config.optim.param_groups]
                 h_config.logger.log('LRs', lrs, epoch)
                 h_config.logger.get_measure('LRs').legend = ['LR%d'%i for i in range(len(lrs))]
-            
-                if h_config.visualize:
-                    # Show the average losses for all the phases in one figure.
-                    h_config.logger.visualize_average_keys('.*_loss', 'Average Loss', trainer.visdom)
-                    h_config.logger.visualize_average_keys('.*_accuracy', 'Average Accuracy', trainer.visdom)
-                    h_config.logger.visualize_average('LRs', trainer.visdom)
 
                 test_average_acc = h_config.logger.get_measure('test_accuracy').mean_epoch()
 
                 # Save the logger for future reference.
-                torch.save(h_config.logger.measures, path.join(h_parent, 'logger.%s->%s.pth'%(self.args.D1, self.args.D2)))
+                torch.save(h_config.logger.measures, path.join(h_parent, 'logger.%s-%s.pth'%(self.args.D1, self.args.D2)))
 
                 if best_accuracy < test_average_acc:
                     print('Updating the on file model with %s'%('%.4f'%test_average_acc))
@@ -167,9 +176,6 @@ class BinaryClassifier(ProbabilityThreshold):
                     break
 
             torch.save({'finished':True}, done_path)
-
-            if h_config.visualize:
-                trainer.visdom.save([trainer.visdom.env])
 
         # Load the best model.
         print('Loading H model from %s'%h_path)
