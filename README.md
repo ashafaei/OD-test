@@ -5,6 +5,7 @@ This is a development of Shafei's original OD-test. The goal is to achieve the f
 - Removal of libraries not easily usable in a serialized/HPC context such as termcolor and visdom.
 - Add in more support for Distributed Pytorch.
 - Add new models, methods etc from the huge number published since Shafei's paper.
+- Replace the classifier-dataset pairing with a factory class that generates a classifer as needed
 
 Very little is currently complete! I'll update this readme as we go.
 
