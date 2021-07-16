@@ -21,7 +21,6 @@ if args.exp == 'master':
                     'prob_threshold/0',     'prob_threshold/1',
                     'logistic_svm/0',       'logistic_svm/1',
                     'score_svm/0',          'score_svm/1',
-                    'binclass/0',           'binclass/1',
                     'deep_ensemble/0',      'deep_ensemble/1',
                     ]
 ########################################################
@@ -49,25 +48,24 @@ if len(d1_tasks) == 0:
 
 # Construct the dataset cache
 ds_cache = {}
-
-for m in [d1_tasks, d2_tasks, d3_tasks]:
-    for d in m:
-        if d not in ds_cache:
-            ds_cache[d] = Global.all_datasets[d]()
-
 results = []
-# If results exists already, just continue where left off.
-results_path = os.path.join(args.experiment_path, 'results.pth')
-if os.path.exists(results_path) and not args.force_run:
-    print ("Loading previous checkpoint")
-    results = torch.load(results_path)
 
 def has_done_before(method, d1, d2, d3):
     for m, ds, dm, dt, mid, a1, a2 in results:
         if m == method and ds == d1 and dm == d2 and dt == d3:
             return True
     return False
+
 if __name__ == "__main__":
+    for m in [d1_tasks, d2_tasks, d3_tasks]:
+        for d in m:
+            if d not in ds_cache:
+                ds_cache[d] = Global.all_datasets[d]()
+    # If results exists already, just continue where left off.
+    results_path = os.path.join(args.experiment_path, 'results.pth')
+    if os.path.exists(results_path) and not args.force_run:
+        print ("Loading previous checkpoint")
+        results = torch.load(results_path)
     for d1 in d1_tasks:
         args.D1 = d1
         for method in method_tasks:
@@ -183,5 +181,5 @@ if __name__ == "__main__":
                     # Take a snapshot after each experiment.
                     torch.save(results, results_path)
 
-for i, (m, ds, dm, dt, mi, a_train, a_test) in enumerate(results):
-    print ('%d\t%s\t%15s\t%-15s\t%.2f%% / %.2f%%'%(i, m, '%s-%s'%(ds, dm), dt, a_train*100, a_test*100))    
+    for i, (m, ds, dm, dt, mi, a_train, a_test) in enumerate(results):
+        print ('%d\t%s\t%15s\t%-15s\t%.2f%% / %.2f%%'%(i, m, '%s-%s'%(ds, dm), dt, a_train*100, a_test*100))    
