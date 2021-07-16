@@ -23,6 +23,11 @@ if args.exp == 'master':
                     'score_svm/0',          'score_svm/1',
                     'binclass/0',           'binclass/1',
                     'deep_ensemble/0',      'deep_ensemble/1',
+                    'knn/1', 'knn/2', 'knn/4', 'knn/8',
+                    'bceaeknn/1', 'vaeaeknn/1', 'mseaeknn/1',
+                    'bceaeknn/2', 'vaeaeknn/2', 'mseaeknn/2',
+                    'bceaeknn/4', 'vaeaeknn/4', 'mseaeknn/4',
+                    'bceaeknn/8', 'vaeaeknn/8', 'mseaeknn/8',
                     ]
 ########################################################
 """
@@ -34,7 +39,7 @@ if args.exp == 'test-eval':
     d3_tasks     = ['UniformNoise', 'NormalNoise']
     method_tasks     = [
                         'prob_threshold/0',
-                        'binclass/0',
+                        'knn/1',
                         ]
 ########################################################
 """
