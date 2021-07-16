@@ -70,6 +70,7 @@ dataset_reference_classifiers = {
     'FashionMNIST':           [CLS.MNIST_VGG,         CLS.MNIST_Resnet],
     'CIFAR10':                [CLS.CIFAR10_VGG,       CLS.CIFAR10_Resnet],
     'CIFAR100':               [CLS.CIFAR100_VGG,      CLS.CIFAR100_Resnet],
+    'STL10':                  [CLS.STL10_VGG,         CLS.STL10_Resnet],
 }
 
 dataset_reference_autoencoders = {
@@ -77,6 +78,7 @@ dataset_reference_autoencoders = {
     'FashionMNIST':       [ModelFactory(AES.Generic_AE, dims=(1, 28, 28), max_channels=256, depth=8, n_hidden=96)],
     'CIFAR10':            [ModelFactory(AES.Generic_AE, dims=(3, 32, 32), max_channels=512, depth=10, n_hidden=256)],
     'CIFAR100':           [ModelFactory(AES.Generic_AE, dims=(3, 32, 32), max_channels=512, depth=10, n_hidden=256)],
+    'STL10':              [ModelFactory(AES.Generic_AE, dims=(3, 96, 96), max_channels=512, depth=12, n_hidden=512)],
 }
 
 dataset_reference_vaes = {
@@ -84,6 +86,7 @@ dataset_reference_vaes = {
     'FashionMNIST':       [ModelFactory(AES.Generic_VAE, dims=(1, 28, 28), max_channels=256, depth=8, n_hidden=96)],
     'CIFAR10':            [ModelFactory(AES.Generic_VAE, dims=(3, 32, 32), max_channels=512, depth=10, n_hidden=256)],
     'CIFAR100':           [ModelFactory(AES.Generic_VAE, dims=(3, 32, 32), max_channels=512, depth=10, n_hidden=256)],
+    'STL10':              [ModelFactory(AES.Generic_VAE, dims=(3, 96, 96), max_channels=512, depth=12, n_hidden=512)],
 }
 
 """

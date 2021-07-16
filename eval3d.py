@@ -13,9 +13,9 @@ import global_vars as Global
 d1_tasks, d2_tasks, d3_tasks, method_tasks = [], [], [], []
 
 if args.exp == 'master':
-    d1_tasks     = ['MNIST', 'FashionMNIST', 'CIFAR10', 'CIFAR100']
-    d2_tasks     = ['UniformNoise', 'NormalNoise', 'MNIST', 'FashionMNIST', 'CIFAR10']
-    d3_tasks     = ['UniformNoise', 'NormalNoise', 'MNIST', 'FashionMNIST', 'CIFAR10']
+    d1_tasks     = ['MNIST', 'FashionMNIST', 'CIFAR10', 'CIFAR100', 'STL10']
+    d2_tasks     = ['UniformNoise', 'NormalNoise', 'MNIST', 'FashionMNIST', 'CIFAR10', 'STL10']
+    d3_tasks     = ['UniformNoise', 'NormalNoise', 'MNIST', 'FashionMNIST', 'CIFAR10', 'STL10' ]
     method_tasks = [
                     'mcdropout/0',
                     'prob_threshold/0',     'prob_threshold/1',
@@ -37,9 +37,9 @@ if args.exp == 'master':
     Test evaluation
 """
 if args.exp == 'test-eval':
-    d1_tasks     = ['MNIST', 'CIFAR10', 'CIFAR100']
-    d2_tasks     = ['UniformNoise', 'NormalNoise', 'CIFAR10', 'CIFAR100']
-    d3_tasks     = ['UniformNoise', 'NormalNoise', 'CIFAR10', 'CIFAR100']
+    d1_tasks     = ['MNIST', 'CIFAR10', 'STL10']
+    d2_tasks     = ['UniformNoise', 'NormalNoise', 'CIFAR10', 'STL10']
+    d3_tasks     = ['UniformNoise', 'NormalNoise', 'CIFAR10', 'STL10']
     method_tasks     = [
                         'prob_threshold/0',
                         ]
