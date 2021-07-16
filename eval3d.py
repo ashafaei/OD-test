@@ -13,9 +13,9 @@ import global_vars as Global
 d1_tasks, d2_tasks, d3_tasks, method_tasks = [], [], [], []
 
 if args.exp == 'master':
-    d1_tasks     = ['MNIST', 'FashionMNIST', 'CIFAR10', 'CIFAR100', 'STL10']
-    d2_tasks     = ['UniformNoise', 'NormalNoise', 'MNIST', 'FashionMNIST', 'CIFAR10', 'STL10']
-    d3_tasks     = ['UniformNoise', 'NormalNoise', 'MNIST', 'FashionMNIST', 'CIFAR10', 'STL10' ]
+    d1_tasks     = ['MNIST', 'FashionMNIST', 'CIFAR10', 'CIFAR100', 'STL10', 'TinyImagenet']
+    d2_tasks     = ['UniformNoise', 'NormalNoise', 'MNIST', 'FashionMNIST', 'NotMNIST', 'CIFAR10', 'CIFAR100', 'STL10', 'TinyImagenet']
+    d3_tasks     = ['UniformNoise', 'NormalNoise', 'MNIST', 'FashionMNIST', 'NotMNIST', 'CIFAR10', 'CIFAR100', 'STL10', 'TinyImagenet']
     method_tasks = [
                     'mcdropout/0',
                     'prob_threshold/0',     'prob_threshold/1',
@@ -38,8 +38,8 @@ if args.exp == 'master':
 """
 if args.exp == 'test-eval':
     d1_tasks     = ['MNIST', 'CIFAR10', 'STL10']
-    d2_tasks     = ['UniformNoise', 'NormalNoise', 'CIFAR10', 'STL10']
-    d3_tasks     = ['UniformNoise', 'NormalNoise', 'CIFAR10', 'STL10']
+    d2_tasks     = ['UniformNoise', 'NormalNoise', 'NotMNIST', 'TinyImagenet']
+    d3_tasks     = ['UniformNoise', 'NormalNoise', 'NotMNIST', 'TinyImagenet']
     method_tasks     = [
                         'prob_threshold/0',
                         ]
@@ -49,8 +49,8 @@ if args.exp == 'test-eval':
 """
 if len(d1_tasks) == 0:
     d1_tasks     = ['MNIST']
-    d2_tasks     = ['UniformNoise', 'NormalNoise', 'MNIST', 'FashionMNIST']
-    d3_tasks     = ['UniformNoise', 'NormalNoise', 'MNIST', 'FashionMNIST']
+    d2_tasks     = ['UniformNoise', 'NormalNoise', 'MNIST', 'FashionMNIST', 'NotMNIST', 'CIFAR10', 'CIFAR100', 'STL10', 'TinyImagenet']
+    d3_tasks     = ['UniformNoise', 'NormalNoise', 'MNIST', 'FashionMNIST', 'NotMNIST', 'CIFAR10', 'CIFAR100', 'STL10', 'TinyImagenet']
     method_tasks     = [
                         'prob_threshold/0',
                         ]

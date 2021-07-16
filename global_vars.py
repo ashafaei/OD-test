@@ -71,6 +71,7 @@ dataset_reference_classifiers = {
     'CIFAR10':                [CLS.CIFAR10_VGG,       CLS.CIFAR10_Resnet],
     'CIFAR100':               [CLS.CIFAR100_VGG,      CLS.CIFAR100_Resnet],
     'STL10':                  [CLS.STL10_VGG,         CLS.STL10_Resnet],
+    'TinyImagenet':           [CLS.TinyImagenet_VGG,  CLS.TinyImagenet_Resnet],
 }
 
 dataset_reference_autoencoders = {
@@ -79,6 +80,7 @@ dataset_reference_autoencoders = {
     'CIFAR10':            [ModelFactory(AES.Generic_AE, dims=(3, 32, 32), max_channels=512, depth=10, n_hidden=256)],
     'CIFAR100':           [ModelFactory(AES.Generic_AE, dims=(3, 32, 32), max_channels=512, depth=10, n_hidden=256)],
     'STL10':              [ModelFactory(AES.Generic_AE, dims=(3, 96, 96), max_channels=512, depth=12, n_hidden=512)],
+    'TinyImagenet':       [ModelFactory(AES.Generic_AE, dims=(3, 64, 64), max_channels=512, depth=12, n_hidden=512)],
 }
 
 dataset_reference_vaes = {
@@ -87,7 +89,9 @@ dataset_reference_vaes = {
     'CIFAR10':            [ModelFactory(AES.Generic_VAE, dims=(3, 32, 32), max_channels=512, depth=10, n_hidden=256)],
     'CIFAR100':           [ModelFactory(AES.Generic_VAE, dims=(3, 32, 32), max_channels=512, depth=10, n_hidden=256)],
     'STL10':              [ModelFactory(AES.Generic_VAE, dims=(3, 96, 96), max_channels=512, depth=12, n_hidden=512)],
+    'TinyImagenet':       [ModelFactory(AES.Generic_VAE, dims=(3, 64, 64), max_channels=512, depth=12, n_hidden=512)],
 }
+
 
 """
     This is where we keep a reference to all the methods.
