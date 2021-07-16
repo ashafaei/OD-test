@@ -179,7 +179,7 @@ class Logger:
 	def visualize_average_keys(self, pattern, title, visdom, is_setup=False, prefix=''):
 		pat = re.compile(pattern)
 		legend = []
-		for key, measure in self.measures.iteritems():
+		for key, measure in self.measures.items():
 			if pat.match(key):
 				nX, nY, _ = measure.generate_average_XY()
 				legend.append('%s%s'%(prefix, key))

@@ -7,7 +7,6 @@ import torch.optim as optim
 from torch.utils.data import DataLoader
 from utils.iterative_trainer import IterativeTrainerConfig
 from utils.logger import Logger
-from termcolor import colored
 
 from methods import AbstractModelWrapper, SVMLoss
 import global_vars as Global
@@ -61,13 +60,13 @@ class MCDropout(ProbabilityThreshold):
     
     def get_H_config(self, dataset, will_train=True):
         print("Preparing training D1+D2 (H)")
-        print("Mixture size: %s"%colored('%d'%len(dataset), 'green'))
+        print("Mixture size: %s"%(len(dataset)))
 
         # 80%, 20% for local train+test
         train_ds, valid_ds = dataset.split_dataset(0.8)
 
         if self.args.D1 in Global.mirror_augment:
-            print(colored("Mirror augmenting %s"%self.args.D1, 'green'))
+            print("Mirror augmenting %s"%self.args.D1)
             new_train_ds = train_ds + MirroredDataset(train_ds)
             train_ds = new_train_ds
 
@@ -78,6 +77,7 @@ class MCDropout(ProbabilityThreshold):
         # To make the threshold learning, actually threshold learning
         # the margin must be set to 0.
         criterion = SVMLoss(margin=0.0).to(self.args.device)
+        criterion.size_average = True
 
         # Set up the model
         model = MCDropoutModelWrapper(self.base_model).to(self.args.device)

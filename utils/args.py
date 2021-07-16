@@ -1,12 +1,10 @@
 from __future__ import print_function
 
 import os
-assert 'VIRTUAL_ENV' in os.environ, 'Please activate the environment first.'
 
 import random
 import socket
 from argparse import ArgumentParser
-from termcolor import colored
 
 import torch
 import torch.backends.cudnn as cudnn
@@ -43,7 +41,7 @@ if not args.no_cuda:
 else:
     args.device = torch.device("cpu")
 
-assert torch.cuda.is_available(), colored('A cuda device is required!', 'red')
+assert torch.cuda.is_available(), 'A cuda device is required!'
 
 # Reproducability.
 # Set up the random seed based on the arg.
@@ -57,7 +55,8 @@ cudnn.benchmark = True
 # Set up the default workspace for each experiment.
 exp_data = []
 workspace_path = os.path.abspath('workspace')
-assert os.path.isdir(workspace_path), colored('Have you run setup.py?', 'red')
+if not os.path.isdir(workspace_path):
+    os.makedirs(os.path.abspath('workspace'))
 
 # Make the experiment folder(s).
 # In some usecases you may specify multiple comma separated experiments.
@@ -77,7 +76,7 @@ for exp_id in exp_list:
 if len(exp_list) == 1:
     args.experiment_path = exp_paths[0]
 else:
-    print(colored('Operating in multi experiment mode.', 'red'))
+    print('Operating in multi experiment mode.')
     args.experiment_path = exp_paths
 
 args.hostname = socket.gethostname()

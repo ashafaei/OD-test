@@ -13,12 +13,8 @@
     This is not an efficient implementation. Specifically, OTModelWrapper.subnetwork_eval can be improved.
     We decided to keep the structure to the original source code as much as possible.
 """
-from __future__ import print_function
-
 import numpy as np
 from scipy.stats import exponweib
-from tqdm import tqdm
-from termcolor import colored
 
 import torch
 import torch.nn as nn
@@ -189,17 +185,14 @@ class OpenMax(ProbabilityThreshold):
         data_loader = DataLoader(dataset,  batch_size=self.args.batch_size, num_workers=self.args.workers, pin_memory=True)
 
         with torch.set_grad_enabled(False):
-            with tqdm(total=len(data_loader)) as pbar:
-                pbar.set_description('Calculating MAV')
-                for i, (image, label) in enumerate(data_loader):
-                    pbar.update()
-                    input, target = image.to(self.args.device), label.to(self.args.device)
-                    prediction = self.base_model.forward(input, softmax=False)
-                    _, max_ind = torch.max(prediction, dim=1)
-                    for sub_ind in range(len(image)):
-                        if max_ind[sub_ind].item() == label[sub_ind].item():
-                            mav[label[sub_ind], :].add_(prediction[sub_ind])
-                            mav_count[label[sub_ind]].add_(1)
+            for i, (image, label) in enumerate(data_loader):
+                input, target = image.to(self.args.device), label.to(self.args.device)
+                prediction = self.base_model.forward(input, softmax=False)
+                _, max_ind = torch.max(prediction, dim=1)
+                for sub_ind in range(len(image)):
+                    if max_ind[sub_ind].item() == label[sub_ind].item():
+                        mav[label[sub_ind], :].add_(prediction[sub_ind])
+                        mav_count[label[sub_ind]].add_(1)
         assert (mav_count>0).all().item() == 1, 'Something wrong with the classes! Need at least one sample/class.'
         mav.div_(mav_count.float().unsqueeze(1).expand_as(mav))
         self.mav = mav # Store the MAV.
@@ -209,37 +202,31 @@ class OpenMax(ProbabilityThreshold):
         # distance is set to the combination and the other two are not used.
         distance_values = [[] for i in range(n_classes)]
         with torch.set_grad_enabled(False):
-            with tqdm(total=len(data_loader)) as pbar:
-                pbar.set_description('Calculating the distances')
-                for i, (image, label) in enumerate(data_loader):
-                    pbar.update()
-                    input, target = image.to(self.args.device), label.to(self.args.device)
-                    prediction = self.base_model.forward(input, softmax=False)
-                    _, max_ind = torch.max(prediction, dim=1)
-                    for sub_ind in range(len(image)):
-                        if max_ind[sub_ind].item() == label[sub_ind].item():
-                            query_dist = distance_measure(mav[label[sub_ind], :], prediction[sub_ind])
-                            distance_values[label[sub_ind]].append(query_dist)
+            for i, (image, label) in enumerate(data_loader):
+                input, target = image.to(self.args.device), label.to(self.args.device)
+                prediction = self.base_model.forward(input, softmax=False)
+                _, max_ind = torch.max(prediction, dim=1)
+                for sub_ind in range(len(image)):
+                    if max_ind[sub_ind].item() == label[sub_ind].item():
+                        query_dist = distance_measure(mav[label[sub_ind], :], prediction[sub_ind])
+                        distance_values[label[sub_ind]].append(query_dist)
         torch_values = [torch.FloatTensor(dv) for dv in distance_values]
         
         self.weib_models = []
-        with tqdm(total=n_classes) as pbar:
-            pbar.set_description('Learning the Weibull model')
-            for cl in range(n_classes):
-                pbar.update()
-                mr_model = LibNotMR(tailsize = self.tailsize)
-                mr_model.fit_high(torch_values[cl])
-                self.weib_models.append(mr_model)
+        for cl in range(n_classes):
+            mr_model = LibNotMR(tailsize = self.tailsize)
+            mr_model.fit_high(torch_values[cl])
+            self.weib_models.append(mr_model)
 
     def get_H_config(self, dataset, will_train=True):
         print("Preparing training D1+D2 (H)")
-        print("Mixture size: %s"%colored('%d'%len(dataset), 'green'))
+        print("Mixture size: %s"%'%d'%len(dataset))
 
         # 80%, 20% for local train+test
         train_ds, valid_ds = dataset.split_dataset(0.8)
 
         if self.args.D1 in Global.mirror_augment:
-            print(colored("Mirror augmenting %s"%self.args.D1, 'green'))
+            print("Mirror augmenting %s"%self.args.D1)
             new_train_ds = train_ds + MirroredDataset(train_ds)
             train_ds = new_train_ds
 
@@ -250,6 +237,7 @@ class OpenMax(ProbabilityThreshold):
         # Set up the criterion
         # margin must be non-zero.
         criterion = SVMLoss(margin=1.0).cuda()
+        criterion.size_average = True
 
         # Set up the model
         model = OTModelWrapper(self.base_model, self.mav, self.weib_models).to(self.args.device)
@@ -280,7 +268,7 @@ class OpenMax(ProbabilityThreshold):
         if hasattr(self.base_model, 'preferred_name'):
             base_model_name = self.base_model.preferred_name()
 
-        config.name = '_%s[%s](%s->%s)'%(self.__class__.__name__, base_model_name, self.args.D1, self.args.D2)
+        config.name = '_%s[%s](%s-%s)'%(self.__class__.__name__, base_model_name, self.args.D1, self.args.D2)
         config.train_loader = train_loader
         config.valid_loader = valid_loader
         config.phases = {

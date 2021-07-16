@@ -115,14 +115,14 @@ class CIFAR100(AbstractDomainInterface):
     def get_D2_valid(self, D1):
         assert self.is_compatible(D1)
         target_indices = self.D2_valid_ind
-        if self.filter_rules.has_key(D1.name):
+        if D1.name in self.filter_rules:
             target_indices = filter_indices(self.ds_train, target_indices, self.filter_rules[D1.name])
         return SubDataset(self.name, self.ds_train, target_indices, label=1, transform=D1.conformity_transform())
 
     def get_D2_test(self, D1):
         assert self.is_compatible(D1)
         target_indices = self.D2_test_ind
-        if self.filter_rules.has_key(D1.name):
+        if D1.name in self.filter_rules:
             target_indices = filter_indices(self.ds_test, target_indices, self.filter_rules[D1.name])
         return SubDataset(self.name, self.ds_test, target_indices, label=1, transform=D1.conformity_transform())
 

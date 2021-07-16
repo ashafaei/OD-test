@@ -51,7 +51,14 @@ mirror_augment = {
 
 import models.classifiers as CLS
 import models.autoencoders as AES
-import models.pixelcnn.model as PCNN
+
+class ModelFactory(object):
+    def __init__(self, parent_class, **kwargs):
+        self.parent_class = parent_class
+        self.kwargs = kwargs
+    def __call__(self):
+        return self.parent_class(**self.kwargs)
+
 
 """
     Each dataset has a list of compatible neural netwok architectures.
@@ -66,13 +73,6 @@ dataset_reference_classifiers = {
     'STL10':                  [CLS.STL10_VGG,         CLS.STL10_Resnet],
     'TinyImagenet':           [CLS.TinyImagenet_VGG,  CLS.TinyImagenet_Resnet],
 }
-
-class ModelFactory(object):
-    def __init__(self, parent_class, **kwargs):
-        self.parent_class = parent_class
-        self.kwargs = kwargs
-    def __call__(self):
-        return self.parent_class(**self.kwargs)
 
 dataset_reference_autoencoders = {
     'MNIST':              [ModelFactory(AES.Generic_AE, dims=(1, 28, 28), max_channels=256, depth=8, n_hidden=96)],
@@ -92,29 +92,20 @@ dataset_reference_vaes = {
     'TinyImagenet':       [ModelFactory(AES.Generic_VAE, dims=(3, 64, 64), max_channels=512, depth=12, n_hidden=512)],
 }
 
-dataset_reference_pcnns = {
-    'MNIST':              [ModelFactory(PCNN.PixelCNN, nr_resnet=5, nr_filters=32, input_channels=1, nr_logistic_mix=5)],
-    'FashionMNIST':       [ModelFactory(PCNN.PixelCNN, nr_resnet=5, nr_filters=64, input_channels=1, nr_logistic_mix=5)],
-    'CIFAR10':            [ModelFactory(PCNN.PixelCNN, nr_resnet=5, nr_filters=160, input_channels=3, nr_logistic_mix=10)],
-    'CIFAR100':           [ModelFactory(PCNN.PixelCNN, nr_resnet=5, nr_filters=160, input_channels=3, nr_logistic_mix=10)],
-    'TinyImagenetd32':    [ModelFactory(PCNN.PixelCNN, nr_resnet=5, nr_filters=160, input_channels=3, nr_logistic_mix=10)],
-    'STL10d32':           [ModelFactory(PCNN.PixelCNN, nr_resnet=5, nr_filters=160, input_channels=3, nr_logistic_mix=10)],
-}
 
 """
     This is where we keep a reference to all the methods.
 """
 
 import methods.base_threshold as BT
-import methods.score_svm as SSVM
 import methods.logistic_threshold as KL
-import methods.mcdropout as MCD
-import methods.nearest_neighbor as KNN
 import methods.binary_classifier as BinClass
+import methods.nearest_neighbor as KNN
+import methods.score_svm as SSVM
+import methods.mcdropout as MCD
 import methods.deep_ensemble as DE
 import methods.odin as ODIN
 import methods.reconstruction_error as RE
-import methods.pixelcnn as PCNN
 import methods.openmax as OM
 
 all_methods = {
@@ -130,7 +121,6 @@ all_methods = {
     'deep_ensemble':    DE.DeepEnsemble,
     'odin':             ODIN.ODIN,
     'reconst_thresh':   RE.ReconstructionThreshold,
-    'pixelcnn':         PCNN.PixelCNN,
     'openmax':          OM.OpenMax,
 }
 
@@ -149,23 +139,18 @@ for dscls in all_dataset_classes:
     all_datasets[dscls.__name__] = dscls
 
 def get_ref_classifier(dataset):
-    if dataset_reference_classifiers.has_key(dataset):
+    if dataset in dataset_reference_classifiers:
         return dataset_reference_classifiers[dataset]
     raise NotImplementedError()
 
 def get_ref_autoencoder(dataset):
-    if dataset_reference_autoencoders.has_key(dataset):
+    if dataset in dataset_reference_autoencoders:
         return dataset_reference_autoencoders[dataset]
     raise NotImplementedError()
 
 def get_ref_vae(dataset):
-    if dataset_reference_vaes.has_key(dataset):
+    if dataset in dataset_reference_vaes:
         return dataset_reference_vaes[dataset]
-    raise NotImplementedError()
-
-def get_ref_pixelcnn(dataset):
-    if dataset_reference_pcnns.has_key(dataset):
-        return dataset_reference_pcnns[dataset]
     raise NotImplementedError()
 
 def get_method(name, args):

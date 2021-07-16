@@ -5,7 +5,6 @@ import errno
 import torch
 import torch.utils.data as data
 from PIL import Image
-from termcolor import colored
 import torchvision.transforms as transforms
 from datasets import SubDataset, AbstractDomainInterface, ExpandRGBChannels
 
@@ -243,7 +242,7 @@ class TinyImagenet(AbstractDomainInterface):
         if os.path.isfile(index_file):
             train_indices = torch.load(index_file)
         else:
-            print(colored('GENERATING PERMUTATION FOR <TinyImagenet train>', 'red'))
+            print('GENERATING PERMUTATION FOR <TinyImagenet train>')
             train_indices = torch.randperm(len(self.ds_train))
             torch.save(train_indices, index_file)
 
@@ -280,14 +279,14 @@ class TinyImagenet(AbstractDomainInterface):
     def get_D2_valid(self, D1):
         assert self.is_compatible(D1)
         target_indices = self.D2_valid_ind
-        if self.filter_rules.has_key(D1.name):
+        if D1.name in self.filter_rules:
             target_indices = filter_indices(self.ds_train, target_indices, self.filter_rules[D1.name])
         return SubDataset(self.name, self.ds_train, target_indices, label=1, transform=D1.conformity_transform())
 
     def get_D2_test(self, D1):
         assert self.is_compatible(D1)
         target_indices = self.D2_test_ind
-        if self.filter_rules.has_key(D1.name):
+        if D1.name in self.filter_rules:
             target_indices = filter_indices(self.ds_valid, target_indices, self.filter_rules[D1.name])
         return SubDataset(self.name, self.ds_valid, target_indices, label=1, transform=D1.conformity_transform())
 
