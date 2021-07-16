@@ -91,6 +91,7 @@ import methods.score_svm as SSVM
 import methods.mcdropout as MCD
 import methods.deep_ensemble as DE
 import methods.odin as ODIN
+import methods.reconstruction_error as RE
 
 all_methods = {
     'prob_threshold':   BT.ProbabilityThreshold,
@@ -104,6 +105,7 @@ all_methods = {
     'binclass':         BinClass.BinaryClassifier,
     'deep_ensemble':    DE.DeepEnsemble,
     'odin':             ODIN.ODIN,
+    'reconst_thresh':   RE.ReconstructionThreshold,
 }
 
 ##################################################################
