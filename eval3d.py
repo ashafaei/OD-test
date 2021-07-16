@@ -39,7 +39,11 @@ if args.exp == 'test-eval':
     d3_tasks     = ['UniformNoise', 'NormalNoise']
     method_tasks     = [
                         'prob_threshold/0',
-                        'knn/1',
+                        'knn/1', 'knn/2', 'knn/4', 'knn/8',
+                        'bceaeknn/1', 'vaeaeknn/1', 'mseaeknn/1',
+                        'bceaeknn/2', 'vaeaeknn/2', 'mseaeknn/2',
+                        'bceaeknn/4', 'vaeaeknn/4', 'mseaeknn/4',
+                        'bceaeknn/8', 'vaeaeknn/8', 'mseaeknn/8',
                         ]
 ########################################################
 """

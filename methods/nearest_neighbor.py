@@ -9,6 +9,7 @@ import global_vars as Global
 import models as Models
 from datasets import MirroredDataset
 from methods.score_svm import ScoreSVM
+from torchinfo import summary
 
 class KNNModel(nn.Module):
     """
@@ -158,8 +159,16 @@ class AEKNNSVM(ScoreSVM):
         # Initialize the multi-threaded loaders.
         all_loader   = DataLoader(dataset,  batch_size=self.args.batch_size, num_workers=1, pin_memory=True)
 
+        im,l = dataset[0]
+        input_size = im.size() #datasets in pytorch are assumed to be uniform size
+        #summary(base_model, input_size=(self.args.batch_size, input_size[0], input_size[1], input_size[2]), depth=10)
+
+        g = summary(base_model, input_size=(self.args.batch_size, input_size[0], input_size[1], input_size[2]), depth=100, verbose=0)
+        model_ram = g.to_megabytes(g.total_input) + g.float_to_megabytes(g.total_output + g.total_params)
+        print("Estimated Model Size:" + str(model_ram) + " Mb")
+
         n_data = len(dataset)
-        n_dim  = base_model.encode(dataset[0][0].to(self.args.device).unsqueeze(0)).numel()
+        n_dim  = base_model.encode(im.to(self.args.device).unsqueeze(0)).numel()
         print('nHidden %d'%(n_dim))
         self.base_data = torch.zeros(n_data, n_dim, dtype=torch.float32)
         base_ind = 0

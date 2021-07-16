@@ -74,6 +74,11 @@ dataset_reference_autoencoders = {
     'FashionMNIST':       [ModelFactory(AES.Generic_AE, dims=(1, 28, 28), max_channels=256, depth=8, n_hidden=96)]
 }
 
+dataset_reference_vaes = {
+    'MNIST':              [ModelFactory(AES.Generic_VAE, dims=(1, 28, 28), max_channels=256, depth=8, n_hidden=96)],
+    'FashionMNIST':       [ModelFactory(AES.Generic_VAE, dims=(1, 28, 28), max_channels=256, depth=8, n_hidden=96)],
+}
+
 """
     This is where we keep a reference to all the methods.
 """
@@ -121,6 +126,11 @@ def get_ref_classifier(dataset):
 def get_ref_autoencoder(dataset):
     if dataset in dataset_reference_autoencoders:
         return dataset_reference_autoencoders[dataset]
+    raise NotImplementedError()
+
+def get_ref_vae(dataset):
+    if dataset in dataset_reference_vaes:
+        return dataset_reference_vaes[dataset]
     raise NotImplementedError()
 
 def get_method(name, args):
