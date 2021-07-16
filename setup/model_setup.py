@@ -1,6 +1,5 @@
 from __future__ import print_function
 import os,sys,inspect
-from termcolor import colored
 
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 parentdir = os.path.dirname(currentdir)
@@ -11,13 +10,13 @@ import global_vars as Global
 from utils.args import args
 
 import categories.classifier_setup as CLSetup
-import categories.kway_logistic_setup as KLogisticSetup
-import categories.deep_ensemble_setup as DeepEnsembleSetup
-import categories.ae_setup as AESetup
-import categories.pixelcnn_setup as PCNNSetup
+#import categories.kway_logistic_setup as KLogisticSetup
+#import categories.deep_ensemble_setup as DeepEnsembleSetup
+#import categories.ae_setup as AESetup
+#import categories.pixelcnn_setup as PCNNSetup
 
 if args.exp != 'model_ref':
-    print(colored('The exp is NOT model_ref!', 'yellow'))
+    print('The exp is NOT model_ref!')
 
 def needs_processing(args, dataset_class, models, suffix):
     """
@@ -37,12 +36,12 @@ task_list = [
     # whether we have done them before without instantiating the network architecture or dataset.
     # saves quite a lot of time when possible.
     (Global.dataset_reference_classifiers, CLSetup.train_classifier,            True, ['base']),
-    (Global.dataset_reference_classifiers, KLogisticSetup.train_classifier,     True, ['KLogistic']),
-    (Global.dataset_reference_classifiers, DeepEnsembleSetup.train_classifier,  True, ['DE.%d'%i for i in range(5)]),
-    (Global.dataset_reference_autoencoders, AESetup.train_BCE_AE,               False, []),
-    (Global.dataset_reference_autoencoders, AESetup.train_MSE_AE,               False, []),
-    (Global.dataset_reference_vaes, AESetup.train_variational_autoencoder,      False, []),
-    (Global.dataset_reference_pcnns, PCNNSetup.train_pixelcnn,                  False, []),
+    # (Global.dataset_reference_classifiers, KLogisticSetup.train_classifier,     True, ['KLogistic']),
+    # (Global.dataset_reference_classifiers, DeepEnsembleSetup.train_classifier,  True, ['DE.%d'%i for i in range(5)]),
+    # (Global.dataset_reference_autoencoders, AESetup.train_BCE_AE,               False, []),
+    # (Global.dataset_reference_autoencoders, AESetup.train_MSE_AE,               False, []),
+    # (Global.dataset_reference_vaes, AESetup.train_variational_autoencoder,      False, []),
+    # (Global.dataset_reference_pcnns, PCNNSetup.train_pixelcnn,                  False, []),
 ]
 
 # Do a for loop to run the training tasks.
@@ -50,12 +49,12 @@ for task_id, (ref_list, train_func, skippable, suffix) in enumerate(task_list):
     target_datasets = ref_list.keys()
     print('Processing %d datasets.'%len(target_datasets))
     for dataset in target_datasets:
-        print('Processing dataset %s with %d networks for %d-%s.'%(colored(dataset, 'green'), len(ref_list[dataset]), task_id, colored(train_func.__name__, 'blue')))
+        print('Processing dataset %s with %d networks for %d-%s.'%(dataset, len(ref_list[dataset]), task_id, train_func.__name__))
         if skippable and not needs_processing(args, Global.all_datasets[dataset], ref_list[dataset], suffix=suffix):
-            print(colored('Skipped', 'yellow'))
+            print('Skipped')
             continue
         ds = Global.all_datasets[dataset]()
         for model in ref_list[dataset]:
             model = model()
-            print('Training %s'%(colored(model.__class__.__name__, 'blue')))
+            print('Training %s'%(model.__class__.__name__))
             train_func(args, model, ds.get_D1_train())
