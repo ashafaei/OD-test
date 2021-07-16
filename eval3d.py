@@ -30,6 +30,7 @@ if args.exp == 'master':
                     'bceaeknn/8', 'vaeaeknn/8', 'mseaeknn/8',
                     'reconst_thresh/0',     'reconst_thresh/1',
                     'odin/0',               'odin/1',
+                    'openmax/0',            'openmax/1',
                     ]
 ########################################################
 """
@@ -41,8 +42,7 @@ if args.exp == 'test-eval':
     d3_tasks     = ['UniformNoise', 'NormalNoise']
     method_tasks     = [
                         'prob_threshold/0',
-                        'odin/0',
-                        'reconst_thresh/0',
+                        'openmax/0',
                         ]
 ########################################################
 """

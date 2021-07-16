@@ -13,8 +13,6 @@
     This is not an efficient implementation. Specifically, OTModelWrapper.subnetwork_eval can be improved.
     We decided to keep the structure to the original source code as much as possible.
 """
-from __future__ import print_function
-
 import numpy as np
 from scipy.stats import exponweib
 
@@ -222,13 +220,13 @@ class OpenMax(ProbabilityThreshold):
 
     def get_H_config(self, dataset, will_train=True):
         print("Preparing training D1+D2 (H)")
-        print("Mixture size: %s"%colored('%d'%len(dataset), 'green'))
+        print("Mixture size: %s"%'%d'%len(dataset))
 
         # 80%, 20% for local train+test
         train_ds, valid_ds = dataset.split_dataset(0.8)
 
         if self.args.D1 in Global.mirror_augment:
-            print(colored("Mirror augmenting %s"%self.args.D1, 'green'))
+            print("Mirror augmenting %s"%self.args.D1)
             new_train_ds = train_ds + MirroredDataset(train_ds)
             train_ds = new_train_ds
 
@@ -270,7 +268,7 @@ class OpenMax(ProbabilityThreshold):
         if hasattr(self.base_model, 'preferred_name'):
             base_model_name = self.base_model.preferred_name()
 
-        config.name = '_%s[%s](%s->%s)'%(self.__class__.__name__, base_model_name, self.args.D1, self.args.D2)
+        config.name = '_%s[%s](%s-%s)'%(self.__class__.__name__, base_model_name, self.args.D1, self.args.D2)
         config.train_loader = train_loader
         config.valid_loader = valid_loader
         config.phases = {

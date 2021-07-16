@@ -92,6 +92,7 @@ import methods.mcdropout as MCD
 import methods.deep_ensemble as DE
 import methods.odin as ODIN
 import methods.reconstruction_error as RE
+import methods.openmax as OM
 
 all_methods = {
     'prob_threshold':   BT.ProbabilityThreshold,
@@ -106,6 +107,7 @@ all_methods = {
     'deep_ensemble':    DE.DeepEnsemble,
     'odin':             ODIN.ODIN,
     'reconst_thresh':   RE.ReconstructionThreshold,
+    'openmax':          OM.OpenMax,
 }
 
 ##################################################################
