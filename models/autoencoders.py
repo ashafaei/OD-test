@@ -80,7 +80,8 @@ class Generic_AE(nn.Module):
         enc = self.encoder(x)
         dec = self.decoder(enc)
         if sigmoid or self.default_sigmoid:
-            dec = sigmoid(dec)
+            sig = nn.Sigmoid()
+            dec = sig(dec)
         return dec
 
     def train_config(self):
@@ -121,7 +122,8 @@ class Generic_VAE(Generic_AE):
         self.last_std = logvar
         z           = self.reparameterize(mu, logvar)        
         dec = self.decoder(z.view(n_size, (int)(enc.size(1)/2), enc.size(2), enc.size(3)))
-        dec = sigmoid(dec)
+        sig = nn.Sigmoid()
+        dec = sig(dec)
         return dec
 
 class VAE_Loss(nn.Module):
