@@ -23,13 +23,14 @@ class Generic_AE(nn.Module):
         max_pool_layers = [i%2==0 for i in range(depth)]
         remainder_layers = []
         self.netid = 'max.%d.d.%d.nH.%d'%(max_channels, depth, n_hidden)
+        pad_py3 = (int)((kernel_size-1)/2)
 
         # encoder ###########################################
         modules = []
         in_channels = dims[0]
         in_spatial_size = dims[1]
         for i in range(depth):
-            modules.append(nn.Conv2d(in_channels, current_channels, kernel_size=kernel_size, padding=(kernel_size-1)/2))
+            modules.append(nn.Conv2d(in_channels, current_channels, kernel_size=kernel_size, padding=pad_py3))
             modules.append(nn.BatchNorm2d(current_channels))
             modules.append(nonLin())
             in_channels = current_channels
@@ -41,7 +42,7 @@ class Generic_AE(nn.Module):
                 in_spatial_size = math.floor(in_spatial_size/2)
 
         # Final layer
-        modules.append(nn.Conv2d(in_channels, n_hidden, kernel_size=kernel_size, padding=(kernel_size-1)/2))
+        modules.append(nn.Conv2d(in_channels, n_hidden, kernel_size=kernel_size, padding=pad_py3))
         modules.append(nn.BatchNorm2d(n_hidden))
         modules.append(nonLin())
         self.encoder = nn.Sequential(*modules)
@@ -50,11 +51,11 @@ class Generic_AE(nn.Module):
         modules = []
         in_channels = n_hidden
         if self.__class__ == Generic_VAE:
-            in_channels = in_channels / 2
+            in_channels = (int)(in_channels / 2)
         current_index = len(all_channels)-1
         r_ind = len(remainder_layers)-1
         for i in range(depth):
-            modules.append(nn.Conv2d(in_channels, all_channels[current_index], kernel_size=kernel_size, padding=(kernel_size-1)/2))
+            modules.append(nn.Conv2d(in_channels, all_channels[current_index], kernel_size=kernel_size, padding=pad_py3))
             modules.append(nn.BatchNorm2d(all_channels[current_index]))
             modules.append(nonLin())
             if max_pool_layers[i]:
@@ -66,7 +67,7 @@ class Generic_AE(nn.Module):
             in_channels = all_channels[current_index]
             current_index -= 1
         # Final layer
-        modules.append(nn.Conv2d(in_channels, dims[0], kernel_size=kernel_size, padding=(kernel_size-1)/2))
+        modules.append(nn.Conv2d(in_channels, dims[0], kernel_size=kernel_size, padding=pad_py3))
         self.decoder = nn.Sequential(*modules)
 
     def encode(self, x):
@@ -79,7 +80,8 @@ class Generic_AE(nn.Module):
         enc = self.encoder(x)
         dec = self.decoder(enc)
         if sigmoid or self.default_sigmoid:
-            dec = F.sigmoid(dec)
+            sig = nn.Sigmoid()
+            dec = sig(dec)
         return dec
 
     def train_config(self):
@@ -119,8 +121,9 @@ class Generic_VAE(Generic_AE):
         self.last_mu  = mu
         self.last_std = logvar
         z           = self.reparameterize(mu, logvar)        
-        dec = self.decoder(z.view(n_size, enc.size(1)/2, enc.size(2), enc.size(3)))
-        dec = F.sigmoid(dec)
+        dec = self.decoder(z.view(n_size, (int)(enc.size(1)/2), enc.size(2), enc.size(3)))
+        sig = nn.Sigmoid()
+        dec = sig(dec)
         return dec
 
 class VAE_Loss(nn.Module):

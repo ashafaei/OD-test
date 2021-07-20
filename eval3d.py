@@ -13,9 +13,9 @@ import global_vars as Global
 d1_tasks, d2_tasks, d3_tasks, method_tasks = [], [], [], []
 
 if args.exp == 'master':
-    d1_tasks     = ['MNIST', 'FashionMNIST']
-    d2_tasks     = ['UniformNoise', 'NormalNoise', 'MNIST', 'FashionMNIST']
-    d3_tasks     = ['UniformNoise', 'NormalNoise', 'MNIST', 'FashionMNIST']
+    d1_tasks     = ['MNIST', 'FashionMNIST', 'CIFAR10', 'CIFAR100', 'STL10', 'TinyImagenet']
+    d2_tasks     = ['UniformNoise', 'NormalNoise', 'MNIST', 'FashionMNIST', 'NotMNIST', 'CIFAR10', 'CIFAR100', 'STL10', 'TinyImagenet']
+    d3_tasks     = ['UniformNoise', 'NormalNoise', 'MNIST', 'FashionMNIST', 'NotMNIST', 'CIFAR10', 'CIFAR100', 'STL10', 'TinyImagenet']
     method_tasks = [
                     'mcdropout/0',
                     'prob_threshold/0',     'prob_threshold/1',
@@ -23,15 +23,23 @@ if args.exp == 'master':
                     'score_svm/0',          'score_svm/1',
                     'binclass/0',           'binclass/1',
                     'deep_ensemble/0',      'deep_ensemble/1',
+                    'knn/1', 'knn/2', 'knn/4', 'knn/8',
+                    'bceaeknn/1', 'vaeaeknn/1', 'mseaeknn/1',
+                    'bceaeknn/2', 'vaeaeknn/2', 'mseaeknn/2',
+                    'bceaeknn/4', 'vaeaeknn/4', 'mseaeknn/4',
+                    'bceaeknn/8', 'vaeaeknn/8', 'mseaeknn/8',
+                    'reconst_thresh/0',     'reconst_thresh/1',
+                    'odin/0',               'odin/1',
+                    'openmax/0',            'openmax/1',
                     ]
 ########################################################
 """
     Test evaluation
 """
 if args.exp == 'test-eval':
-    d1_tasks     = ['MNIST']
-    d2_tasks     = ['UniformNoise', 'NormalNoise']
-    d3_tasks     = ['UniformNoise', 'NormalNoise']
+    d1_tasks     = ['MNIST', 'CIFAR10', 'STL10']
+    d2_tasks     = ['UniformNoise', 'NormalNoise', 'NotMNIST', 'TinyImagenet']
+    d3_tasks     = ['UniformNoise', 'NormalNoise', 'NotMNIST', 'TinyImagenet']
     method_tasks     = [
                         'prob_threshold/0',
                         ]
@@ -41,33 +49,32 @@ if args.exp == 'test-eval':
 """
 if len(d1_tasks) == 0:
     d1_tasks     = ['MNIST']
-    d2_tasks     = ['UniformNoise', 'NormalNoise', 'MNIST', 'FashionMNIST']
-    d3_tasks     = ['UniformNoise', 'NormalNoise', 'MNIST', 'FashionMNIST']
+    d2_tasks     = ['UniformNoise', 'NormalNoise', 'MNIST', 'FashionMNIST', 'NotMNIST', 'CIFAR10', 'CIFAR100', 'STL10', 'TinyImagenet']
+    d3_tasks     = ['UniformNoise', 'NormalNoise', 'MNIST', 'FashionMNIST', 'NotMNIST', 'CIFAR10', 'CIFAR100', 'STL10', 'TinyImagenet']
     method_tasks     = [
                         'prob_threshold/0',
                         ]
 
 # Construct the dataset cache
 ds_cache = {}
-
-for m in [d1_tasks, d2_tasks, d3_tasks]:
-    for d in m:
-        if d not in ds_cache:
-            ds_cache[d] = Global.all_datasets[d]()
-
 results = []
-# If results exists already, just continue where left off.
-results_path = os.path.join(args.experiment_path, 'results.pth')
-if os.path.exists(results_path) and not args.force_run:
-    print ("Loading previous checkpoint")
-    results = torch.load(results_path)
 
 def has_done_before(method, d1, d2, d3):
     for m, ds, dm, dt, mid, a1, a2 in results:
         if m == method and ds == d1 and dm == d2 and dt == d3:
             return True
     return False
+
 if __name__ == "__main__":
+    for m in [d1_tasks, d2_tasks, d3_tasks]:
+        for d in m:
+            if d not in ds_cache:
+                ds_cache[d] = Global.all_datasets[d]()
+    # If results exists already, just continue where left off.
+    results_path = os.path.join(args.experiment_path, 'results.pth')
+    if os.path.exists(results_path) and not args.force_run:
+        print ("Loading previous checkpoint")
+        results = torch.load(results_path)
     for d1 in d1_tasks:
         args.D1 = d1
         for method in method_tasks:
@@ -183,5 +190,5 @@ if __name__ == "__main__":
                     # Take a snapshot after each experiment.
                     torch.save(results, results_path)
 
-for i, (m, ds, dm, dt, mi, a_train, a_test) in enumerate(results):
-    print ('%d\t%s\t%15s\t%-15s\t%.2f%% / %.2f%%'%(i, m, '%s-%s'%(ds, dm), dt, a_train*100, a_test*100))    
+    for i, (m, ds, dm, dt, mi, a_train, a_test) in enumerate(results):
+        print ('%d\t%s\t%15s\t%-15s\t%.2f%% / %.2f%%'%(i, m, '%s-%s'%(ds, dm), dt, a_train*100, a_test*100))    

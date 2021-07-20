@@ -1,6 +1,5 @@
-from __future__ import print_function
 from os import path
-from termcolor import colored
+
 
 import torch
 import torch.nn as nn
@@ -10,6 +9,7 @@ import global_vars as Global
 import models as Models
 from datasets import MirroredDataset
 from methods.score_svm import ScoreSVM
+from torchinfo import summary
 
 class KNNModel(nn.Module):
     """
@@ -64,7 +64,7 @@ class KNNSVM(ScoreSVM):
             self.base_model = None
 
         if dataset.name in Global.mirror_augment:
-            print(colored("Mirror augmenting %s"%dataset.name, 'green'))
+            print("Mirror augmenting %s"%dataset.name)
             new_train_ds = dataset + MirroredDataset(dataset)
             dataset = new_train_ds
         
@@ -147,20 +147,28 @@ class AEKNNSVM(ScoreSVM):
 
         hbest_path = path.join(home_path, 'model.best.pth')
         best_h_path = hbest_path
-        print(colored('Loading H1 model from %s'%best_h_path, 'red'))
+        print('Loading H1 model from %s'%best_h_path)
         base_model.load_state_dict(torch.load(best_h_path))
         base_model.eval()
 
         if dataset.name in Global.mirror_augment:
-            print(colored("Mirror augmenting %s"%dataset.name, 'green'))
+            print("Mirror augmenting %s"%dataset.name)
             new_train_ds = dataset + MirroredDataset(dataset)
             dataset = new_train_ds
 
         # Initialize the multi-threaded loaders.
         all_loader   = DataLoader(dataset,  batch_size=self.args.batch_size, num_workers=1, pin_memory=True)
 
+        im,l = dataset[0]
+        input_size = im.size() #datasets in pytorch are assumed to be uniform size
+        #summary(base_model, input_size=(self.args.batch_size, input_size[0], input_size[1], input_size[2]), depth=10)
+
+        g = summary(base_model, input_size=(self.args.batch_size, input_size[0], input_size[1], input_size[2]), depth=100, verbose=0)
+        model_ram = g.to_megabytes(g.total_input) + g.float_to_megabytes(g.total_output + g.total_params)
+        print("Estimated Model Size:" + str(model_ram) + " Mb")
+
         n_data = len(dataset)
-        n_dim  = base_model.encode(dataset[0][0].to(self.args.device).unsqueeze(0)).numel()
+        n_dim  = base_model.encode(im.to(self.args.device).unsqueeze(0)).numel()
         print('nHidden %d'%(n_dim))
         self.base_data = torch.zeros(n_data, n_dim, dtype=torch.float32)
         base_ind = 0
