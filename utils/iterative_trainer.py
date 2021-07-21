@@ -108,6 +108,7 @@ class IterativeTrainer(object):
                     loss2 = loss * nscaler
                     loss2.backward()
 
+            criterion.size_average = True
             # Compute various measure. Can be safely skipped.
             if not backward or not stochastic:
                 if criterion.size_average:

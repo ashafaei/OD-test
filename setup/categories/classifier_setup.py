@@ -1,4 +1,3 @@
-from __future__ import print_function
 import os
 
 import torch
@@ -93,12 +92,6 @@ def train_classifier(args, model, dataset):
             train_loss = config.logger.get_measure('train_loss').mean_epoch()
             config.scheduler.step(train_loss)
 
-            if config.visualize:
-                # Show the average losses for all the phases in one figure.
-                config.logger.visualize_average_keys('.*_loss', 'Average Loss', trainer.visdom)
-                config.logger.visualize_average_keys('.*_accuracy', 'Average Accuracy', trainer.visdom)
-                config.logger.visualize_average('LRs', trainer.visdom)
-
             test_average_acc = config.logger.get_measure('test_accuracy').mean_epoch()
 
             # Save the logger for future reference.
@@ -115,8 +108,7 @@ def train_classifier(args, model, dataset):
                 torch.save(config.model.state_dict(), hbest_path)
         
         torch.save({'finished':True}, hbest_path + ".done")
-        if config.visualize:
-            trainer.visdom.save([trainer.visdom.env])
+
     else:
         print("Skipping %s"%(home_path))
 
