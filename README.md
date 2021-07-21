@@ -1,14 +1,14 @@
 # OD-Test Python 3 / Serial version
 
 This is a development of Shafei's original OD-test. The goal is to achieve the following:
-- Upgrade to Python 3. (Almost all done)
+- Upgrade to Python 3 and latest Pytorch & CUDA. (Almost all done)
 - Removal of libraries not easily usable in a serialized/HPC context such as termcolor and visdom. (Almost all done)
 - Add in more support for Distributed Pytorch.
 - Add new models, methods etc from the huge number published since Shafei's paper.
 - Replace the classifier-dataset pairing with a factory class that generates a classifer as needed (Done)
 - Experiments driven from JSON files rather than code
 
-Very little is currently complete! I'll update this readme as we go.
+I'll update this readme as we go.
 
 Original Readme:
 
