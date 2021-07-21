@@ -44,7 +44,7 @@ class UniformNoise(AbstractDomainInterface):
     """
         Independent uniform random noise.
     """
-    
+
     def get_D2_valid(self, D1):
         other_ds = D1.get_D1_valid()
         # other_train = D1.get_D1_train() # We will trim it later if necessary.

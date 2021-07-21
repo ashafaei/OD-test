@@ -62,6 +62,9 @@ class STL10(AbstractDomainInterface):
                                    ])
         return out_transform
 
+    def get_num_classes(self):
+        return 10
+
 class STL10d32(STL10):
     def __init__(self):
         super(STL10d32, self).__init__(downsample=32)

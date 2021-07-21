@@ -61,6 +61,9 @@ class CIFAR10(AbstractDomainInterface):
                                    transforms.ToTensor(),                                   
                                    ])
 
+    def get_num_classes(self):
+        return 10
+
 class CIFAR100(AbstractDomainInterface):
     """
         CIFAR100: 50,000 train + 10,000 test. (3x32x32)
@@ -131,4 +134,7 @@ class CIFAR100(AbstractDomainInterface):
                                    transforms.ToPILImage(),
                                    transforms.Resize((32, 32)),
                                    transforms.ToTensor(),                                   
-                                   ])                               
+                                   ])
+    
+    def get_num_classes(self):
+        return 100

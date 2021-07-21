@@ -31,6 +31,7 @@ class MNIST(AbstractDomainInterface):
                                         train=False,
                                         transform=im_transformer,
                                         download=True)
+
     
     def get_D1_train(self):
         return SubDataset(self.name, self.ds_train, self.D1_train_ind)
@@ -46,6 +47,9 @@ class MNIST(AbstractDomainInterface):
     def get_D2_test(self, D1):
         assert self.is_compatible(D1)
         return SubDataset(self.name, self.ds_test, self.D2_test_ind, label=1, transform=D1.conformity_transform())
+
+    def get_num_classes(self):
+        return 10
 
     def conformity_transform(self):
         return transforms.Compose([transforms.ToPILImage(),

@@ -120,6 +120,22 @@ class AbstractDomainInterface(object):
         raise NotImplementedError("%s has no implementation for this function."%(self.__class__.__name__))    
     
     """
+        This indicates the expected size of images in this dataset.
+    """
+    def get_D1_scale(self):
+        ds = get_D1_valid()
+        m, _ = ds[0]
+        return (im.size(0), im.size(1), im.size(2))
+
+    def get_D2_scale(self,D1):
+        other_ds = D1.get_D1_valid()
+        m, _ = other_ds[0]
+        return (im.size(0), im.size(1), im.size(2))
+
+    def get_num_classes(self):
+        raise NotImplementedError("%s has no implementation for this function."%(self.__class__.__name__))
+        
+    """
         This is evaluated through the lens of D2.
         Is d1 compatible with this d2?
         For Half-Classes, D1==D2, but they are still compatible because the

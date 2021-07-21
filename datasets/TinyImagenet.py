@@ -301,6 +301,9 @@ class TinyImagenet(AbstractDomainInterface):
                                    ])
         return out_transform
 
+    def get_num_classes(self):
+        return 200
+
 class TinyImagenetd32(TinyImagenet):
     def __init__(self):
         super(TinyImagenetd32, self).__init__(downsample=32)

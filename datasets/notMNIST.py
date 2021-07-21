@@ -166,3 +166,6 @@ class NotMNIST(AbstractDomainInterface):
     def get_D2_test(self, D1):
         assert self.is_compatible(D1)
         return SubDataset(self.name, self.ds_train, self.D2_test_ind, label=1, transform=D1.conformity_transform())
+
+    def get_num_classes(self):
+        return 10

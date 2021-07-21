@@ -53,3 +53,6 @@ class FashionMNIST(AbstractDomainInterface):
                                    transforms.Grayscale(),
                                    transforms.ToTensor()
                                    ])
+
+    def get_num_classes(self):
+        return 10
