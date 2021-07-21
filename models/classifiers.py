@@ -5,6 +5,113 @@ import torch.nn.functional as F
 import torchvision.models.vgg as VGG
 import torchvision.models.resnet as Resnet
 
+class Scaled_VGG(nn.Module):
+
+    def make_layers(self, cfg, batch_norm=False):
+        layers = []
+        in_channels = 1
+        for v in cfg:
+            if v == 'M':
+                layers += [nn.MaxPool2d(kernel_size=2, stride=2)]
+            else:
+                conv2d = nn.Conv2d(in_channels, v, kernel_size=3, padding=1)
+                if batch_norm:
+                    layers += [conv2d, nn.BatchNorm2d(v), nn.ReLU(inplace=True)]
+                else:
+                    layers += [conv2d, nn.ReLU(inplace=True)]
+                in_channels = v
+        return nn.Sequential(*layers)
+
+    def __init__(self,scale,classes,epochs):
+        super(Scaled_VGG, self).__init__()
+
+
+        # Based on the imagenet normalization params.
+        self.offset = 0.44900
+        self.multiplier = 4.42477
+
+        # Reduced VGG16.
+        self.cfg = [64, 'M', 128, 128, 'M', 256, 256, 'M', 512, 512, 'M']
+        self.model = VGG.VGG(self.make_layers(self.cfg, batch_norm=True), num_classes=classes)
+        # MNIST would have a different sized feature map.
+        poolscale = ((int)(scale[0]/16), (int)(scale[1]/16), (int)(scale[2]/16)); # 4 maxpools down
+        self.model.avgpool = nn.AdaptiveAvgPool2d((poolscale[1],poolscale[2]))
+        self.model.classifier = nn.Sequential(
+            nn.Linear(512 * scale[0] * 1, 256), nn.ReLU(True), nn.Dropout(),
+            nn.Linear(256, 256), nn.ReLU(True), nn.Dropout(),
+            nn.Linear(256, classes),
+        )
+        self.model._initialize_weights()
+
+        self.epochs = epochs
+
+    def forward(self, x, softmax=True):
+        # Perform late normalization.
+        x = (x-self.offset)*self.multiplier
+
+        output = self.model(x)
+        if softmax:
+            output = F.log_softmax(output, dim=1)
+        return output
+    
+    def output_size(self):
+        return torch.LongTensor([1, classes])
+
+    def train_config(self):
+        config = {}
+        config['optim']     = optim.Adam(self.parameters(), lr=1e-3)
+        config['scheduler'] = optim.lr_scheduler.ReduceLROnPlateau(config['optim'], patience=10, threshold=1e-2, min_lr=1e-6, factor=0.1, verbose=True)
+        config['max_epoch'] = self.epochs
+        return config
+
+
+class Scaled_Resnet(nn.Module):
+    """
+        MNIST_Resnet is based on Resnet50
+        We replace the average pooling block to accomodate
+        the requirements of MNIST.
+    """
+    def __init__(self,scale,classes,epochs):
+        super(MNIST_Resnet, self).__init__()
+
+        # Based on the imagenet normalization params.
+        self.offset = 0.44900
+        self.multiplier = 4.42477
+
+        # Resnet50.
+        layers = [2, 3, 5, 2]
+        if scale[0] > 1:
+            layers = [3, 4, 6, 3]
+        self.model = Resnet.ResNet(Resnet.Bottleneck,layers, num_classes=classes)
+
+        poolscale = ((int)(scale[0]/16), (int)(scale[1]/16), (int)(scale[2]/16)); # 4 maxpools down
+        self.model.avgpool = nn.AdaptiveAvgPool2d((poolscale[1],poolscale[2]))
+        # The first part also needs to be fixed.
+        self.model.conv1 = nn.Conv2d(scale[0], 64, kernel_size=3, stride=1, padding=1, bias=False) # Replace the harsh convolution.
+        del self.model.maxpool
+        self.model.maxpool = lambda x: x # Remove the early maxpool.
+
+        self.epochs = epochs
+
+    def forward(self, x, softmax=True):
+        # Perform late normalization.
+        x = (x-self.offset)*self.multiplier
+
+        output = self.model(x)
+        if softmax:
+            output = F.log_softmax(output, dim=1)
+        return output
+
+    def output_size(self):
+        return torch.LongTensor([1, classes])
+
+    def train_config(self):
+        config = {}
+        config['optim']     = optim.Adam(self.parameters(), lr=1e-3)
+        config['scheduler'] = optim.lr_scheduler.ReduceLROnPlateau(config['optim'], patience=10, threshold=1e-2, min_lr=1e-6, factor=0.1, verbose=True)
+        config['max_epoch'] = epochs
+        return config
+
 class MNIST_VGG(nn.Module):
     """
         VGG-style MNIST.
