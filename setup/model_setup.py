@@ -12,7 +12,7 @@ from utils.args import args
 import categories.classifier_setup as CLSetup
 import categories.kway_logistic_setup as KLogisticSetup
 import categories.deep_ensemble_setup as DeepEnsembleSetup
-#import categories.ae_setup as AESetup
+import categories.ae_setup as AESetup
 #import categories.pixelcnn_setup as PCNNSetup
 
 if args.exp != 'model_ref':
