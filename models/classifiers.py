@@ -72,8 +72,7 @@ class Scaled_Resnet(nn.Module):
         the requirements of MNIST.
     """
     def __init__(self,scale,classes,epochs):
-        super(MNIST_Resnet, self).__init__()
-
+        super(Scaled_Resnet, self).__init__()
         # Based on the imagenet normalization params.
         self.offset = 0.44900
         self.multiplier = 4.42477
@@ -109,7 +108,7 @@ class Scaled_Resnet(nn.Module):
         config = {}
         config['optim']     = optim.Adam(self.parameters(), lr=1e-3)
         config['scheduler'] = optim.lr_scheduler.ReduceLROnPlateau(config['optim'], patience=10, threshold=1e-2, min_lr=1e-6, factor=0.1, verbose=True)
-        config['max_epoch'] = epochs
+        config['max_epoch'] = self.epochs
         return config
 
 class MNIST_VGG(nn.Module):
