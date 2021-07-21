@@ -1,6 +1,4 @@
-from __future__ import print_function
 import os
-from termcolor import colored
 
 import torch
 import torch.nn as nn
@@ -22,7 +20,7 @@ def get_ae_config(args, model, dataset, BCE_Loss):
     train_ds, valid_ds = dataset.split_dataset(0.8)
 
     if dataset.name in Global.mirror_augment:
-        print(colored("Mirror augmenting %s"%dataset.name, 'green'))
+        print("Mirror augmenting %s"%dataset.name)
         new_train_ds = train_ds + MirroredDataset(train_ds)
         train_ds = new_train_ds
 
@@ -83,7 +81,7 @@ def get_vae_config(args, model, dataset):
     train_ds, valid_ds = dataset.split_dataset(0.8)
 
     if dataset.name in Global.mirror_augment:
-        print(colored("Mirror augmenting %s"%dataset.name, 'green'))
+        print("Mirror augmenting %s"%dataset.name)
         new_train_ds = train_ds + MirroredDataset(train_ds)
         train_ds = new_train_ds
 
@@ -154,7 +152,7 @@ def train_autoencoder(args, model, dataset, BCE_Loss):
     if not os.path.isfile(hbest_path+".done"):
         config = get_ae_config(args, model, dataset, BCE_Loss=BCE_Loss)
         trainer = IterativeTrainer(config, args)
-        print(colored('Training from scratch', 'green'))
+        print('Training from scratch')
         best_loss = 999999999
         for epoch in range(1, config.max_epoch+1):
 
@@ -172,12 +170,6 @@ def train_autoencoder(args, model, dataset, BCE_Loss):
 
             config.scheduler.step(train_loss)
 
-            if config.visualize:
-                # Show the average losses for all the phases in one figure.
-                config.logger.visualize_average_keys('.*_loss', 'Average Loss', trainer.visdom)
-                config.logger.visualize_average_keys('.*_accuracy', 'Average Accuracy', trainer.visdom)
-                config.logger.visualize_average('LRs', trainer.visdom)
-
             # Save the logger for future reference.
             torch.save(config.logger.measures, os.path.join(home_path, 'logger.pth'))
 
@@ -187,17 +179,15 @@ def train_autoencoder(args, model, dataset, BCE_Loss):
             #     torch.save(config.model.state_dict(), os.path.join(home_path, 'model.%d.pth'%epoch))
 
             if args.save and test_loss < best_loss:
-                print('Updating the on file model with %s'%(colored('%.4f'%test_loss, 'red')))
+                print('Updating the on file model with %s'%('%.4f'%test_loss))
                 best_loss = test_loss
                 torch.save(config.model.state_dict(), hbest_path)
         
         torch.save({'finished':True}, hbest_path+".done")
         torch.save(config.model.state_dict(), hlast_path)
 
-        if config.visualize:
-            trainer.visdom.save([trainer.visdom.env])
     else:
-        print("Skipping %s"%(colored(home_path, 'yellow')))
+        print("Skipping %s"%(home_path))
 
 def train_variational_autoencoder(args, model, dataset):
     home_path = Models.get_ref_model_path(args, model.__class__.__name__, dataset.name, model_setup=True, suffix_str=model.netid)
@@ -210,7 +200,7 @@ def train_variational_autoencoder(args, model, dataset):
     if not os.path.isfile(hbest_path+".done"):
         config = get_vae_config(args, model, dataset)
         trainer = IterativeTrainer(config, args)
-        print(colored('Training from scratch', 'green'))
+        print('Training from scratch')
         best_loss = 999999999
         for epoch in range(1, config.max_epoch+1):
 
@@ -228,12 +218,6 @@ def train_variational_autoencoder(args, model, dataset):
 
             config.scheduler.step(train_loss)
 
-            if config.visualize:
-                # Show the average losses for all the phases in one figure.
-                config.logger.visualize_average_keys('.*_loss', 'Average Loss', trainer.visdom)
-                config.logger.visualize_average_keys('.*_accuracy', 'Average Accuracy', trainer.visdom)
-                config.logger.visualize_average('LRs', trainer.visdom)
-
             # Save the logger for future reference.
             torch.save(config.logger.measures, os.path.join(home_path, 'logger.pth'))
 
@@ -243,14 +227,12 @@ def train_variational_autoencoder(args, model, dataset):
             #     torch.save(config.model.state_dict(), os.path.join(home_path, 'model.%d.pth'%epoch))
 
             if args.save and test_loss < best_loss:
-                print('Updating the on file model with %s'%(colored('%.4f'%test_loss, 'red')))
+                print('Updating the on file model with %s'%('%.4f'%test_loss))
                 best_loss = test_loss
                 torch.save(config.model.state_dict(), hbest_path)
         
         torch.save({'finished':True}, hbest_path+".done")
         torch.save(config.model.state_dict(), hlast_path)
 
-        if config.visualize:
-            trainer.visdom.save([trainer.visdom.env])
     else:
-        print("Skipping %s"%(colored(home_path, 'yellow')))
+        print("Skipping %s"%(home_path))
