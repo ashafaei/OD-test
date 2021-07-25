@@ -2,7 +2,7 @@
     This file lists all the global variables that are used throughout the project.
     The two major components of this file are the list of the datasets and the list of the models.
 """
-
+import torchinfo
 """
     This is where we keep a reference to all the dataset classes in the project.
 """

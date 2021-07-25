@@ -82,9 +82,7 @@ class Scaled_Resnet(nn.Module):
         if scale[0] > 1:
             layers = [3, 4, 6, 3]
         self.model = Resnet.ResNet(Resnet.Bottleneck,layers, num_classes=classes)
-
-        poolscale = ((int)(scale[0]/16), (int)(scale[1]/16), (int)(scale[2]/16)); # 4 maxpools down
-        self.model.avgpool = nn.AdaptiveAvgPool2d((poolscale[1],poolscale[2]))
+        self.model.avgpool = nn.AdaptiveAvgPool2d((1,1))
         # The first part also needs to be fixed.
         self.model.conv1 = nn.Conv2d(scale[0], 64, kernel_size=3, stride=1, padding=1, bias=False) # Replace the harsh convolution.
         del self.model.maxpool
