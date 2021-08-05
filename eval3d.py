@@ -6,54 +6,70 @@ import torch
 from utils.args import args
 import global_vars as Global
 
+import json
+from json.decoder import JSONDecodeError
 #########################################################
-"""
-    Master Evaluation.
-"""
+
 d1_tasks, d2_tasks, d3_tasks, method_tasks = [], [], [], []
 
-if args.exp == 'master':
-    d1_tasks     = ['MNIST', 'FashionMNIST', 'CIFAR10', 'CIFAR100', 'STL10', 'TinyImagenet']
-    d2_tasks     = ['UniformNoise', 'NormalNoise', 'MNIST', 'FashionMNIST', 'NotMNIST', 'CIFAR10', 'CIFAR100', 'STL10', 'TinyImagenet']
-    d3_tasks     = ['UniformNoise', 'NormalNoise', 'MNIST', 'FashionMNIST', 'NotMNIST', 'CIFAR10', 'CIFAR100', 'STL10', 'TinyImagenet']
-    method_tasks = [
-                    'mcdropout/0',
-                    'prob_threshold/0',     'prob_threshold/1',
-                    'logistic_svm/0',       'logistic_svm/1',
-                    'score_svm/0',          'score_svm/1',
-                    'binclass/0',           'binclass/1',
-                    'deep_ensemble/0',      'deep_ensemble/1',
-                    'knn/1', 'knn/2', 'knn/4', 'knn/8',
-                    'bceaeknn/1', 'vaeaeknn/1', 'mseaeknn/1',
-                    'bceaeknn/2', 'vaeaeknn/2', 'mseaeknn/2',
-                    'bceaeknn/4', 'vaeaeknn/4', 'mseaeknn/4',
-                    'bceaeknn/8', 'vaeaeknn/8', 'mseaeknn/8',
-                    'reconst_thresh/0',     'reconst_thresh/1',
-                    'odin/0',               'odin/1',
-                    'openmax/0',            'openmax/1',
-                    ]
-########################################################
-"""
-    Test evaluation
-"""
-if args.exp == 'test-eval':
-    d1_tasks     = ['MNIST', 'CIFAR10', 'STL10']
-    d2_tasks     = ['UniformNoise', 'NormalNoise', 'NotMNIST', 'TinyImagenet']
-    d3_tasks     = ['UniformNoise', 'NormalNoise', 'NotMNIST', 'TinyImagenet']
-    method_tasks     = [
-                        'prob_threshold/0',
-                        ]
-########################################################
-"""
-    Default Evaluation
-"""
-if len(d1_tasks) == 0:
+json_file = args.exp
+json_exists = os.path.isfile(json_file)
+
+if (not json_file.endswith('.json')) or (not json_exists):
+    print("Using default evaluation")
     d1_tasks     = ['MNIST']
     d2_tasks     = ['UniformNoise', 'NormalNoise', 'MNIST', 'FashionMNIST', 'NotMNIST', 'CIFAR10', 'CIFAR100', 'STL10', 'TinyImagenet']
     d3_tasks     = ['UniformNoise', 'NormalNoise', 'MNIST', 'FashionMNIST', 'NotMNIST', 'CIFAR10', 'CIFAR100', 'STL10', 'TinyImagenet']
     method_tasks     = [
                         'prob_threshold/0',
                         ]
+else:
+    with open(json_file,"r") as fp:
+        try:
+            jx = json.load(fp)
+            print("Loaded experiment:" + jx['name'])
+            d1_tasks = jx['d1_tasks']
+            d2_tasks = jx['d2_tasks']
+            d3_tasks = jx['d3_tasks']
+            method_tasks = jx['method_tasks']
+        except KeyError:
+            print("Bad JSON file, check key headers")
+            quit()
+        except JSONDecodeError:
+            print("Bad JSON file, check structure")
+            quit()
+#if args.exp == 'master':
+#    d1_tasks     = ['MNIST', 'FashionMNIST', 'CIFAR10', 'CIFAR100', 'STL10', 'TinyImagenet']
+#    d2_tasks     = ['UniformNoise', 'NormalNoise', 'MNIST', 'FashionMNIST', 'NotMNIST', 'CIFAR10', 'CIFAR100', 'STL10', 'TinyImagenet']
+#    d3_tasks     = ['UniformNoise', 'NormalNoise', 'MNIST', 'FashionMNIST', 'NotMNIST', 'CIFAR10', 'CIFAR100', 'STL10', 'TinyImagenet']
+#    method_tasks = [
+#                    'mcdropout/0',
+#                    'prob_threshold/0',     'prob_threshold/1',
+#                    'logistic_svm/0',       'logistic_svm/1',
+#                    'score_svm/0',          'score_svm/1',
+#                    'binclass/0',           'binclass/1',
+#                    'deep_ensemble/0',      'deep_ensemble/1',
+#                    'knn/1', 'knn/2', 'knn/4', 'knn/8',
+#                    'bceaeknn/1', 'vaeaeknn/1', 'mseaeknn/1',
+#                    'bceaeknn/2', 'vaeaeknn/2', 'mseaeknn/2',
+#                    'bceaeknn/4', 'vaeaeknn/4', 'mseaeknn/4',
+#                    'bceaeknn/8', 'vaeaeknn/8', 'mseaeknn/8',
+#                    'reconst_thresh/0',     'reconst_thresh/1',
+#                    'odin/0',               'odin/1',
+#                    'openmax/0',            'openmax/1',
+#                    ]
+########################################################
+#"""
+#    Test evaluation
+#"""
+#if args.exp == 'test-eval':
+#    d1_tasks     = ['MNIST', 'CIFAR10', 'STL10']
+#    d2_tasks     = ['UniformNoise', 'NormalNoise', 'NotMNIST', 'TinyImagenet']
+#    d3_tasks     = ['UniformNoise', 'NormalNoise', 'NotMNIST', 'TinyImagenet']
+#    method_tasks     = [
+#                        'prob_threshold/0',
+#                        ]
+########################################################
 
 # Construct the dataset cache
 ds_cache = {}
