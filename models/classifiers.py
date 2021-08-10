@@ -33,7 +33,7 @@ class Scaled_VGG(nn.Module):
         channels = scale[0]
         self.model = VGG.VGG(self.make_layers(self.cfg, channels, batch_norm=True), num_classes=classes)
         # would have a different sized feature map.
-        poolscale = ((int)(scale[0]/16), (int)(scale[1]/16), (int)(scale[2]/16)); # 4 maxpools down
+        poolscale = ((int)(scale[0]/32), (int)(scale[1]/32), (int)(scale[2]/32)); # 5 maxpools down
         self.model.avgpool = nn.AdaptiveAvgPool2d((poolscale[1],poolscale[2]))
         self.model.classifier = nn.Sequential(
             nn.Linear(512 * poolscale[1] * poolscale[2], 4096), nn.ReLU(True), nn.Dropout(),
