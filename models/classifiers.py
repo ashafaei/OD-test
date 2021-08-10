@@ -29,17 +29,16 @@ class Scaled_VGG(nn.Module):
         self.offset = 0.44900
         self.multiplier = 4.42477
 
-        # Reduced VGG16.
-        self.cfg = [64, 'M', 128, 128, 'M', 256, 256, 'M', 512, 512, 'M']
+        self.cfg = [64, 64, 'M', 128, 128, 'M', 256, 256, 256, 'M', 512, 512, 512, 'M', 512, 512, 512, 'M']
         channels = scale[0]
         self.model = VGG.VGG(self.make_layers(self.cfg, channels, batch_norm=True), num_classes=classes)
-        # MNIST would have a different sized feature map.
+        # would have a different sized feature map.
         poolscale = ((int)(scale[0]/16), (int)(scale[1]/16), (int)(scale[2]/16)); # 4 maxpools down
         self.model.avgpool = nn.AdaptiveAvgPool2d((poolscale[1],poolscale[2]))
         self.model.classifier = nn.Sequential(
-            nn.Linear(512 * poolscale[1] * poolscale[2], 256), nn.ReLU(True), nn.Dropout(),
-            nn.Linear(256, 256), nn.ReLU(True), nn.Dropout(),
-            nn.Linear(256, classes),
+            nn.Linear(512 * poolscale[1] * poolscale[2], 4096), nn.ReLU(True), nn.Dropout(),
+            nn.Linear(4096, 4096), nn.ReLU(True), nn.Dropout(),
+            nn.Linear(4096, classes),
         )
         self.model._initialize_weights()
 
