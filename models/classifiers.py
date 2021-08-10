@@ -7,6 +7,7 @@ import torchvision.models.resnet as Resnet
 
 class Scaled_VGG(nn.Module):
 
+    #channel-aware VGG builder
     def make_layers(self, cfg, channels, batch_norm=False):
         layers = []
         in_channels = channels
@@ -29,16 +30,34 @@ class Scaled_VGG(nn.Module):
         self.offset = 0.44900
         self.multiplier = 4.42477
 
-        self.cfg = [64, 64, 'M', 128, 128, 'M', 256, 256, 256, 'M', 512, 512, 512, 'M', 512, 512, 512, 'M']
+        small_cfg = [64, 'M', 128, 128, 'M', 256, 256, 'M', 512, 512, 'M']
+        middle_cfg = [64, 64, 'M', 128, 128, 'M', 256, 256, 256, 'M', 512, 512, 512, 'M', 512, 512, 512]
+        large_cfg = [64, 64, 'M', 128, 128, 'M', 256, 256, 256, 'M', 512, 512, 512, 'M', 512, 512, 512, 'M']
+
+        classifier_width = 4096
+
+        if scale[1]<32:
+           self.cfg = small_cfg
+           classifier_width = 256
+
+        if scale[1]==32:
+            self.cfg = middle_cfg
+
+        if scale[1]>32:
+            self.cfg = large.cfg
+
+        maxpool_count = self.cfg.count('M')
+        scale_factor = 2**maxpool_count
+
         channels = scale[0]
         self.model = VGG.VGG(self.make_layers(self.cfg, channels, batch_norm=True), num_classes=classes)
         # would have a different sized feature map.
-        poolscale = ((int)(scale[0]/32), (int)(scale[1]/32), (int)(scale[2]/32)); # 5 maxpools down
+        poolscale = ((int)(scale[0]/scale_factor), (int)(scale[1]/scale_factor), (int)(scale[2]/scale_factor));
         self.model.avgpool = nn.AdaptiveAvgPool2d((poolscale[1],poolscale[2]))
         self.model.classifier = nn.Sequential(
-            nn.Linear(512 * poolscale[1] * poolscale[2], 4096), nn.ReLU(True), nn.Dropout(),
-            nn.Linear(4096, 4096), nn.ReLU(True), nn.Dropout(),
-            nn.Linear(4096, classes),
+            nn.Linear(512 * poolscale[1] * poolscale[2], classifier_width), nn.ReLU(True), nn.Dropout(),
+            nn.Linear(classifier_width, classifier_width), nn.ReLU(True), nn.Dropout(),
+            nn.Linear(classifier_width, classes),
         )
         self.model._initialize_weights()
 
