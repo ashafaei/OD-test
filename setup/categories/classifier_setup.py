@@ -11,6 +11,8 @@ from utils.iterative_trainer import IterativeTrainer, IterativeTrainerConfig
 from utils.logger import Logger
 from datasets import MirroredDataset
 
+import torchinfo
+
 def get_classifier_config(args, model, dataset):
     print("Preparing training D1 for %s"%(dataset.name))
 
@@ -73,10 +75,16 @@ def train_classifier(args, model, dataset):
     if not os.path.isdir(home_path):
         os.makedirs(home_path)
 
+    # retrieve model size from model
+
+    ms = model.get_info(args)
+    size_in_mb = ms.to_megabytes(ms.total_input) + ms.float_to_megabytes(ms.total_output + ms.total_params)
+
     trainer = IterativeTrainer(config, args)
 
     if not os.path.isfile(hbest_path+".done"):
         print('Training from scratch')
+        print("Estimated model size (from torchinfo):" + str(size_in_mb))
         best_accuracy = -1
         for epoch in range(1, config.max_epoch+1):
 

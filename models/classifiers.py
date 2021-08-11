@@ -5,6 +5,7 @@ import torch.nn.functional as F
 import torchvision.models.vgg as VGG
 import torchvision.models.resnet as Resnet
 
+
 class Scaled_VGG(nn.Module):
 
     #channel-aware VGG builder
@@ -35,6 +36,8 @@ class Scaled_VGG(nn.Module):
         large_cfg = [64, 64, 'M', 128, 128, 'M', 256, 256, 256, 'M', 512, 512, 512, 'M', 512, 512, 512, 'M']
 
         classifier_width = 4096
+
+        self.scale = scale
 
         if scale[1]<32:
            self.cfg = small_cfg
@@ -71,6 +74,11 @@ class Scaled_VGG(nn.Module):
         if softmax:
             output = F.log_softmax(output, dim=1)
         return output
+
+    def get_info(self,args):
+        self.batch_size = args.batch_size
+        self.info = torchinfo.summary(self.model, input_size=(batch_size, self.scale[0], self.scale[1], self.scale[2]), verbose=0)
+        return self.info
     
     def output_size(self):
         return torch.LongTensor([1, classes])
