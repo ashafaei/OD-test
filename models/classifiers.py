@@ -44,7 +44,7 @@ class Scaled_VGG(nn.Module):
             self.cfg = middle_cfg
 
         if scale[1]>32:
-            self.cfg = large.cfg
+            self.cfg = large_cfg
 
         maxpool_count = self.cfg.count('M')
         scale_factor = 2**maxpool_count
