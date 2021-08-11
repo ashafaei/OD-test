@@ -5,6 +5,7 @@ import torch.nn.functional as F
 import torchvision.models.vgg as VGG
 import torchvision.models.resnet as Resnet
 
+import torchinfo
 
 class Scaled_VGG(nn.Module):
 
@@ -77,7 +78,7 @@ class Scaled_VGG(nn.Module):
 
     def get_info(self,args):
         self.batch_size = args.batch_size
-        self.info = torchinfo.summary(self.model, input_size=(batch_size, self.scale[0], self.scale[1], self.scale[2]), verbose=0)
+        self.info = torchinfo.summary(self.model, input_size=(self.batch_size, self.scale[0], self.scale[1], self.scale[2]), verbose=0)
         return self.info
     
     def output_size(self):

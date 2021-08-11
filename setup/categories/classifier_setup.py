@@ -84,7 +84,7 @@ def train_classifier(args, model, dataset):
 
     if not os.path.isfile(hbest_path+".done"):
         print('Training from scratch')
-        print("Estimated model size (from torchinfo):" + str(size_in_mb))
+        print("Estimated model size (from torchinfo): " + str(size_in_mb) + "Mb")
         best_accuracy = -1
         for epoch in range(1, config.max_epoch+1):
 
