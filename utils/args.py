@@ -41,14 +41,17 @@ if not args.no_cuda:
 else:
     args.device = torch.device("cpu")
 
+print("Device:" + str(args.device))
+
 assert torch.cuda.is_available(), 'A cuda device is required!'
 
 # Reproducability.
 # Set up the random seed based on the arg.
 random.seed(args.seed)
 torch.manual_seed(args.seed)
-torch.cuda.set_device(args.cuda_device)
-torch.cuda.manual_seed(args.seed)
+if not args.no_cuda:
+    torch.cuda.set_device(args.cuda_device)
+    torch.cuda.manual_seed(args.seed)
 
 cudnn.benchmark = True
 

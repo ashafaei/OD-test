@@ -59,11 +59,11 @@ class ScoreSVM(ProbabilityThreshold):
 
         # Set up the criterion
         # margin must be non-zero.
-        criterion = SVMLoss(margin=1.0).cuda()
+        criterion = SVMLoss(margin=1.0).to(self.args.device)
         criterion.size_average = True
 
         # Set up the model
-        model = ScoreSVMModelWrapper(self.base_model).cuda()
+        model = ScoreSVMModelWrapper(self.base_model).to(self.args.device)
 
         old_valid_loader = valid_loader
         if will_train:

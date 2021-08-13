@@ -18,8 +18,8 @@ class KNNModel(nn.Module):
 
     def __init__(self, base_data, k=1):
         super(KNNModel, self).__init__()
-        self.base_data = base_data.half().cuda()         # We probably have to rewrite this part of the code 
-                                                         # as larger datasets may not entirely fit into the GPU memory.
+        self.base_data = base_data.half()        # We probably have to rewrite this part of the code 
+                                                 # as larger datasets may not entirely fit into the GPU memory.
         n_data = self.base_data.size(0)
         self.base_data = self.base_data.view(n_data, -1) # Flatten the train data.
         self.base_data_norm = (self.base_data*self.base_data).sum(dim=1)
@@ -85,7 +85,7 @@ class AEKNNModel(nn.Module):
 
     def __init__(self, subnetwork, base_data, k=1):
         super(AEKNNModel, self).__init__()
-        self.base_data = base_data.cuda()
+        self.base_data = base_data
         n_data = self.base_data.size(0)
         self.base_data = self.base_data.view(n_data, -1) # Flatten the train data.
         self.base_data_norm = (self.base_data*self.base_data).sum(dim=1)

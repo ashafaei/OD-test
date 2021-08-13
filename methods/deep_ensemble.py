@@ -137,8 +137,11 @@ class DeepEnsemble(ProbabilityThreshold):
 
         all_loader   = DataLoader(dataset,  batch_size=self.args.batch_size, num_workers=self.args.workers, pin_memory=True)
 
+        im,l = dataset[0]
+        input_size = im.size() #datasets in pytorch are assumed to be uniform size
+
         # Set up the criterion
-        criterion = nn.NLLLoss().cuda()
+        criterion = nn.NLLLoss().to(self.args.device)
         criterion.size_average = True
 
         # Set up the model
