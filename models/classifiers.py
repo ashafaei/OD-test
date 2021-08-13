@@ -160,31 +160,36 @@ class Scaled_VGG_2GPU(Scaled_VGG):
 
 class Scaled_VGG_2GPU_Pipeline(Scaled_VGG_2GPU):
     #taken pretty straight from https://pytorch.org/tutorials/intermediate/model_parallel_tutorial.html
-    def __init__(self, split_size=20, *args, **kwargs):
+    def __init__(self, split_size=64, *args, **kwargs):
         super(Scaled_VGG_2GPU_Pipeline, self).__init__(*args,**kwargs)
         self.split_size = split_size
-
+            
     def forward(self, x, softmax=True):
         splits = iter(x.split(self.split_size, dim=0))
 
         s_next = next(splits).to(self.dev1)
+        s_next = (s_next-self.offset)*self.multiplier
         s_prev = self.seq1(s_next)
-        s_prev = torch.flatten(s_prev, 1).to(self.dev2)
+        s_prev = torch.flatten(s_prev, 1)
+        s_prev = s_prev.to(self.dev2)
+
         ret = []
 
         for s_next in splits:
             s_next = s_next.to(self.dev1)
+            s_next = (s_next-self.offset)*self.multiplier
             # A. s_prev runs on cuda:1
-            s_prev = self.seq2(s_prev)
+            output = self.seq2(s_prev)
             if softmax:
                 output = F.log_softmax(output, dim=1)
             ret.append(output)
 
             # B. s_next runs on cuda:0, which can run concurrently with A
             s_prev = self.seq1(s_next)
-            s_prev = torch.flatten(s_prev, 1).to(self.dev2)
+            s_prev = torch.flatten(s_prev, 1)
+            s_prev = s_prev.to(self.dev2)
 
-        s_prev = self.seq2(s_prev)
+        output = self.seq2(s_prev)
         if softmax:
             output = F.log_softmax(output, dim=1)
         ret.append(output)
