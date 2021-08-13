@@ -69,8 +69,8 @@ dataset_reference_classifiers = {
     'MNIST':                  [ModelFactory(CLS.Scaled_VGG, scale=(1,28,28), classes=10, epochs=60), ModelFactory(CLS.Scaled_Resnet, scale=(1,28,28), classes=10, epochs=60)],
     'FashionMNIST':           [ModelFactory(CLS.Scaled_VGG, scale=(1,28,28), classes=10, epochs=60), ModelFactory(CLS.Scaled_Resnet, scale=(1,28,28), classes=10, epochs=60)],
     'CIFAR10':                [ModelFactory(CLS.Scaled_VGG, scale=(3,32,32), classes=10, epochs=60), ModelFactory(CLS.Scaled_Resnet, scale=(3,32,32), classes=10, epochs=120)],
-    'CIFAR100':               [ModelFactory(CLS.Scaled_VGG, scale=(3,32,32), classes=100, epochs=120), ModelFactory(CLS.Scaled_Resnet, scale=(3,32,32), classes=100, epochs=120)],
-    'STL10':                  [ModelFactory(CLS.Scaled_VGG, scale=(3, 96, 96), classes=10, epochs=120), ModelFactory(CLS.Scaled_Resnet, scale=(3, 96, 96), classes=10, epochs=120)],
+#    'CIFAR100':               [ModelFactory(CLS.Scaled_VGG_2GPU_Pipeline, scale=(3,32,32), classes=100, epochs=120), ModelFactory(CLS.Scaled_Resnet, scale=(3,32,32), classes=100, epochs=120)],
+#    'STL10':                  [ModelFactory(CLS.Scaled_VGG_2GPU_Pipeline, scale=(3, 96, 96), classes=10, epochs=120), ModelFactory(CLS.Scaled_Resnet, scale=(3, 96, 96), classes=10, epochs=120)],
 #    'TinyImagenet':           [ModelFactory(CLS.Scaled_VGG, scale=(3, 64, 64), classes=200, epochs=120), ModelFactory(CLS.Scaled_Resnet, scale=(3, 64, 64), classes=200, epochs=120)],
 }
 

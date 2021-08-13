@@ -25,7 +25,7 @@ class Scaled_VGG(nn.Module):
                 in_channels = v
         return nn.Sequential(*layers)
 
-    def __init__(self,scale,classes,epochs):
+    def __init__(self,scale,classes,epochs,init_weights=True):
         super(Scaled_VGG, self).__init__()
 
         # Based on the imagenet normalization params.
@@ -63,7 +63,8 @@ class Scaled_VGG(nn.Module):
             nn.Linear(classifier_width, classifier_width), nn.ReLU(True), nn.Dropout(),
             nn.Linear(classifier_width, classes),
         )
-        self.model._initialize_weights()
+        if(init_weights):
+            self.model._initialize_weights()
 
         self.epochs = epochs
 
@@ -91,6 +92,100 @@ class Scaled_VGG(nn.Module):
         config['max_epoch'] = self.epochs
         return config
 
+class Scaled_VGG_2GPU(Scaled_VGG):
+
+    def __init__(self,scale,classes,epochs):
+        super(Scaled_VGG_2GPU, self).__init__(scale,classes,epochs,False)
+
+        self.dev1 = 'cpu'
+        self.dev2 = 'cpu'
+
+        #self.dev1 = 'cuda:0'
+        #self.dev2 = 'cuda:1'
+
+        # features on GPU0, classifier on GPU1
+        self.model.features.to(self.dev1)
+        self.model.avgpool.to(self.dev1)
+        self.seq1 = nn.Sequential(
+            self.model.features,
+            self.model.avgpool
+            ).to(self.dev1)
+
+        self.model.classifier.to(self.dev2)
+        self.seq2 = nn.Sequential(
+            self.model.classifier
+            ).to(self.dev2)
+
+        self._initialize_weights()
+
+    def forward(self, x, softmax=True):
+        x = x.to(self.dev1)
+        x = (x-self.offset)*self.multiplier
+        x = self.seq1(x)
+        x = torch.flatten(x, 1)
+        x = x.to(self.dev2)
+        output = self.seq2(x)
+
+        if softmax:
+            output = F.log_softmax(output, dim=1)
+        return output
+    
+    def _initialize_weights(self) -> None:
+        for m in self.modules():
+
+            if isinstance(m, nn.Conv2d):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')
+                if m.bias is not None:
+                    nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.normal_(m.weight, 0, 0.01)
+                nn.init.constant_(m.bias, 0)
+
+    def output_size(self):
+        return torch.LongTensor([1, classes])
+
+    def train_config(self):
+        config = {}
+        config['optim']     = optim.Adam(self.parameters(), lr=1e-3)
+        config['scheduler'] = optim.lr_scheduler.ReduceLROnPlateau(config['optim'], patience=10, threshold=1e-2, min_lr=1e-6, factor=0.1, verbose=True)
+        config['max_epoch'] = self.epochs
+        return config
+
+class Scaled_VGG_2GPU_Pipeline(Scaled_VGG_2GPU):
+    #taken pretty straight from https://pytorch.org/tutorials/intermediate/model_parallel_tutorial.html
+    def __init__(self, split_size=20, *args, **kwargs):
+        super(Scaled_VGG_2GPU_Pipeline, self).__init__(*args,**kwargs)
+        self.split_size = split_size
+
+    def forward(self, x, softmax=True):
+        splits = iter(x.split(self.split_size, dim=0))
+
+        s_next = next(splits).to(self.dev1)
+        s_prev = self.seq1(s_next)
+        s_prev = torch.flatten(s_prev, 1).to(self.dev2)
+        ret = []
+
+        for s_next in splits:
+            s_next = s_next.to(self.dev1)
+            # A. s_prev runs on cuda:1
+            s_prev = self.seq2(s_prev)
+            if softmax:
+                output = F.log_softmax(output, dim=1)
+            ret.append(output)
+
+            # B. s_next runs on cuda:0, which can run concurrently with A
+            s_prev = self.seq1(s_next)
+            s_prev = torch.flatten(s_prev, 1).to(self.dev2)
+
+        s_prev = self.seq2(s_prev)
+        if softmax:
+            output = F.log_softmax(output, dim=1)
+        ret.append(output)
+
+        return torch.cat(ret)
 
 class Scaled_Resnet(nn.Module):
     """
