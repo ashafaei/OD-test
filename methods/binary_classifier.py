@@ -68,7 +68,7 @@ class BinaryClassifier(ProbabilityThreshold):
         input_size = im.size() #datasets in pytorch are assumed to be uniform size
 
         # Set up the criterion
-        criterion = nn.BCEWithLogitsLoss().cuda()
+        criterion = nn.BCEWithLogitsLoss().to(self.args.device)
         criterion.size_average = True
 
         # Set up the model

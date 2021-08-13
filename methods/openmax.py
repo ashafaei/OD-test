@@ -236,7 +236,7 @@ class OpenMax(ProbabilityThreshold):
 
         # Set up the criterion
         # margin must be non-zero.
-        criterion = SVMLoss(margin=1.0).cuda()
+        criterion = SVMLoss(margin=1.0).to(self.args.device)
         criterion.size_average = True
 
         # Set up the model
