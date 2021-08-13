@@ -31,10 +31,11 @@ def get_classifier_config(args, model, dataset):
     all_loader   = DataLoader(dataset,  batch_size=args.batch_size, num_workers=args.workers, pin_memory=pin)
 
     # Set up the criterion
-    criterion = nn.NLLLoss().to(args.device)
+    #criterion = nn.NLLLoss().to(args.device)
+    criterion = nn.NLLLoss() # the labels are now put on the output device
 
     # Set up the model
-    model = model.to(args.device)
+    #model = model.to(args.device) # this is set up inside the split model itself
 
     # Set up the config
     config = IterativeTrainerConfig()

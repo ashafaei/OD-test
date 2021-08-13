@@ -41,8 +41,6 @@ if not args.no_cuda:
 else:
     args.device = torch.device("cpu")
 
-print("Device:" + str(args.device))
-
 assert torch.cuda.is_available(), 'A cuda device is required!'
 
 # Reproducability.

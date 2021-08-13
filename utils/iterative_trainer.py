@@ -81,7 +81,7 @@ class IterativeTrainer(object):
             if self.config.cast_float_label:
                 target = target.float().unsqueeze(1)
 
-            input, target = input.to(self.device), target.to(self.device)
+            input, target = input.to(self.device), target.to(model.get_output_device())
 
             # Do a forward propagation and get the loss.
             prediction = None

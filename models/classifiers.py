@@ -97,11 +97,11 @@ class Scaled_VGG_2GPU(Scaled_VGG):
     def __init__(self,scale,classes,epochs):
         super(Scaled_VGG_2GPU, self).__init__(scale,classes,epochs,False)
 
-        self.dev1 = 'cpu'
-        self.dev2 = 'cpu'
+        self.dev1 = torch.device('cuda:0')
+        self.dev2 = torch.device('cpu')
 
-        #self.dev1 = 'cuda:0'
-        #self.dev2 = 'cuda:1'
+        #self.dev1 = torch.device('cuda:0')
+        #self.dev2 = torch.device('cuda:1')
 
         # features on GPU0, classifier on GPU1
         self.model.features.to(self.dev1)
@@ -116,7 +116,7 @@ class Scaled_VGG_2GPU(Scaled_VGG):
             self.model.classifier
             ).to(self.dev2)
 
-        self._initialize_weights()
+        self._initialize_weights
 
     def forward(self, x, softmax=True):
         x = x.to(self.dev1)
@@ -143,6 +143,10 @@ class Scaled_VGG_2GPU(Scaled_VGG):
             elif isinstance(m, nn.Linear):
                 nn.init.normal_(m.weight, 0, 0.01)
                 nn.init.constant_(m.bias, 0)
+
+    # because the model is split, we need to know which device the outputs go to put the labels on so the loss function can do the comparison
+    def get_output_device(self):
+        return self.dev2
 
     def output_size(self):
         return torch.LongTensor([1, classes])
