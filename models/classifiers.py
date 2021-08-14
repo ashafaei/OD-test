@@ -245,10 +245,10 @@ class Scaled_Resnet_2GPU(Scaled_Resnet):
     def __init__(self,scale,classes,epochs):
         super(Scaled_Resnet_2GPU,self).__init__(scale,classes,epochs)
         
-	self.dev1 = torch.device('cuda:0')
+        self.dev1 = torch.device('cuda:0')
         self.dev2 = torch.device('cuda:1')
 
-	self.seq1 = nn.Sequential(
+        self.seq1 = nn.Sequential(
             self.model.conv1,
             self.model.bn1,
             self.model.relu,
@@ -269,11 +269,11 @@ class Scaled_Resnet_2GPU(Scaled_Resnet):
     def forward(self, x, softmax=True):
         # Perform late normalization.
         x = (x-self.offset)*self.multiplier
-	x.to(self.dev1)
+        x.to(self.dev1)
 
-	x = self.seq1(x).to(self.dev2)
-	x = self.seq2(x)
-	output = self.model.fc(x.view(x.size(0), -1))	
+        x = self.seq1(x).to(self.dev2)
+        x = self.seq2(x)
+        output = self.model.fc(x.view(x.size(0), -1))	
 
         if softmax:
             output = F.log_softmax(output, dim=1)
@@ -299,8 +299,8 @@ class Scaled_Resnet_2GPU_Pipeline(Scaled_Resnet_2GPU):
         for s_next in splits:
             # A. s_prev runs on cuda:1
             s_prev = self.seq2(s_prev)
-	    output = self.fc(s_prev.view(s_prev.size(0), -1))
-	    if softmax:
+            output = self.fc(s_prev.view(s_prev.size(0), -1))
+            if softmax:
             	output = F.log_softmax(output, dim=1)
 
             ret.append(output)
@@ -309,8 +309,8 @@ class Scaled_Resnet_2GPU_Pipeline(Scaled_Resnet_2GPU):
             s_prev = self.seq1(s_next).to(self.dev2)
 
         s_prev = self.seq2(s_prev)
-	output = self.fc(s_prev.view(s_prev.size(0), -1))
-	if softmax:
+        output = self.fc(s_prev.view(s_prev.size(0), -1))
+        if softmax:
             output = F.log_softmax(output, dim=1)
 
         ret.append(output)
