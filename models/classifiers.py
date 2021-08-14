@@ -298,7 +298,7 @@ class Scaled_Resnet_2GPU_Pipeline(Scaled_Resnet_2GPU):
         for s_next in splits:
             # A. s_prev runs on cuda:1
             s_prev = self.seq2(s_prev)
-            output = self.fc(s_prev.view(s_prev.size(0), -1))
+            output = self.model.fc(s_prev.view(s_prev.size(0), -1))
             if softmax:
             	output = F.log_softmax(output, dim=1)
 
@@ -308,7 +308,7 @@ class Scaled_Resnet_2GPU_Pipeline(Scaled_Resnet_2GPU):
             s_prev = self.seq1(s_next).to(self.dev2)
 
         s_prev = self.seq2(s_prev)
-        output = self.fc(s_prev.view(s_prev.size(0), -1))
+        output = self.model.fc(s_prev.view(s_prev.size(0), -1))
         if softmax:
             output = F.log_softmax(output, dim=1)
 
