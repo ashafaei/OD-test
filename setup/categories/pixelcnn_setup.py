@@ -17,9 +17,10 @@ import models.pixelcnn.utils as pcnn_utils
 
 def sample(model, batch_size, obs):
     model.train(False)
+    m_dev = model.device()
     nmix = model.nr_logistic_mix
     data = torch.zeros(batch_size, obs[0], obs[1], obs[2])
-    data = data.cuda()
+    data = data.to(m_dev)
     rescaling_inv = lambda x : .5 * x  + .5
     with torch.set_grad_enabled(False):
         for i in range(obs[1]):

@@ -11,6 +11,8 @@ from utils.iterative_trainer import IterativeTrainer, IterativeTrainerConfig
 from utils.logger import Logger
 from datasets import MirroredDataset
 
+import torchinfo
+
 def get_classifier_config(args, model, dataset):
     print("Preparing training D1 for %s"%(dataset.name))
 
@@ -23,15 +25,17 @@ def get_classifier_config(args, model, dataset):
         train_ds = new_train_ds
 
     # Initialize the multi-threaded loaders.
-    train_loader = DataLoader(train_ds, batch_size=args.batch_size, shuffle=True, num_workers=args.workers, pin_memory=True)
-    valid_loader = DataLoader(valid_ds, batch_size=args.batch_size, num_workers=args.workers, pin_memory=True)
-    all_loader   = DataLoader(dataset,  batch_size=args.batch_size, num_workers=args.workers, pin_memory=True)
+    pin = (args.device != 'cpu')
+    train_loader = DataLoader(train_ds, batch_size=args.batch_size, shuffle=True, num_workers=args.workers, pin_memory=pin)
+    valid_loader = DataLoader(valid_ds, batch_size=args.batch_size, num_workers=args.workers, pin_memory=pin)
+    all_loader   = DataLoader(dataset,  batch_size=args.batch_size, num_workers=args.workers, pin_memory=pin)
 
     # Set up the criterion
-    criterion = nn.NLLLoss().to(args.device)
+    #criterion = nn.NLLLoss().to(args.device)
+    criterion = nn.NLLLoss() # the labels are now put on the output device
 
     # Set up the model
-    model = model.to(args.device)
+    #model = model.to(args.device) # this is set up inside the split model itself
 
     # Set up the config
     config = IterativeTrainerConfig()
@@ -48,14 +52,14 @@ def get_classifier_config(args, model, dataset):
     config.criterion = criterion
     config.classification = True
     config.stochastic_gradient = True
-    config.visualize = not args.no_visualize
+
     config.model = model
     config.logger = Logger()
 
     config.optim = optim.Adam(model.parameters(), lr=1e-3)
     config.scheduler = optim.lr_scheduler.ReduceLROnPlateau(config.optim, patience=10, threshold=1e-2, min_lr=1e-6, factor=0.1, verbose=True)
     config.max_epoch = 120
-    
+
     if hasattr(model, 'train_config'):
         model_train_config = model.train_config()
         for key, value in model_train_config.items():
@@ -73,10 +77,16 @@ def train_classifier(args, model, dataset):
     if not os.path.isdir(home_path):
         os.makedirs(home_path)
 
+    # retrieve model size from model
+
+    #ms = model.get_info(args)
+    #size_in_mb = ms.to_megabytes(ms.total_input) + ms.float_to_megabytes(ms.total_output + ms.total_params)
+
     trainer = IterativeTrainer(config, args)
 
     if not os.path.isfile(hbest_path+".done"):
         print('Training from scratch')
+        
         best_accuracy = -1
         for epoch in range(1, config.max_epoch+1):
 
@@ -115,6 +125,8 @@ def train_classifier(args, model, dataset):
     print("Loading the best model.")
     config.model.load_state_dict(torch.load(hbest_path))
     config.model.eval()
+
+    #print("Estimated model size (from torchinfo): " + str(size_in_mb) + "Mb")
 
     trainer.run_epoch(0, phase='all')
     test_average_acc = config.logger.get_measure('all_accuracy').mean_epoch(epoch=0)

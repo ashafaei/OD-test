@@ -5,7 +5,7 @@ currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentfram
 parentdir = os.path.dirname(currentdir)
 sys.path.insert(0,parentdir)
 
-import torchinfo
+from torchinfo import ModelStatistics
 import models as Models
 import global_vars as Global
 from utils.args import args
@@ -39,11 +39,11 @@ if __name__ == "__main__":
         # whether we have done them before without instantiating the network architecture or dataset.
         # saves quite a lot of time when possible.
         (Global.dataset_reference_classifiers, CLSetup.train_classifier,            True, ['base']),
-        (Global.dataset_reference_classifiers, KLogisticSetup.train_classifier,     True, ['KLogistic']),
-        (Global.dataset_reference_classifiers, DeepEnsembleSetup.train_classifier,  True, ['DE.%d'%i for i in range(5)]),
-        (Global.dataset_reference_autoencoders, AESetup.train_BCE_AE,               False, []),
-        (Global.dataset_reference_autoencoders, AESetup.train_MSE_AE,               False, []),
-        (Global.dataset_reference_vaes, AESetup.train_variational_autoencoder,      False, []),
+        #(Global.dataset_reference_classifiers, KLogisticSetup.train_classifier,     True, ['KLogistic']),
+        #(Global.dataset_reference_classifiers, DeepEnsembleSetup.train_classifier,  True, ['DE.%d'%i for i in range(5)]),
+        #(Global.dataset_reference_autoencoders, AESetup.train_BCE_AE,               False, []),
+        #(Global.dataset_reference_autoencoders, AESetup.train_MSE_AE,               False, []),
+        #(Global.dataset_reference_vaes, AESetup.train_variational_autoencoder,      False, []),
         # (Global.dataset_reference_pcnns, PCNNSetup.train_pixelcnn,                  False, []),
     ]
 

@@ -20,7 +20,6 @@ class IterativeTrainer(object):
             'autoencoder_target': False,
             'autoencoder_class': False,
             'stochastic_gradient': True,
-            'visualize': True,
             'sigmoid_viz': True,
         }
         for key, value in defaults.items():
@@ -37,7 +36,6 @@ class IterativeTrainer(object):
         print("Doing %s"%phase)
 
         model       = self.config.model
-        visualize   = self.config.visualize
         criterion   = self.config.criterion
         optimizer   = self.config.optim
         logger      = self.config.logger
@@ -83,7 +81,7 @@ class IterativeTrainer(object):
             if self.config.cast_float_label:
                 target = target.float().unsqueeze(1)
 
-            input, target = input.to(self.device), target.to(self.device)
+            input, target = input.to(self.device), target.to(model.get_output_device())
 
             # Do a forward propagation and get the loss.
             prediction = None
