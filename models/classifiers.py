@@ -252,7 +252,6 @@ class Scaled_Resnet_2GPU(Scaled_Resnet):
             self.model.conv1,
             self.model.bn1,
             self.model.relu,
-            self.model.maxpool,
 
             self.model.layer1,
             self.model.layer2
