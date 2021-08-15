@@ -180,8 +180,6 @@ class Scaled_VGG_2GPU_Pipeline(Scaled_VGG_2GPU):
             s_next = (s_next-self.offset)*self.multiplier
             # A. s_prev runs on cuda:1
             output = self.seq2(s_prev)
-            if softmax:
-                output = F.log_softmax(output, dim=1)
             ret.append(output)
 
             # B. s_next runs on cuda:0, which can run concurrently with A
@@ -190,11 +188,13 @@ class Scaled_VGG_2GPU_Pipeline(Scaled_VGG_2GPU):
             s_prev = s_prev.to(self.dev2)
 
         output = self.seq2(s_prev)
-        if softmax:
-            output = F.log_softmax(output, dim=1)
         ret.append(output)
 
-        return torch.cat(ret)
+        p = torch.cat(ret)
+        if softmax:
+            p = F.log_softmax(p, dim=1)
+
+        return p
 
 class Scaled_Resnet(nn.Module):
     """
@@ -299,8 +299,6 @@ class Scaled_Resnet_2GPU_Pipeline(Scaled_Resnet_2GPU):
             # A. s_prev runs on cuda:1
             s_prev = self.seq2(s_prev)
             output = self.model.fc(s_prev.view(s_prev.size(0), -1))
-            if softmax:
-            	output = F.log_softmax(output, dim=1)
 
             ret.append(output)
 
@@ -309,9 +307,11 @@ class Scaled_Resnet_2GPU_Pipeline(Scaled_Resnet_2GPU):
 
         s_prev = self.seq2(s_prev)
         output = self.model.fc(s_prev.view(s_prev.size(0), -1))
-        if softmax:
-            output = F.log_softmax(output, dim=1)
-
         ret.append(output)
 
-        return torch.cat(ret)
+        p = torch.cat(ret)
+
+        if softmax:
+            p = F.log_softmax(p, dim=1)
+
+        return p
