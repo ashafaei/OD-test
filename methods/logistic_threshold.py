@@ -27,6 +27,12 @@ class KWayLogisticWrapper(nn.Module):
     def preferred_name(self):
         return self.model.__class__.__name__
 
+    def get_info(self,args):
+        return self.model.get_info(args)
+
+    def get_output_device(self):
+        return self.model.get_output_device()
+
     def output_size(self):
         return self.model.output_size()
 

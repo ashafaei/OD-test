@@ -34,6 +34,12 @@ class DeepEnsembleWrapper(nn.Module):
     def preferred_name(self):
         return self.model.__class__.__name__
 
+    def get_output_device(self):
+        return self.model.get_output_device()
+
+    def get_info(self,args):
+        return self.model.get_info(args)
+
     def output_size(self):
         return self.model.output_size()
         
@@ -99,6 +105,8 @@ class DeepEnsembleMasterWrapper(nn.Module):
             return output
     def preferred_name(self):
         return self.subwrappers[0].preferred_name()
+
+
 
 class DeepEnsembleModelWrapper(AbstractModelWrapper):
     """ The wrapper class for H.

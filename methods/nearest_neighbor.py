@@ -47,6 +47,10 @@ class KNNModel(nn.Module):
     def output_size(self):
         return torch.LongTensor([1, self.K])
 
+    def get_output_device(self):
+        return 'cpu'
+
+
 class KNNSVM(ScoreSVM):
     def __init__(self, args):
         super(KNNSVM, self).__init__(args)

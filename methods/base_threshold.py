@@ -21,6 +21,7 @@ class PTModelWrapper(AbstractModelWrapper):
     """
     def __init__(self, base_model):
         super(PTModelWrapper, self).__init__(base_model)
+        self.base_model = base_model
         self.H = nn.Module()
         self.H.register_parameter('threshold', nn.Parameter(torch.Tensor([0.5]))) # initialize to prob=0.5 for faster convergence.
 
@@ -37,6 +38,7 @@ class PTModelWrapper(AbstractModelWrapper):
     
     def classify(self, x):
         return (x > 0).long()
+
 
 class ProbabilityThreshold(AbstractMethodInterface):
     def __init__(self, args):
