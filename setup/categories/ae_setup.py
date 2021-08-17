@@ -25,9 +25,10 @@ def get_ae_config(args, model, dataset, BCE_Loss):
         train_ds = new_train_ds
 
     # Initialize the multi-threaded loaders.
-    train_loader = DataLoader(train_ds, batch_size=args.batch_size, shuffle=True, num_workers=args.workers, pin_memory=True)
-    valid_loader = DataLoader(valid_ds, batch_size=args.batch_size, num_workers=args.workers, pin_memory=True)
-    all_loader   = DataLoader(dataset,  batch_size=args.batch_size, num_workers=args.workers, pin_memory=True)
+    pin = (args.device != 'cpu')
+    train_loader = DataLoader(train_ds, batch_size=args.batch_size, shuffle=True, num_workers=args.workers, pin_memory=pin)
+    valid_loader = DataLoader(valid_ds, batch_size=args.batch_size, num_workers=args.workers, pin_memory=pin)
+    all_loader   = DataLoader(dataset,  batch_size=args.batch_size, num_workers=args.workers, pin_memory=pin)
 
     # Set up the model
     model = model.to(args.device)
@@ -35,9 +36,9 @@ def get_ae_config(args, model, dataset, BCE_Loss):
     # Set up the criterion
     criterion = None
     if BCE_Loss:
-        criterion = nn.BCEWithLogitsLoss().to(args.device)
+        criterion = nn.BCEWithLogitsLoss()
     else:
-        criterion = nn.MSELoss().to(args.device)
+        criterion = nn.MSELoss()
         model.default_sigmoid = True
 
     # Set up the config
