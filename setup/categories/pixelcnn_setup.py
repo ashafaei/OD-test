@@ -1,7 +1,4 @@
-from __future__ import print_function
 import os
-from termcolor import colored
-
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -46,14 +43,15 @@ def get_pcnn_config(args, model, dataset):
     train_ds, valid_ds = dataset.split_dataset(0.8)
 
     if dataset.name in Global.mirror_augment:
-        print(colored("Mirror augmenting %s"%dataset.name, 'green'))
+        print("Mirror augmenting %s"%dataset.name)
         new_train_ds = train_ds + MirroredDataset(train_ds)
         train_ds = new_train_ds
 
     # Initialize the multi-threaded loaders.
-    train_loader = DataLoader(train_ds, batch_size=args.batch_size, shuffle=True, num_workers=args.workers, pin_memory=True)
-    valid_loader = DataLoader(valid_ds, batch_size=args.batch_size, num_workers=args.workers, pin_memory=True)
-    all_loader   = DataLoader(dataset,  batch_size=args.batch_size, num_workers=args.workers, pin_memory=True)
+    pin = (args.device != 'cpu')
+    train_loader = DataLoader(train_ds, batch_size=args.batch_size, shuffle=True, num_workers=args.workers, pin_memory=pin)
+    valid_loader = DataLoader(valid_ds, batch_size=args.batch_size, num_workers=args.workers, pin_memory=pin)
+    all_loader   = DataLoader(dataset,  batch_size=args.batch_size, num_workers=args.workers, pin_memory=pin)
 
     # Set up the model
     model = model.to(args.device)
@@ -78,7 +76,6 @@ def get_pcnn_config(args, model, dataset):
     config.cast_float_label = False
     config.autoencoder_target = True
     config.stochastic_gradient = True
-    config.visualize = not args.no_visualize
     config.model = model
     config.logger = Logger()
     config.sampler = lambda x: sample(x.model, 32, obs)
@@ -107,7 +104,7 @@ def train_pixelcnn(args, model, dataset):
     if not os.path.isfile(hbest_path+".done"):
         config = get_pcnn_config(args, model, dataset)
         trainer = IterativeTrainer(config, args)
-        print(colored('Training from scratch', 'green'))
+        print('Training from scratch')
         best_loss = 999999999
         for epoch in range(1, config.max_epoch+1):
 
@@ -124,14 +121,7 @@ def train_pixelcnn(args, model, dataset):
             test_loss = config.logger.get_measure('test_loss').mean_epoch()
 
             config.scheduler.step(train_loss)
-
-            if config.visualize:
-                # Show the average losses for all the phases in one figure.
-                config.logger.visualize_average_keys('.*_loss', 'Average Loss', trainer.visdom)
-                config.logger.visualize_average('LRs', trainer.visdom)
-                samples = config.sampler(config)
-                trainer.visdom.images(samples.cpu(), win='sample_images')
-
+            
             # Save the logger for future reference.
             torch.save(config.logger.measures, os.path.join(home_path, 'logger.pth'))
 
@@ -141,14 +131,12 @@ def train_pixelcnn(args, model, dataset):
             #     torch.save(config.model.state_dict(), os.path.join(home_path, 'model.%d.pth'%epoch))
 
             if args.save and test_loss < best_loss:
-                print('Updating the on file model with %s'%(colored('%.4f'%test_loss, 'red')))
+                print('Updating the on file model with %s'%('%.4f'%test_loss))
                 best_loss = test_loss
                 torch.save(config.model.state_dict(), hbest_path)
         
         torch.save({'finished':True}, hbest_path+".done")
         torch.save(config.model.state_dict(), hlast_path)
 
-        if config.visualize:
-            trainer.visdom.save([trainer.visdom.env])
     else:
         print("Skipping %s"%(colored(home_path, 'yellow')))
