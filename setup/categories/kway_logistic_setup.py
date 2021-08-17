@@ -29,10 +29,11 @@ def get_KLclassifier_config(args, model, dataset):
     all_loader   = DataLoader(dataset,  batch_size=args.batch_size, num_workers=args.workers, pin_memory=True)
 
     # Set up the criterion
-    criterion = KWayLogisticLoss().to(args.device)
+    criterion = KWayLogisticLoss()
 
     # Set up the model
-    klmodel = KWayLogisticWrapper(model).to(args.device)
+    #klmodel = KWayLogisticWrapper(model).to(args.device)
+    klmodel = KWayLogisticWrapper(model)
 
     # Set up the config
     config = IterativeTrainerConfig()
