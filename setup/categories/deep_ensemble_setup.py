@@ -24,7 +24,7 @@ def get_classifier_config(args, model, dataset, mid=0):
         train_ds = new_train_ds
 
     # Initialize the multi-threaded loaders.
-    train_loader = DataLoader(train_ds, batch_size=args.batch_size/2, shuffle=True, num_workers=args.workers, pin_memory=True)
+    train_loader = DataLoader(train_ds, batch_size=int(args.batch_size/2), shuffle=True, num_workers=args.workers, pin_memory=True)
     valid_loader = DataLoader(valid_ds, batch_size=args.batch_size, num_workers=args.workers, pin_memory=True)
     all_loader   = DataLoader(dataset,  batch_size=args.batch_size, num_workers=args.workers, pin_memory=True)
 
