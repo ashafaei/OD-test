@@ -10,6 +10,8 @@ from utils.iterative_trainer import IterativeTrainer, IterativeTrainerConfig
 from utils.logger import Logger
 from datasets import MirroredDataset
 
+import copy
+
 def get_classifier_config(args, model, dataset, mid=0):
     print("Preparing training D1 for %s"%(dataset.name))
 
@@ -72,6 +74,9 @@ def train_classifier(args, model, dataset):
     config = None
 
     for mid in range(5):
+
+        local_model = copy.deepcopy(model)
+
         home_path = Models.get_ref_model_path(args, model.__class__.__name__, dataset.name, model_setup=True, suffix_str='DE.%d'%mid)
         hbest_path = os.path.join(home_path, 'model.best.pth')
 
@@ -82,7 +87,7 @@ def train_classifier(args, model, dataset):
                 print("Skipping %s"%(home_path))
                 continue
 
-        config = get_classifier_config(args, model.__class__(), dataset, mid=mid)
+        config = get_classifier_config(args, local_model, dataset, mid=mid)
 
         trainer = IterativeTrainer(config, args)
 
