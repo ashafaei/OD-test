@@ -1,4 +1,4 @@
-from utils import * 
+from models.pixelcnn import utils 
 import torch 
 import torch.nn as nn
 import torch.nn.functional as F
@@ -116,7 +116,7 @@ skip connection parameter : 0 = no skip connection
                             2 = skip connection where skip input size === 2 * input size
 '''
 class gated_resnet(nn.Module):
-    def __init__(self, num_filters, conv_op, nonlinearity=nn.concat_elu, skip_connection=0):
+    def __init__(self, num_filters, conv_op, nonlinearity=utils.concat_elu, skip_connection=0):
         super(gated_resnet, self).__init__()
         self.skip_connection = skip_connection
         self.nonlinearity = nonlinearity
