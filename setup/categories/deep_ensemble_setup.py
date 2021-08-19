@@ -22,17 +22,16 @@ def get_classifier_config(args, model, dataset, mid=0):
         train_ds = new_train_ds
 
     # Initialize the multi-threaded loaders.
-    pin = (args.device != 'cpu')
-    train_loader = DataLoader(train_ds, batch_size=args.batch_size/2, shuffle=True, num_workers=args.workers, pin_memory=pin)
-    valid_loader = DataLoader(valid_ds, batch_size=args.batch_size, num_workers=args.workers, pin_memory=pin)
-    all_loader   = DataLoader(dataset,  batch_size=args.batch_size, num_workers=args.workers, pin_memory=pin)
+    train_loader = DataLoader(train_ds, batch_size=args.batch_size/2, shuffle=True, num_workers=args.workers, pin_memory=True)
+    valid_loader = DataLoader(valid_ds, batch_size=args.batch_size, num_workers=args.workers, pin_memory=True)
+    all_loader   = DataLoader(dataset,  batch_size=args.batch_size, num_workers=args.workers, pin_memory=True)
 
     import methods.deep_ensemble as DE
     # Set up the model
-    model = DE.DeepEnsembleWrapper(model)
+    model = DE.DeepEnsembleWrapper(model).to(args.device)
 
     # Set up the criterion
-    criterion = DE.DeepEnsembleLoss(ensemble_network=model)
+    criterion = DE.DeepEnsembleLoss(ensemble_network=model).to(args.device)
 
     # Set up the config
     config = IterativeTrainerConfig()
