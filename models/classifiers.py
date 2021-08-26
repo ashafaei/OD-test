@@ -85,6 +85,10 @@ class Scaled_VGG(nn.Module):
     def output_size(self):
         return torch.LongTensor([1, classes])
 
+    # because the model is split, we need to know which device the outputs go to put the labels on so the loss function can do the comparison
+    def get_output_device(self):
+        return 'cuda:0'
+
     def train_config(self):
         config = {}
         config['optim']     = optim.Adam(self.parameters(), lr=1e-3)
@@ -232,6 +236,10 @@ class Scaled_Resnet(nn.Module):
 
     def output_size(self):
         return torch.LongTensor([1, classes])
+
+    # because the model is split, we need to know which device the outputs go to put the labels on so the loss function can do the comparison
+    def get_output_device(self):
+        return 'cuda:0'
 
     def train_config(self):
         config = {}
