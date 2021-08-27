@@ -69,9 +69,11 @@ class Scaled_VGG(nn.Module):
 
         self.model = self.model.to(self.dev1)
 
+        torchinfo.summary(self.model, col_names=["kernel_size", "input_size", "output_size", "num_params"], input_size=(32, self.scale[0], self.scale[1], self.scale[2]))
+
         if(init_weights):
             self.model._initialize_weights()
-
+        
         self.epochs = epochs
 
     def forward(self, x, softmax=True):
@@ -91,6 +93,9 @@ class Scaled_VGG(nn.Module):
         self.info = torchinfo.summary(self.model, input_size=(self.batch_size, self.scale[0], self.scale[1], self.scale[2]), verbose=0)
         return self.info
     
+    def get_output_device(self):
+        return torch.device('cuda:0')
+
     def output_size(self):
         return torch.LongTensor([1, classes])
 
@@ -173,7 +178,7 @@ class Scaled_VGG_2GPU(Scaled_VGG):
 
 class Scaled_VGG_2GPU_Pipeline(Scaled_VGG_2GPU):
     #taken pretty straight from https://pytorch.org/tutorials/intermediate/model_parallel_tutorial.html
-    def __init__(self, split_size=64, *args, **kwargs):
+    def __init__(self, split_size=8, *args, **kwargs):
         super(Scaled_VGG_2GPU_Pipeline, self).__init__(*args,**kwargs)
         self.split_size = split_size
             
@@ -251,6 +256,9 @@ class Scaled_Resnet(nn.Module):
         output = output.to(self.dev2)
         return output
 
+    def get_output_device(self):
+        return torch.device('cuda:0')
+
     def output_size(self):
         return torch.LongTensor([1, classes])
 
@@ -308,7 +316,7 @@ class Scaled_Resnet_2GPU(Scaled_Resnet):
 
 class Scaled_Resnet_2GPU_Pipeline(Scaled_Resnet_2GPU):
     #taken pretty straight from https://pytorch.org/tutorials/intermediate/model_parallel_tutorial.html
-    def __init__(self, split_size=64, *args, **kwargs):
+    def __init__(self, split_size=8, *args, **kwargs):
         super(Scaled_Resnet_2GPU_Pipeline, self).__init__(*args,**kwargs)
         self.split_size = split_size
             
