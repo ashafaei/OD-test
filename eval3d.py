@@ -27,7 +27,8 @@ else:
     with open(json_file,"r") as fp:
         try:
             jx = json.load(fp)
-            print("Loaded experiment:" + jx['name'])
+            args.exp = jx['name']
+            print("Loaded experiment:" + args.exp)
             d1_tasks = jx['d1_tasks']
             d2_tasks = jx['d2_tasks']
             d3_tasks = jx['d3_tasks']
