@@ -61,4 +61,4 @@ if __name__ == "__main__":
                 model_builder.add('split_size',args.batch_size / 4)
                 model = model_builder()
                 print('Training %s'%(model.__class__.__name__))
-                train_func(args, model, ds.get_D1_train())
+                train_func(args, model, ds)
