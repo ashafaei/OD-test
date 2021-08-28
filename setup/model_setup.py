@@ -38,9 +38,9 @@ if __name__ == "__main__":
         # The procedures that can be skip-test are the ones that we can determine
         # whether we have done them before without instantiating the network architecture or dataset.
         # saves quite a lot of time when possible.
-        #(Global.dataset_reference_classifiers, CLSetup.train_classifier,            True, ['base']),
+        (Global.dataset_reference_classifiers, CLSetup.train_classifier,            True, ['base']),
         #(Global.dataset_reference_classifiers, KLogisticSetup.train_classifier,     True, ['KLogistic']),
-        (Global.dataset_reference_classifiers, DeepEnsembleSetup.train_classifier,  True, ['DE.%d'%i for i in range(5)]),
+        #(Global.dataset_reference_classifiers, DeepEnsembleSetup.train_classifier,  True, ['DE.%d'%i for i in range(5)]),
         #(Global.dataset_reference_autoencoders, AESetup.train_BCE_AE,               False, []),
         #(Global.dataset_reference_autoencoders, AESetup.train_MSE_AE,               False, []),
         #(Global.dataset_reference_vaes, AESetup.train_variational_autoencoder,      False, []),
@@ -57,7 +57,8 @@ if __name__ == "__main__":
                 print('Skipped')
                 continue
             ds = Global.all_datasets[dataset]()
-            for model in ref_list[dataset]:
-                model = model()
+            for model_builder in ref_list[dataset]:
+                model_builder.add('split_size',args.batch_size / 4)
+                model = model_builder()
                 print('Training %s'%(model.__class__.__name__))
                 train_func(args, model, ds.get_D1_train())

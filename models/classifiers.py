@@ -25,11 +25,13 @@ class Scaled_VGG(nn.Module):
                 in_channels = v
         return nn.Sequential(*layers)
 
-    def __init__(self,scale,classes,epochs,init_weights=True):
+    def __init__(self,scale,classes,epochs,split_size=0,init_weights=True):
         super(Scaled_VGG, self).__init__()
 
         self.dev1 = torch.device('cuda:0')
         self.dev2 = torch.device('cuda:0')
+
+        self.split_size = split_size
 
         # Based on the imagenet normalization params.
         self.offset = 0.44900
@@ -112,8 +114,8 @@ class Scaled_VGG(nn.Module):
 
 class Scaled_VGG_2GPU(Scaled_VGG):
 
-    def __init__(self,scale,classes,epochs):
-        super(Scaled_VGG_2GPU, self).__init__(scale,classes,epochs,False)
+    def __init__(self,scale,classes,epochs,split_size):
+        super(Scaled_VGG_2GPU, self).__init__(scale,classes,epochs,init_weights=False,split_size=split_size)
 
         #self.dev1 = torch.device('cuda:0')
         #self.dev2 = torch.device('cpu')
@@ -178,9 +180,8 @@ class Scaled_VGG_2GPU(Scaled_VGG):
 
 class Scaled_VGG_2GPU_Pipeline(Scaled_VGG_2GPU):
     #taken pretty straight from https://pytorch.org/tutorials/intermediate/model_parallel_tutorial.html
-    def __init__(self, split_size=8, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super(Scaled_VGG_2GPU_Pipeline, self).__init__(*args,**kwargs)
-        self.split_size = split_size
             
     def forward(self, x, softmax=True):
         splits = iter(x.split(self.split_size, dim=0))
@@ -220,7 +221,7 @@ class Scaled_Resnet(nn.Module):
         We replace the average pooling block to accomodate
         the requirements of MNIST.
     """
-    def __init__(self,scale,classes,epochs):
+    def __init__(self,scale,classes,epochs,split_size=0):
         super(Scaled_Resnet, self).__init__()
         # Based on the imagenet normalization params.
         self.offset = 0.44900
@@ -228,6 +229,8 @@ class Scaled_Resnet(nn.Module):
 
         self.dev1 = torch.device('cuda:0')
         self.dev2 = torch.device('cuda:0')
+
+        self.split_size = split_size
 
         # Resnet50.
         layers = [2, 3, 5, 2]
@@ -274,8 +277,8 @@ class Scaled_Resnet(nn.Module):
 
 class Scaled_Resnet_2GPU(Scaled_Resnet):
 
-    def __init__(self,scale,classes,epochs):
-        super(Scaled_Resnet_2GPU,self).__init__(scale,classes,epochs)
+    def __init__(self,scale,classes,epochs,split_size):
+        super(Scaled_Resnet_2GPU,self).__init__(scale,classes,epochs,split_size)
         
         self.dev1 = torch.device('cuda:0')
         self.dev2 = torch.device('cuda:1')
@@ -316,9 +319,8 @@ class Scaled_Resnet_2GPU(Scaled_Resnet):
 
 class Scaled_Resnet_2GPU_Pipeline(Scaled_Resnet_2GPU):
     #taken pretty straight from https://pytorch.org/tutorials/intermediate/model_parallel_tutorial.html
-    def __init__(self, split_size=8, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super(Scaled_Resnet_2GPU_Pipeline, self).__init__(*args,**kwargs)
-        self.split_size = split_size
             
     def forward(self, x, softmax=True):
         splits = iter(x.split(self.split_size, dim=0))

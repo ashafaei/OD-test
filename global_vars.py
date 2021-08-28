@@ -44,6 +44,22 @@ mirror_augment = {
     'FashionMNIST', 'CIFAR10', 'CIFAR100', 'STL10', 'TinyImagenet', 'STL10d32', 'TinyImagenetd32'
 }
 
+dataset_scales = {
+    'MNIST':                  '1,28,28',
+    'FashionMNIST':           '1,28,28',
+    'CIFAR10':                '3,32,32',
+    'CIFAR100':               '3,32,32',
+    'STL10':                  '3, 96, 96',
+    'TinyImagenet':           '3, 64, 64'
+    }
+
+def get_dataset_scale(dataset):
+    scale_string = dataset_scale[dataset]
+    scale = tuple(map(int, scale_string.split(', ')))
+    return scale
+
+
+
 """
     This where we keep a reference to all the models in the project.
 """
@@ -56,6 +72,10 @@ class ModelFactory(object):
     def __init__(self, parent_class, **kwargs):
         self.parent_class = parent_class
         self.kwargs = kwargs
+
+    def add(self,arg,value):
+        self.kwargs[arg] = value
+
     def __call__(self):
         return self.parent_class(**self.kwargs)
 
