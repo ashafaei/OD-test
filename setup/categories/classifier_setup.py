@@ -28,7 +28,7 @@ def get_classifier_config(args, model, domain):
 
     # train_sampler = domain.get_train_sampler()
 
-    if (domain.name in Global.mirror_augment) and (train_sampler is None):
+    if (domain.name in Global.mirror_augment):
         print("Mirror augmenting %s"%domain.name)
         new_train_ds = train_ds + MirroredDataset(train_ds)
         train_ds = new_train_ds
