@@ -58,7 +58,7 @@ if __name__ == "__main__":
                 continue
             ds = Global.all_datasets[dataset]()
             for model_builder in ref_list[dataset]:
-                model_builder.add('split_size',args.batch_size / 4)
+                model_builder.add('split_size',(int)(args.batch_size / 4))
                 model = model_builder()
                 print('Training %s'%(model.__class__.__name__))
                 train_func(args, model, ds)
