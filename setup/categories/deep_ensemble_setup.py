@@ -12,22 +12,24 @@ from datasets import MirroredDataset
 
 import copy
 
-def get_classifier_config(args, model, dataset, mid=0):
-    print("Preparing training D1 for %s"%(dataset.name))
+def get_classifier_config(args, model, domain, mid=0):
+    print("Preparing training D1 for %s"%(domain.name))
+
+    dataset = domain.get_D1_train()
 
     # 80%, 20% for local train+test
     train_ds, valid_ds = dataset.split_dataset(0.8)
 
-    if dataset.name in Global.mirror_augment:
-        print("Mirror augmenting %s"%dataset.name)
+    if domain.name in Global.mirror_augment:
+        print("Mirror augmenting %s"%domain.name)
         new_train_ds = train_ds + MirroredDataset(train_ds)
         train_ds = new_train_ds
 
     # Initialize the multi-threaded loaders.
     pin = (args.device != 'cpu')
-    train_loader = DataLoader(train_ds, batch_size=int(args.batch_size/2), shuffle=True, num_workers=args.workers, pin_memory=pin)
-    valid_loader = DataLoader(valid_ds, batch_size=args.batch_size, num_workers=args.workers, pin_memory=pin)
-    all_loader   = DataLoader(dataset,  batch_size=args.batch_size, num_workers=args.workers, pin_memory=pin)
+    train_loader = DataLoader(train_ds, batch_size=int(args.batch_size/2),  shuffle=(train_sampler is None), sampler=train_sampler, num_workers=args.workers, pin_memory=pin)
+    valid_loader = DataLoader(valid_ds, batch_size=int(args.batch_size/2), num_workers=args.workers, pin_memory=pin)
+    all_loader   = DataLoader(domain.get_D1_test(),  batch_size=int(args.batch_size/2), num_workers=args.workers, pin_memory=pin)
 
     import methods.deep_ensemble as DE
     # Set up the model
@@ -43,7 +45,7 @@ def get_classifier_config(args, model, dataset, mid=0):
     if hasattr(model, 'preferred_name'):
         base_model_name = model.preferred_name()
 
-    config.name = 'DeepEnsemble_%s_%s(%d)'%(dataset.name, base_model_name, mid)
+    config.name = 'DeepEnsemble_%s_%s(%d)'%(domain.name, base_model_name, mid)
 
     config.train_loader = train_loader
     config.valid_loader = valid_loader
@@ -71,14 +73,14 @@ def get_classifier_config(args, model, dataset, mid=0):
 
     return config
 
-def train_classifier(args, model, dataset):
+def train_classifier(args, model, domain):
     config = None
 
     for mid in range(5):
 
         local_model = copy.deepcopy(model)
 
-        home_path = Models.get_ref_model_path(args, model.__class__.__name__, dataset.name, model_setup=True, suffix_str='DE.%d'%mid)
+        home_path = Models.get_ref_model_path(args, model.__class__.__name__, domain.name, model_setup=True, suffix_str='DE.%d'%mid)
         hbest_path = os.path.join(home_path, 'model.best.pth')
 
         if not os.path.isdir(home_path):
@@ -88,7 +90,7 @@ def train_classifier(args, model, dataset):
                 print("Skipping %s"%(home_path))
                 continue
 
-        config = get_classifier_config(args, local_model, dataset, mid=mid)
+        config = get_classifier_config(args, local_model, domain, mid=mid)
 
         trainer = IterativeTrainer(config, args)
 

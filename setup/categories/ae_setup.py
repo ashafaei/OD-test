@@ -13,22 +13,24 @@ from datasets import MirroredDataset
 
 from models.autoencoders import VAE_Loss
 
-def get_ae_config(args, model, dataset, BCE_Loss):
-    print("Preparing training D1 for %s"%(dataset.name))
+def get_ae_config(args, model, domain, BCE_Loss):
+    print("Preparing training D1 for %s"%(domain.name))
+
+    dataset = domain.get_D1_train()
 
     # 80%, 20% for local train+test
     train_ds, valid_ds = dataset.split_dataset(0.8)
 
-    if dataset.name in Global.mirror_augment:
-        print("Mirror augmenting %s"%dataset.name)
+    if domain.name in Global.mirror_augment:
+        print("Mirror augmenting %s"%domain.name)
         new_train_ds = train_ds + MirroredDataset(train_ds)
         train_ds = new_train_ds
 
     # Initialize the multi-threaded loaders.
     pin = (args.device != 'cpu')
-    train_loader = DataLoader(train_ds, batch_size=args.batch_size, shuffle=True, num_workers=args.workers, pin_memory=pin)
+    train_loader = DataLoader(train_ds, batch_size=args.batch_size,  shuffle=(train_sampler is None), sampler=train_sampler, num_workers=args.workers, pin_memory=pin)
     valid_loader = DataLoader(valid_ds, batch_size=args.batch_size, num_workers=args.workers, pin_memory=pin)
-    all_loader   = DataLoader(dataset,  batch_size=args.batch_size, num_workers=args.workers, pin_memory=pin)
+    all_loader   = DataLoader(domain.get_D1_test(),  batch_size=args.batch_size, num_workers=args.workers, pin_memory=pin)
 
     # Set up the model
     model = model.to(args.device)
@@ -44,7 +46,7 @@ def get_ae_config(args, model, dataset, BCE_Loss):
     # Set up the config
     config = IterativeTrainerConfig()
 
-    config.name = 'autoencoder_%s_%s'%(dataset.name, model.preferred_name())
+    config.name = 'autoencoder_%s_%s'%(domain.name, model.preferred_name())
 
     config.train_loader = train_loader
     config.valid_loader = valid_loader
@@ -75,21 +77,23 @@ def get_ae_config(args, model, dataset, BCE_Loss):
 
     return config
 
-def get_vae_config(args, model, dataset):
-    print("Preparing training D1 for %s"%(dataset.name))
+def get_vae_config(args, model, domain):
+    print("Preparing training D1 for %s"%(domain.name))
+
+    dataset = domain.get_D1_train()
 
     # 80%, 20% for local train+test
     train_ds, valid_ds = dataset.split_dataset(0.8)
 
-    if dataset.name in Global.mirror_augment:
-        print("Mirror augmenting %s"%dataset.name)
+    if domain.name in Global.mirror_augment:
+        print("Mirror augmenting %s"%domain.name)
         new_train_ds = train_ds + MirroredDataset(train_ds)
         train_ds = new_train_ds
 
     # Initialize the multi-threaded loaders.
-    train_loader = DataLoader(train_ds, batch_size=args.batch_size, shuffle=True, num_workers=args.workers, pin_memory=True)
-    valid_loader = DataLoader(valid_ds, batch_size=args.batch_size, num_workers=args.workers, pin_memory=True)
-    all_loader   = DataLoader(dataset,  batch_size=args.batch_size, num_workers=args.workers, pin_memory=True)
+    train_loader = DataLoader(train_ds, batch_size=args.batch_size,  shuffle=(train_sampler is None), sampler=train_sampler, num_workers=args.workers, pin_memory=pin)
+    valid_loader = DataLoader(valid_ds, batch_size=args.batch_size, num_workers=args.workers, pin_memory=pin)
+    all_loader   = DataLoader(domain.get_D1_test(),  batch_size=args.batch_size, num_workers=args.workers, pin_memory=pin)
 
     # Set up the model
     model = model.to(args.device)
@@ -131,19 +135,19 @@ def get_vae_config(args, model, dataset):
 
     return config
 
-def train_BCE_AE(args, model, dataset):
-    train_autoencoder(args, model, dataset, BCE_Loss=True)
+def train_BCE_AE(args, model, domain):
+    train_autoencoder(args, model, domain, BCE_Loss=True)
 
-def train_MSE_AE(args, model, dataset):
-    train_autoencoder(args, model, dataset, BCE_Loss=False)
+def train_MSE_AE(args, model, domain):
+    train_autoencoder(args, model, domain, BCE_Loss=False)
 
-def train_autoencoder(args, model, dataset, BCE_Loss):
+def train_autoencoder(args, model, domain, BCE_Loss):
     if BCE_Loss:
         model.netid = "BCE." + model.netid
     else:
         model.netid = "MSE." + model.netid
 
-    home_path = Models.get_ref_model_path(args, model.__class__.__name__, dataset.name, model_setup=True, suffix_str=model.netid)
+    home_path = Models.get_ref_model_path(args, model.__class__.__name__, domain.name, model_setup=True, suffix_str=model.netid)
     hbest_path = os.path.join(home_path, 'model.best.pth')
     hlast_path = os.path.join(home_path, 'model.last.pth')
 
@@ -151,7 +155,7 @@ def train_autoencoder(args, model, dataset, BCE_Loss):
         os.makedirs(home_path)
 
     if not os.path.isfile(hbest_path+".done"):
-        config = get_ae_config(args, model, dataset, BCE_Loss=BCE_Loss)
+        config = get_ae_config(args, model, domain, BCE_Loss=BCE_Loss)
         trainer = IterativeTrainer(config, args)
         print('Training from scratch')
         best_loss = 999999999
@@ -190,8 +194,8 @@ def train_autoencoder(args, model, dataset, BCE_Loss):
     else:
         print("Skipping %s"%(home_path))
 
-def train_variational_autoencoder(args, model, dataset):
-    home_path = Models.get_ref_model_path(args, model.__class__.__name__, dataset.name, model_setup=True, suffix_str=model.netid)
+def train_variational_autoencoder(args, model, domain):
+    home_path = Models.get_ref_model_path(args, model.__class__.__name__, domain.name, model_setup=True, suffix_str=model.netid)
     hbest_path = os.path.join(home_path, 'model.best.pth')
     hlast_path = os.path.join(home_path, 'model.last.pth')
 
@@ -199,7 +203,7 @@ def train_variational_autoencoder(args, model, dataset):
         os.makedirs(home_path)
 
     if not os.path.isfile(hbest_path+".done"):
-        config = get_vae_config(args, model, dataset)
+        config = get_vae_config(args, model, domain)
         trainer = IterativeTrainer(config, args)
         print('Training from scratch')
         best_loss = 999999999

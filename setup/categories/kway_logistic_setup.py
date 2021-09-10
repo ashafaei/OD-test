@@ -12,22 +12,33 @@ from datasets import MirroredDataset
 
 from methods.logistic_threshold import KWayLogisticLoss, KWayLogisticWrapper
 
-def get_KLclassifier_config(args, model, dataset):
-    print("Preparing training D1 for %s"%(dataset.name))
+def get_KLclassifier_config(args, model, domain):
+    print("Preparing training D1 for %s"%(domain.name))
+
+    dataset = domain.get_D1_train()
 
     # 80%, 20% for local train+test
     train_ds, valid_ds = dataset.split_dataset(0.8)
 
-    if dataset.name in Global.mirror_augment:
-        print("Mirror augmenting %s"%dataset.name)
+    if domain.name in Global.mirror_augment:
+        print("Mirror augmenting %s"%domain.name)
         new_train_ds = train_ds + MirroredDataset(train_ds)
         train_ds = new_train_ds
 
+    #recalculate weighting
+    class_weights = domain.calculate_D1_weighting()
+    d1_set = train_ds
+    weights = [0] * len(d1_set)                                              
+    for idx, val in enumerate(d1_set):                                          
+        weights[idx] = class_weights[val[1]]
+
+    train_sampler = WeightedRandomSampler(weights, len(train_ds),replacement=False)
+
     # Initialize the multi-threaded loaders.
     pin = (args.device != 'cpu')
-    train_loader = DataLoader(train_ds, batch_size=args.batch_size, shuffle=True, num_workers=args.workers, pin_memory=pin)
+    train_loader = DataLoader(train_ds, batch_size=args.batch_size,  shuffle=(train_sampler is None), sampler=train_sampler, num_workers=args.workers, pin_memory=pin)
     valid_loader = DataLoader(valid_ds, batch_size=args.batch_size, num_workers=args.workers, pin_memory=pin)
-    all_loader   = DataLoader(dataset,  batch_size=args.batch_size, num_workers=args.workers, pin_memory=pin)
+    all_loader   = DataLoader(domain.get_D1_test(),  batch_size=args.batch_size, num_workers=args.workers, pin_memory=pin)
 
     # Set up the criterion
     criterion = KWayLogisticLoss()
@@ -39,7 +50,7 @@ def get_KLclassifier_config(args, model, dataset):
     # Set up the config
     config = IterativeTrainerConfig()
 
-    config.name = 'KWayLogistic_%s_%s'%(dataset.name, model.__class__.__name__)
+    config.name = 'KWayLogistic_%s_%s'%(domain.name, model.__class__.__name__)
 
     config.train_loader = train_loader
     config.valid_loader = valid_loader
@@ -67,10 +78,10 @@ def get_KLclassifier_config(args, model, dataset):
 
     return config
 
-def train_classifier(args, model, dataset):
-    config = get_KLclassifier_config(args, model, dataset)
+def train_classifier(args, model, domain):
+    config = get_KLclassifier_config(args, model, domain)
 
-    home_path = Models.get_ref_model_path(args, model.__class__.__name__, dataset.name, model_setup=True, suffix_str='KLogistic')
+    home_path = Models.get_ref_model_path(args, model.__class__.__name__, domain.name, model_setup=True, suffix_str='KLogistic')
     hbest_path = os.path.join(home_path, 'model.best.pth')
 
     if not os.path.isdir(home_path):
