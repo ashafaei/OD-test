@@ -11,6 +11,8 @@ from utils.iterative_trainer import IterativeTrainer, IterativeTrainerConfig
 from utils.logger import Logger
 from datasets import MirroredDataset
 
+from torch.utils.data import WeightedRandomSampler
+
 from models.autoencoders import VAE_Loss
 
 def get_ae_config(args, model, domain, BCE_Loss):

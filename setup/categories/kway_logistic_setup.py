@@ -10,6 +10,8 @@ from utils.iterative_trainer import IterativeTrainer, IterativeTrainerConfig
 from utils.logger import Logger
 from datasets import MirroredDataset
 
+from torch.utils.data import WeightedRandomSampler
+
 from methods.logistic_threshold import KWayLogisticLoss, KWayLogisticWrapper
 
 def get_KLclassifier_config(args, model, domain):
