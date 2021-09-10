@@ -28,6 +28,15 @@ def get_ae_config(args, model, domain, BCE_Loss):
         new_train_ds = train_ds + MirroredDataset(train_ds)
         train_ds = new_train_ds
 
+    #recalculate weighting
+    class_weights = domain.calculate_D1_weighting()
+    d1_set = train_ds
+    weights = [0] * len(d1_set)                                              
+    for idx, val in enumerate(d1_set):                                          
+        weights[idx] = class_weights[val[1]]
+
+    train_sampler = WeightedRandomSampler(weights, len(train_ds),replacement=False)
+
     # Initialize the multi-threaded loaders.
     pin = (args.device != 'cpu')
     train_loader = DataLoader(train_ds, batch_size=args.batch_size,  shuffle=(train_sampler is None), sampler=train_sampler, num_workers=args.workers, pin_memory=pin)
