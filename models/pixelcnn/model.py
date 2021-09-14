@@ -55,9 +55,14 @@ class PixelCNNLayer_down(nn.Module):
 
 class PixelCNN(nn.Module):
     def __init__(self, nr_resnet=5, nr_filters=80, nr_logistic_mix=10, 
-                    resnet_nonlinearity='concat_elu', input_channels=3):
+                    resnet_nonlinearity='concat_elu', input_channels=3,split_size=0):
         super(PixelCNN, self).__init__()
         self.netid = 'nr-resnet{}.nr-filters{}.nr-logmix{}'.format(nr_resnet, nr_filters, nr_logistic_mix)
+
+        self.dev1 = torch.device('cuda:0')
+        self.dev2 = torch.device('cuda:0')
+
+        self.split_size = split_size
 
         if resnet_nonlinearity == 'concat_elu' : 
             self.resnet_nonlinearity = lambda x : concat_elu(x)
@@ -103,6 +108,10 @@ class PixelCNN(nn.Module):
         
     def preferred_name(self):
         return self.__class__.__name__+"."+self.netid
+
+    # because the model is split, we need to know which device the outputs go to put the labels on so the loss function can do the comparison
+    def get_output_device(self):
+        return self.dev2
 
     def forward(self, x, sample=False):
         # The input must be in [-1, 1]
