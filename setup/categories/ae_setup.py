@@ -111,6 +111,7 @@ def get_vae_config(args, model, domain):
     train_sampler = WeightedRandomSampler(weights, len(train_ds),replacement=False)
 
     # Initialize the multi-threaded loaders.
+    pin = (args.device != 'cpu')
     train_loader = DataLoader(train_ds, batch_size=args.batch_size,  shuffle=(train_sampler is None), sampler=train_sampler, num_workers=args.workers, pin_memory=pin)
     valid_loader = DataLoader(valid_ds, batch_size=args.batch_size, num_workers=args.workers, pin_memory=pin)
     all_loader   = DataLoader(domain.get_D1_test(),  batch_size=args.batch_size, num_workers=args.workers, pin_memory=pin)
