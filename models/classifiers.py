@@ -94,9 +94,6 @@ class Scaled_VGG(nn.Module):
         self.batch_size = args.batch_size
         self.info = torchinfo.summary(self.model, input_size=(self.batch_size, self.scale[0], self.scale[1], self.scale[2]), verbose=0)
         return self.info
-    
-    def get_output_device(self):
-        return torch.device('cuda:0')
 
     def output_size(self):
         return torch.LongTensor([1, classes])

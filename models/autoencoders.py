@@ -10,9 +10,14 @@ import math
 """
 
 class Generic_AE(nn.Module):
-    def __init__(self, dims, max_channels=512, depth=10, n_hidden=256):
+    def __init__(self, dims, max_channels=512, depth=10, n_hidden=256, split_size=0):
         assert len(dims) == 3, 'Please specify 3 values for dims'
         super(Generic_AE, self).__init__()
+
+        self.dev1 = torch.device('cuda:0')
+        self.dev2 = torch.device('cuda:0')
+
+        self.split_size = split_size
 
         kernel_size = 3
         all_channels = []
@@ -84,6 +89,10 @@ class Generic_AE(nn.Module):
             dec = sig(dec)
         return dec
 
+    # because the model is split, we need to know which device the outputs go to put the labels on so the loss function can do the comparison
+    def get_output_device(self):
+        return self.dev2
+
     def train_config(self):
         config = {}
         config['optim']     = optim.Adam(self.parameters(), lr=1e-3)
@@ -95,8 +104,8 @@ class Generic_AE(nn.Module):
         return self.__class__.__name__+"."+self.netid
 
 class Generic_VAE(Generic_AE):
-    def __init__(self, dims, max_channels=512, depth=10, n_hidden=256):
-        super(Generic_VAE, self).__init__(dims, max_channels, depth, 2*n_hidden)
+    def __init__(self, dims, max_channels=512, depth=10, n_hidden=256, split_size=0):
+        super(Generic_VAE, self).__init__(dims, max_channels, depth, 2*n_hidden, split_size)
         self.fc_e_mu  = nn.Linear(2*n_hidden, n_hidden)
         self.fc_e_std = nn.Linear(2*n_hidden, n_hidden)
 
