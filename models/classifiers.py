@@ -346,3 +346,63 @@ class Scaled_Resnet_2GPU_Pipeline(Scaled_Resnet_2GPU):
             p = F.log_softmax(p, dim=1)
 
         return p
+
+class Scaled_ResNext(nn.Module):
+    """
+        MNIST_Resnet is based on Resnet50
+        We replace the average pooling block to accomodate
+        the requirements of MNIST.
+    """
+    def __init__(self,scale,classes,epochs,split_size=0):
+        super(Scaled_ResNext, self).__init__()
+        # Based on the imagenet normalization params.
+        self.offset = 0.44900
+        self.multiplier = 4.42477
+
+        self.dev1 = torch.device('cuda:0')
+        self.dev2 = torch.device('cuda:0')
+
+        self.split_size = split_size
+
+        # Resnext50_32x4d.
+        layers = [2, 3, 5, 2]
+        if scale[0] > 1:
+            layers = [3, 4, 6, 3]
+        self.model = Resnet.ResNet(Resnet.Bottleneck,layers, num_classes=classes,groups=4, width_per_group=32)
+        self.model.avgpool = nn.AdaptiveAvgPool2d((1,1))
+        # The first part also needs to be fixed.
+        self.model.conv1 = nn.Conv2d(scale[0], 64, kernel_size=3, stride=1, padding=1, bias=False) # Replace the harsh convolution.
+        del self.model.maxpool
+        self.model.maxpool = lambda x: x # Remove the early maxpool.
+
+        self.model = self.model.to(self.dev1)
+
+        self.epochs = epochs
+
+    def forward(self, x, softmax=True):
+        # Perform late normalization.
+        x = x.to(self.dev1)
+        x = (x-self.offset)*self.multiplier
+
+        output = self.model(x)
+        if softmax:
+            output = F.log_softmax(output, dim=1)
+
+        output = output.to(self.dev2)
+        return output
+
+    def get_output_device(self):
+        return torch.device('cuda:0')
+
+    def output_size(self):
+        return torch.LongTensor([1, classes])
+
+    def get_output_device(self):
+        return self.dev2
+
+    def train_config(self):
+        config = {}
+        config['optim']     = optim.Adam(self.parameters(), lr=1e-3)
+        config['scheduler'] = optim.lr_scheduler.ReduceLROnPlateau(config['optim'], patience=10, threshold=1e-2, min_lr=1e-6, factor=0.1, verbose=True)
+        config['max_epoch'] = self.epochs
+        return config
