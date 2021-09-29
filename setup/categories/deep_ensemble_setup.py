@@ -40,7 +40,7 @@ def get_classifier_config(args, model, domain, mid=0):
     pin = (args.device != 'cpu')
     train_loader = DataLoader(train_ds, batch_size=int(args.batch_size/2),  shuffle=(train_sampler is None), sampler=train_sampler, num_workers=args.workers, pin_memory=pin)
     valid_loader = DataLoader(valid_ds, batch_size=int(args.batch_size/2), num_workers=args.workers, pin_memory=pin)
-    all_loader   = DataLoader(domain.get_D1_test(),  batch_size=int(args.batch_size/2), num_workers=args.workers, pin_memory=pin)
+    all_loader   = DataLoader(dataset,  batch_size=int(args.batch_size/2), num_workers=args.workers, pin_memory=pin)
 
     import methods.deep_ensemble as DE
     # Set up the model
