@@ -3,6 +3,9 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 import math
+
+from pytorch_wavelets import DWTForward, DWTInverse
+
 """
     The VAE code is based on
     https://github.com/pytorch/examples/blob/master/vae/main.py
@@ -148,3 +151,153 @@ class VAE_Loss(nn.Module):
         mu, logvar = self.VAE.last_mu, self.VAE.last_std
         KLD = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
         return (BCE_loss + KLD)/X.numel()
+
+# Wavelet filtered AE model
+class Generic_WAE(nn.Module):
+    def __init__(self, dims, levels=3, filter='db3', n_hidden=256, linear=0, split_size=0):
+        assert len(dims) == 3, 'Please specify 3 values for dims'
+        super(Generic_WAE, self).__init__()
+
+        self.dev1 = torch.device('cuda:0')
+        self.dev2 = torch.device('cuda:0')
+
+        self.split_size = split_size
+
+        nonLin = nn.ELU
+        self.default_sigmoid = False
+        self.netid = 'l.%d.f.%s.nH.%d'%(levels, filter, n_hidden)
+
+        self.convolver = DWTForward(J=levels, mode='zero', wave=filter).to(self.dev1)
+        self.devolver = DWTInverse(mode='zero',wave=filter).to(self.dev1)
+
+        self.levels = levels
+        self.channels = dims[0]
+
+        self.start_size = dims
+        self.end_size = self.calc_size_at_level(dims,levels)
+        # we have (C,H,W). We end up with 4 maps (see below) so the input size to the linear layers is 4*C*H*W (per input)
+        self.flat_size = 4 * self.end_size[0] * self.end_size[1] * self.end_size[2]
+
+        # encoder ###########################################
+        modules=[]
+
+        if(linear>0):
+            modules.append(nn.Linear(self.flat_size, linear))
+            modules.append(nonLin())
+
+            modules.append(nn.Linear(linear,n_hidden))
+            modules.append(nonLin())
+        else:
+            modules.append(nn.Linear(self.flat_size, n_hidden))
+            modules.append(nonLin())
+
+        self.encoder = nn.Sequential(*modules)
+
+        # decoder ###########################################
+        modules = []
+
+        # in reverse - start with n_hidden and go to end_size
+
+        if(linear>0):
+            modules.append(nn.Linear(n_hidden,linear))
+            modules.append(nonLin())
+
+            modules.append(nn.Linear(linear,self.flat_size))
+            modules.append(nonLin())
+        else:
+            modules.append(nn.Linear(n_hidden, self.flat_size))
+            modules.append(nonLin())
+        
+        self.decoder = nn.Sequential(*modules)
+
+    def encode(self, x):
+        n_samples = x.size(0)
+        Yl, Yh = self.convolver(x)
+        print("--Encoder--")
+        print("Yl Shape:" + str(Yl.shape))
+        print("Yh Length:" + str(len(Yh)))
+        for i in range(len(Yh)):
+            print("Yh[" + str(i) + "] shape:" + str(Yh[i].shape))
+
+        #Yl contains the approximated version(LL). Yh contains progressively smaller versions of horizontal(LH), vertical(HL) and diagonal(HH) detail tensors.
+        #We take the last version from the stack, so reduce the detail by increasing 'levels', which should also reduce size of Yl
+        #shape of Yl is (N,C,H,W), while shape of Yh[-1] (lat detail layer) is (N,C,3,H,W). We add these into (N,C,4,H,W) and flatten it to feed into the FC layer
+        Yd = Yh[-1]
+        Yl = torch.unsqueeze(Yl,2) # change to (N,C,1,H,W)
+        Yd = torch.cat((Yd,Yl),2) # add together into (N,C,4,H,W)
+        Yy = torch.flatten(Yd, start_dim=1) # flatten to (N,C*4*H*W)
+
+        code = self.encoder(Yy) # encode to (N,n_hidden)
+        out = code.view(n_samples, -1) # flatten to vectors.
+        return out
+
+    def decode(self,x):
+        # should start with N vectors of n_hidden encodings
+        n_samples = x.size(0)
+        Yy = self.decoder(x) # comes out as (N,C*4*H*W)
+        Yd = torch.reshape(Yy ,(n_samples, self.channels, 4, self.end_size[1], self.end_size[2])) # reshape to (N,C,4,H,W)
+        Yd,Yl = torch.split(Yd,[3,1],dim=2) # split apart into (N,C,3,H,W) (Yd) and (N,C,1,H,W) (Yl)
+        Yl = torch.squeeze(Yl,2) # resqueeze Yl to (N,C,H,W)
+        Yh = self.build_coeff_at_detail_level(self.start_size, n_samples, Yd, self.levels) # build estimated coefficient tree
+        print("--Decoder--")
+        print("Yl Shape:" + str(Yl.shape))
+        print("Yd Shape:" + str(Yd.shape))
+        print("Yh Length:" + str(len(Yh)))
+        for i in range(len(Yh)):
+            print("Yh[" + str(i) + "] shape:" + str(Yh[i].shape))
+
+        #now we have Yl and an estimated Yh, so feed that back into the DWT
+        Xd = self.devolver((Yl,Yh))
+        return Xd
+
+    def forward(self, x, sigmoid=False):
+        enc = self.encode(x)
+        dec = self.decode(enc)
+        if sigmoid or self.default_sigmoid:
+            sig = nn.Sigmoid()
+            dec = sig(dec)
+        return dec
+
+    def calc_size_at_level(self,input_size,level):
+        #expects the last two values to be H and W, retains all others
+        # only works for DWT
+        out = list(input_size)
+        for i in range(level):
+            W = out[-1] + 4
+            H = out[-2] + 4
+            W = math.ceil(W / 2)
+            H = math.ceil(H / 2)
+            out[-1] = W
+            out[-2] = H
+        return tuple(out)
+
+    def build_coeff_at_detail_level(self,input_size,samples,input_coeff,level):
+        out = []
+
+        #we want a list of tensors. Input size is original input size - ie, original image size. We expand this to include batch, channel and filter
+        #for MNIST, 1,28,28 -> 64,1,3,28,28
+
+        base_size = torch.Size((samples,self.channels,3,input_size[1],input_size[2]))
+
+        for i in range(level):
+            if(i==level-1):
+                out.append(input_coeff)
+            else:
+                size = self.calc_size_at_level(base_size,i+1)
+                out.append(torch.zeros(size).to(self.dev1))
+        return out
+
+    # because the model is split, we need to know which device the outputs go to put the labels on so the loss function can do the comparison
+    def get_output_device(self):
+        return self.dev2
+
+    def train_config(self):
+        config = {}
+        config['optim']     = optim.Adam(self.parameters(), lr=1e-3)
+        config['scheduler'] = optim.lr_scheduler.ReduceLROnPlateau(config['optim'], patience=10, threshold=1e-3, min_lr=1e-6, factor=0.1, verbose=True)
+        #config['max_epoch'] = int(120 * self.epoch_factor)
+        config['max_epoch'] = int(120)
+        return config
+
+    def preferred_name(self):
+        return self.__class__.__name__+"."+self.netid
