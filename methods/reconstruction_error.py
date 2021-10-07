@@ -46,6 +46,9 @@ class RTModelWrapper(AbstractModelWrapper):
 
         return loss
 
+    def get_output_device(self):
+        return self.base_model.dev2
+
     def wrapper_eval(self, x):
         x = x - self.H.transfer
         x = x * x

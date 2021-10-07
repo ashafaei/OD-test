@@ -97,7 +97,8 @@ class Generic_AE(nn.Module):
         config = {}
         config['optim']     = optim.Adam(self.parameters(), lr=1e-3)
         config['scheduler'] = optim.lr_scheduler.ReduceLROnPlateau(config['optim'], patience=10, threshold=1e-3, min_lr=1e-6, factor=0.1, verbose=True)
-        config['max_epoch'] = int(240 * self.epoch_factor)
+        #config['max_epoch'] = int(120 * self.epoch_factor)
+        config['max_epoch'] = int(120)
         return config
 
     def preferred_name(self):
