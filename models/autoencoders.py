@@ -213,11 +213,6 @@ class Generic_WAE(nn.Module):
     def encode(self, x):
         n_samples = x.size(0)
         Yl, Yh = self.convolver(x)
-        print("--Encoder--")
-        print("Yl Shape:" + str(Yl.shape))
-        print("Yh Length:" + str(len(Yh)))
-        for i in range(len(Yh)):
-            print("Yh[" + str(i) + "] shape:" + str(Yh[i].shape))
 
         #Yl contains the approximated version(LL). Yh contains progressively smaller versions of horizontal(LH), vertical(HL) and diagonal(HH) detail tensors.
         #We take the last version from the stack, so reduce the detail by increasing 'levels', which should also reduce size of Yl
@@ -239,12 +234,6 @@ class Generic_WAE(nn.Module):
         Yd,Yl = torch.split(Yd,[3,1],dim=2) # split apart into (N,C,3,H,W) (Yd) and (N,C,1,H,W) (Yl)
         Yl = torch.squeeze(Yl,2) # resqueeze Yl to (N,C,H,W)
         Yh = self.build_coeff_at_detail_level(self.start_size, n_samples, Yd, self.levels) # build estimated coefficient tree
-        print("--Decoder--")
-        print("Yl Shape:" + str(Yl.shape))
-        print("Yd Shape:" + str(Yd.shape))
-        print("Yh Length:" + str(len(Yh)))
-        for i in range(len(Yh)):
-            print("Yh[" + str(i) + "] shape:" + str(Yh[i].shape))
 
         #now we have Yl and an estimated Yh, so feed that back into the DWT
         Xd = self.devolver((Yl,Yh))
