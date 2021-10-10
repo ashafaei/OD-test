@@ -113,6 +113,15 @@ dataset_reference_vaes = {
     'TinyImagenet':       [ModelFactory(AES.Generic_VAE, dims=(3, 64, 64), max_channels=512, depth=12, n_hidden=512)],
 }
 
+dataset_reference_waes = {
+    'MNIST':              [ModelFactory(AES.Generic_WAE, dims=(1, 28, 28), levels=2, filter='db3', n_hidden=96)],
+    'FashionMNIST':       [ModelFactory(AES.Generic_WAE, dims=(1, 28, 28), levels=2, filter='db3', n_hidden=96)],
+    'CIFAR10':            [ModelFactory(AES.Generic_WAE, dims=(3, 32, 32), levels=3, filter='db3', n_hidden=256)],
+    'CIFAR100':           [ModelFactory(AES.Generic_WAE, dims=(3, 32, 32), levels=3, filter='db3', n_hidden=256)],
+    'STL10':              [ModelFactory(AES.Generic_WAE, dims=(3, 96, 96), levels=4, filter='db3', n_hidden=512)],
+    'TinyImagenet':       [ModelFactory(AES.Generic_WAE, dims=(3, 64, 64), levels=4, filter='db3', n_hidden=512)],
+}
+
 dataset_reference_pcnns = {
     'MNIST':              [ModelFactory(PCNN.PixelCNN, nr_resnet=5, nr_filters=32, input_channels=1, nr_logistic_mix=5)],
     'FashionMNIST':       [ModelFactory(PCNN.PixelCNN, nr_resnet=5, nr_filters=64, input_channels=1, nr_logistic_mix=5)],
@@ -152,6 +161,7 @@ all_methods = {
     'deep_ensemble':    DE.DeepEnsemble,
     'odin':             ODIN.ODIN,
     'reconst_thresh':   RE.ReconstructionThreshold,
+    'waverecon_thresh': RE.WaveletReconstructionThreshold,
     'pixelcnn':         PCNN.PixelCNN,
     'openmax':          OM.OpenMax,
 }
@@ -183,6 +193,11 @@ def get_ref_autoencoder(dataset):
 def get_ref_vae(dataset):
     if dataset in dataset_reference_vaes:
         return dataset_reference_vaes[dataset]
+    raise NotImplementedError()
+
+def get_ref_wae(dataset):
+    if dataset in dataset_reference_waes:
+        return dataset_reference_waes[dataset]
     raise NotImplementedError()
 
 def get_method(name, args):
