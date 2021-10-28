@@ -6,7 +6,7 @@ This is a development of Shafei's original OD-test. The goal is to achieve the f
 - Add in more support for Distributed Pytorch.
 - Add new models, methods etc from the huge number published since Shafei's paper.
 - Replace the classifier-dataset pairing with a factory class that generates a classifer as needed (Done)
-- Experiments driven from JSON files rather than code
+- Experiments driven from JSON files rather than code (Done)
 
 I'll update this readme as we go.
 

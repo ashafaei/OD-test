@@ -4,6 +4,11 @@ import timeit
 
 import torch
 import torch.nn.functional as F
+import models as Models
+
+import matplotlib.pyplot as plt
+
+import os
 
 class IterativeTrainerConfig(object):
     pass
@@ -41,6 +46,12 @@ class IterativeTrainer(object):
         logger      = self.config.logger
         stochastic  = self.config.stochastic_gradient
         classification = self.config.classification
+
+        #print("self.config.name:" + self.config.name)
+        home_path = Models.get_ref_model_path(self.args, model.__class__.__name__, self.config.name, model_setup=True, suffix_str="CCC")
+        dump_path = os.path.join(home_path, 'dump')
+        if not os.path.isdir(dump_path):
+            os.makedirs(dump_path)
 
         # See the network to the target mode.
         if backward:
@@ -95,6 +106,30 @@ class IterativeTrainer(object):
 
             loss = criterion(prediction, target)
 
+            if(self.args.dump_images):
+                # pick one from the batch and output it
+                
+                #filename = phase_name + str(i) +"_epoch" + str(epoch) + ".png"
+                #dump_file = os.path.join(dump_path,filename)
+                #self.dump_image(input[0].cpu(),dump_file,True)
+
+                if self.config.autoencoder_target:
+
+                    home_path = Models.get_ref_model_path(self.args, model.__class__.__name__, self.config.name, model_setup=True, suffix_str="CCC")
+                    dump_path = os.path.join(home_path, 'dump')
+                    if not os.path.isdir(dump_path):
+                        os.makedirs(dump_path)
+
+                    filename = phase_name + str(i) +"_epoch" + str(epoch) + ".png"
+                    dump_file = os.path.join(dump_path,filename)
+                    self.dump_image(input[0].cpu(),dump_file,True)
+
+                    # if this is an autoencoder run, also output the recreation for comparison
+                    filename = phase_name + str(i) + "_epoch" + str(epoch) + "_target.png"
+                    dump_file = os.path.join(dump_path,filename)
+                    self.dump_image(prediction[0].cpu(),dump_file,True)
+
+
             if backward:
                 if stochastic:
                     loss.backward()
@@ -141,3 +176,12 @@ class IterativeTrainer(object):
 
         elapsed = timeit.default_timer() - start_time
         print('  %s Epoch %d in %.2fs' %(phase_name, epoch, elapsed))
+
+    def dump_image(self,imageTensor,path,force_grayscale=False):
+        image_n = imageTensor.permute(1,2,0)
+        plt.figure(figsize=(4,4))
+        plt.imshow(image_n)
+        if force_grayscale:
+            plt.gray()
+        plt.savefig(path)
+        plt.close()
