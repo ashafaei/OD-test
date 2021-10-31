@@ -180,7 +180,7 @@ class IterativeTrainer(object):
     def dump_image(self,imageTensor,path,force_grayscale=False):
         image_n = imageTensor.permute(1,2,0)
         plt.figure(figsize=(4,4))
-        plt.imshow(image_n)
+        plt.imshow(image_n.detach())
         if force_grayscale:
             plt.gray()
         plt.savefig(path)
