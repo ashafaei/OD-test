@@ -32,6 +32,8 @@ parser.add_argument('--cuda-device', type=int, default=0, help='Select cuda devi
 parser.add_argument('--force-train-h', default=False, action='store_true', help='Whether should forcibly train H or just reuse.')
 parser.add_argument("--force-run", default=False, action='store_true', help='Force run the evaluation experiment?')
 
+parser.add_argument('--dump-images', default=False, action='store_true', help='Dump random source/comparison images while training/testing')
+
 args = parser.parse_args()
 args.experiment_id = args.exp
 

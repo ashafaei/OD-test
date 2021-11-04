@@ -1,0 +1,27 @@
+{
+  "name": "master_json",
+  "d1_tasks": [
+    "MNIST",
+    "FashionMNIST"
+  ],
+  "d2_tasks": [
+    "UniformNoise",
+    "NormalNoise",
+    "MNIST",
+    "FashionMNIST",
+    "NotMNIST",
+    "CIFAR10"
+  ],
+  "d3_tasks": [
+    "UniformNoise",
+    "NormalNoise",
+    "MNIST",
+    "FashionMNIST",
+    "NotMNIST",
+    "CIFAR10"
+  ],
+  "method_tasks": [
+    "reconst_thresh/0",
+    "reconst_thresh/1"
+  ]
+}

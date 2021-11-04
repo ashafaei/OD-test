@@ -46,6 +46,9 @@ class RTModelWrapper(AbstractModelWrapper):
 
         return loss
 
+    def get_output_device(self):
+        return self.base_model.dev2
+
     def wrapper_eval(self, x):
         x = x - self.H.transfer
         x = x * x
@@ -70,6 +73,152 @@ class ReconstructionThreshold(ProbabilityThreshold):
 
         # Set up the model
         model = Global.get_ref_autoencoder(dataset.name)[0]().to(self.args.device)
+
+        # Set up the criterion
+        criterion = None
+        if self.default_model == 0:
+            criterion = nn.BCEWithLogitsLoss().to(self.args.device)
+            criterion.size_average = True
+        else:
+            criterion = nn.MSELoss().to(self.args.device)
+            criterion.size_average = True
+            model.default_sigmoid = True
+
+        # Set up the config
+        config = IterativeTrainerConfig()
+
+        config.name = '%s-AE1'%(self.args.D1)
+        config.phases = {
+                        'all':     {'dataset' : all_loader,    'backward': False},
+                        }
+        config.criterion = criterion
+        config.classification = False
+        config.cast_float_label = False
+        config.autoencoder_target = True
+        config.stochastic_gradient = True
+        config.visualize = not self.args.no_visualize
+        config.sigmoid_viz = self.default_model == 0
+        config.model = model
+        config.optim = None
+        config.logger = Logger()
+
+        return config
+
+    def propose_H(self, dataset):
+        config = self.get_base_config(dataset)
+
+        import models as Models
+        if self.default_model == 0:
+            config.model.netid = "BCE." + config.model.netid
+        else:
+            config.model.netid = "MSE." + config.model.netid
+
+        home_path = Models.get_ref_model_path(self.args, config.model.__class__.__name__, dataset.name, suffix_str=config.model.netid)
+        hbest_path = path.join(home_path, 'model.best.pth')
+        best_h_path = hbest_path
+
+        trainer = IterativeTrainer(config, self.args)
+
+        if not path.isfile(best_h_path):
+            raise NotImplementedError("%s not found!, Please use setup_model to pretrain the networks first!"%best_h_path)
+        else:
+            print('Loading H1 model from %s'%best_h_path)
+            config.model.load_state_dict(torch.load(best_h_path))
+        
+        trainer.run_epoch(0, phase='all')
+        test_loss = config.logger.get_measure('all_loss').mean_epoch(epoch=0)
+        print("All average loss %s"%'%.4f'%(test_loss))
+
+        self.base_model = config.model
+        self.base_model.eval()
+
+    def get_H_config(self, dataset, will_train=True):
+        print("Preparing training D1+D2 (H)")
+        print("Mixture size: %s"%'%d'%len(dataset))
+
+        # 80%, 20% for local train+test
+        train_ds, valid_ds = dataset.split_dataset(0.8)
+
+        if self.args.D1 in Global.mirror_augment:
+            print("Mirror augmenting %s"%self.args.D1)
+            new_train_ds = train_ds + MirroredDataset(train_ds)
+            train_ds = new_train_ds
+
+        # Initialize the multi-threaded loaders.
+        train_loader = DataLoader(train_ds, batch_size=self.args.batch_size, shuffle=True, num_workers=self.args.workers, pin_memory=True)
+        valid_loader = DataLoader(valid_ds, batch_size=self.args.batch_size, shuffle=True, num_workers=self.args.workers, pin_memory=True)
+
+        # Set up the criterion
+        # To make the threshold learning, actually threshold learning
+        # the margin must be set to 0.
+        criterion = SVMLoss(margin=0.0).to(self.args.device)
+        criterion.size_average = True
+
+        # Set up the model
+        model = RTModelWrapper(self.base_model, loss_variant=self.default_model).to(self.args.device)
+
+        old_valid_loader = valid_loader
+        if will_train:
+            # cache the subnetwork for faster optimization.
+            from methods import get_cached
+            from torch.utils.data.dataset import TensorDataset
+
+            trainX, trainY = get_cached(model, train_loader, self.args.device)
+            validX, validY = get_cached(model, valid_loader, self.args.device)
+
+            new_train_ds = TensorDataset(trainX, trainY)
+            new_valid_ds = TensorDataset(validX, validY)
+
+            # Initialize the new multi-threaded loaders.
+            train_loader = DataLoader(new_train_ds, batch_size=2048, shuffle=True, num_workers=0, pin_memory=False)
+            valid_loader = DataLoader(new_valid_ds, batch_size=2048, shuffle=True, num_workers=0, pin_memory=False)
+
+            # Set model to direct evaluation (for cached data)
+            model.set_eval_direct(True)
+
+        # Set up the config
+        config = IterativeTrainerConfig()
+
+        base_model_name = self.base_model.__class__.__name__
+        if hasattr(self.base_model, 'preferred_name'):
+            base_model_name = self.base_model.preferred_name()
+
+        config.name = '_%s[%s](%s-%s)'%(self.__class__.__name__, base_model_name, self.args.D1, self.args.D2)
+        config.train_loader = train_loader
+        config.valid_loader = valid_loader
+        config.phases = {
+                        'train':   {'dataset' : train_loader,  'backward': True},
+                        'test':    {'dataset' : valid_loader,  'backward': False},
+                        'testU':   {'dataset' : old_valid_loader, 'backward': False},                                                
+                        }
+        config.criterion = criterion
+        config.classification = True
+        config.cast_float_label = True
+        config.stochastic_gradient = True  
+        config.visualize = not self.args.no_visualize  
+        config.model = model
+        config.optim = optim.Adagrad(model.H.parameters(), lr=1e-1, weight_decay=0)
+        config.scheduler = optim.lr_scheduler.ReduceLROnPlateau(config.optim, patience=10, threshold=1e-1, min_lr=1e-8, factor=0.1, verbose=True)
+        config.logger = Logger()
+        config.max_epoch = 100
+
+        return config
+
+class WaveletReconstructionThreshold(ProbabilityThreshold):
+    def method_identifier(self):
+        output = "WREThreshold"
+        if len(self.add_identifier) > 0:
+            output = output + "/" + self.add_identifier
+        return output        
+    
+    def get_base_config(self, dataset):
+        print("Preparing training D1 for %s"%(dataset.name))
+
+        # Initialize the multi-threaded loaders.
+        all_loader   = DataLoader(dataset,  batch_size=self.args.batch_size, num_workers=self.args.workers, pin_memory=True)
+
+        # Set up the model
+        model = Global.get_ref_wae(dataset.name)[0]().to(self.args.device)
 
         # Set up the criterion
         criterion = None
