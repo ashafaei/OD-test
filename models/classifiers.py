@@ -406,3 +406,70 @@ class Scaled_ResNext(nn.Module):
         config['scheduler'] = optim.lr_scheduler.ReduceLROnPlateau(config['optim'], patience=10, threshold=1e-2, min_lr=1e-6, factor=0.1, verbose=True)
         config['max_epoch'] = self.epochs
         return config
+
+class Scaled_Densenet(nn.Module):
+    """
+        Using Densenet121
+    """
+    def __init__(self,scale,classes,epochs,split_size=0):
+        super(Scaled_Densenet, self).__init__()
+        # Based on the imagenet normalization params.
+        self.offset = 0.44900
+        self.multiplier = 4.42477
+
+        self.dev1 = torch.device('cuda:0')
+        self.dev2 = torch.device('cuda:0')
+
+        self.split_size = split_size
+
+        # Densenet, adapted for small image sizes
+        blocks = (24,16)
+        features = 32
+        growth_rate = 32 
+
+        if scale[1] < 16:
+            blocks = (24,16)
+            features = 16
+            growth_rate = 32
+        elif scale[1] < 32:
+            blocks = (6,24,16)
+            features = 24
+            growth_rate = 32
+        else:
+            blocks = (6,12,24,16)
+            features = 32
+            growth_rate = 32
+
+        self.model = Densenet.DenseNet(growth_rate, blocks, features, num_classes=classes)
+
+        self.model = self.model.to(self.dev1)
+
+        self.epochs = epochs
+
+    def forward(self, x, softmax=True):
+        # Perform late normalization.
+        x = x.to(self.dev1)
+        x = (x-self.offset)*self.multiplier
+
+        output = self.model(x)
+        if softmax:
+            output = F.log_softmax(output, dim=1)
+
+        output = output.to(self.dev2)
+        return output
+
+    def get_output_device(self):
+        return torch.device('cuda:0')
+
+    def output_size(self):
+        return torch.LongTensor([1, classes])
+
+    def get_output_device(self):
+        return self.dev2
+
+    def train_config(self):
+        config = {}
+        config['optim']     = optim.Adam(self.parameters(), lr=1e-3)
+        config['scheduler'] = optim.lr_scheduler.ReduceLROnPlateau(config['optim'], patience=10, threshold=1e-2, min_lr=1e-6, factor=0.1, verbose=True)
+        config['max_epoch'] = self.epochs
+        return config
