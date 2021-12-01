@@ -91,7 +91,7 @@ class ScoreSVM(ProbabilityThreshold):
         if hasattr(self.base_model, 'preferred_name'):
             base_model_name = self.base_model.preferred_name()
 
-        config.name = '_%s[%s](%s->%s)'%(self.__class__.__name__, base_model_name, self.args.D1, self.args.D2)
+        config.name = '_%s[%s](%s-%s)'%(self.__class__.__name__, base_model_name, self.args.D1, self.args.D2)
         config.train_loader = train_loader
         config.valid_loader = valid_loader
         config.phases = {

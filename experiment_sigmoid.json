@@ -1,0 +1,38 @@
+{
+  "name": "master_json",
+  "d1_tasks": [
+    "MNIST",
+    "FashionMNIST",
+    "CIFAR10",
+    "CIFAR100",
+    "STL10",
+    "TinyImagenet"
+  ],
+  "d2_tasks": [
+    "UniformNoise",
+    "NormalNoise",
+    "MNIST",
+    "FashionMNIST",
+    "NotMNIST",
+    "CIFAR10",
+    "CIFAR100",
+    "STL10",
+    "TinyImagenet"
+  ],
+  "d3_tasks": [
+    "UniformNoise",
+    "NormalNoise",
+    "MNIST",
+    "FashionMNIST",
+    "NotMNIST",
+    "CIFAR10",
+    "CIFAR100",
+    "STL10",
+    "TinyImagenet"
+  ],
+  "method_tasks": [
+    "prob_threshold/0",
+    "binclass/0",
+    "binclass_sigmoid/0"
+  ]
+}
