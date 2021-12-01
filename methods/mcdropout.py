@@ -52,6 +52,12 @@ class MCDropoutModelWrapper(AbstractModelWrapper):
     def classify(self, x):
         return (x>0).long()
 
+    def get_output_device(self):
+        return self.base_model.get_output_device()
+
+    def get_info(self,args):
+        return self.base_model.get_info(args)
+
 class MCDropout(ProbabilityThreshold):
     def method_identifier(self):
         output = "MCDropout-7"

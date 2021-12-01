@@ -39,6 +39,12 @@ class PTModelWrapper(AbstractModelWrapper):
     def classify(self, x):
         return (x > 0).long()
 
+    def get_output_device(self):
+        return self.base_model.get_output_device()
+
+    def get_info(self,args):
+        return self.base_model.get_info(args)
+
 
 class ProbabilityThreshold(AbstractMethodInterface):
     def __init__(self, args):

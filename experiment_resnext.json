@@ -1,0 +1,56 @@
+{
+  "name": "master_json",
+  "d1_tasks": [
+    "MNIST",
+    "FashionMNIST",
+    "CIFAR10",
+    "CIFAR100",
+    "STL10",
+    "TinyImagenet"
+  ],
+  "d2_tasks": [
+    "UniformNoise",
+    "NormalNoise",
+    "MNIST",
+    "FashionMNIST",
+    "NotMNIST",
+    "CIFAR10",
+    "CIFAR100",
+    "STL10",
+    "TinyImagenet"
+  ],
+  "d3_tasks": [
+    "UniformNoise",
+    "NormalNoise",
+    "MNIST",
+    "FashionMNIST",
+    "NotMNIST",
+    "CIFAR10",
+    "CIFAR100",
+    "STL10",
+    "TinyImagenet"
+  ],
+  "method_tasks": [
+    "prob_threshold/0",
+    "prob_threshold/1",
+    "prob_threshold/2",
+    "logistic_svm/0",
+    "logistic_svm/1",
+    "logistic_svm/2",
+    "score_svm/0",
+    "score_svm/1",
+    "score_svm/2",
+    "binclass/0",
+    "binclass/1",
+    "binclass/2",
+    "deep_ensemble/0",
+    "deep_ensemble/1",
+    "deep_ensemble/2",
+    "odin/0",
+    "odin/1",
+    "odin/2",
+    "openmax/0",
+    "openmax/1",
+    "openmax/2"
+  ]
+}
