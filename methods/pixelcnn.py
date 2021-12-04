@@ -44,6 +44,12 @@ class PixelCNNModelWrapper(AbstractModelWrapper):
     def classify(self, x):
         return (x>0).long()
 
+    def get_output_device(self):
+        return self.base_model.get_output_device()
+
+    def get_info(self,args):
+        return self.base_model.get_info(args)
+
 class PixelCNN(ProbabilityThreshold):
     def method_identifier(self):
         output = "PixelCNN"
@@ -165,7 +171,7 @@ class PixelCNN(ProbabilityThreshold):
         if hasattr(self.base_model, 'preferred_name'):
             base_model_name = self.base_model.preferred_name()
 
-        config.name = '_%s[%s](%s->%s)'%(self.__class__.__name__, base_model_name, self.args.D1, self.args.D2)
+        config.name = '_%s[%s](%s-%s)'%(self.__class__.__name__, base_model_name, self.args.D1, self.args.D2)
         config.train_loader = train_loader
         config.valid_loader = valid_loader
         config.phases = {

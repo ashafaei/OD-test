@@ -39,6 +39,12 @@ class PTModelWrapper(AbstractModelWrapper):
     def classify(self, x):
         return (x > 0).long()
 
+    def get_output_device(self):
+        return self.base_model.get_output_device()
+
+    def get_info(self,args):
+        return self.base_model.get_info(args)
+
 
 class ProbabilityThreshold(AbstractMethodInterface):
     def __init__(self, args):
@@ -168,7 +174,7 @@ class ProbabilityThreshold(AbstractMethodInterface):
         if hasattr(self.base_model, 'preferred_name'):
             base_model_name = self.base_model.preferred_name()
 
-        config.name = '_%s[%s](%s->%s)'%(self.__class__.__name__, base_model_name, self.args.D1, self.args.D2)
+        config.name = '_%s[%s](%s-%s)'%(self.__class__.__name__, base_model_name, self.args.D1, self.args.D2)
         config.train_loader = train_loader
         config.valid_loader = valid_loader
         config.phases = {
@@ -228,7 +234,7 @@ class ProbabilityThreshold(AbstractMethodInterface):
                 test_average_acc = h_config.logger.get_measure('test_accuracy').mean_epoch()
 
                 # Save the logger for future reference.
-                #torch.save(h_config.logger.measures, path.join(h_parent, 'logger.%s->%s.pth'%(self.args.D1, self.args.D2)))
+                #torch.save(h_config.logger.measures, path.join(h_parent, 'logger.%s-%s.pth'%(self.args.D1, self.args.D2)))
 
                 if best_accuracy < test_average_acc:
                     print('Updating the on file model with %s'%(test_average_acc))
