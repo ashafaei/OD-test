@@ -157,7 +157,7 @@ import methods.odin as ODIN
 import methods.reconstruction_error as RE
 import methods.pixelcnn as PCNN
 import methods.openmax as OM
-import methods.sigmoid_threshold as BinClassSigmoid
+import methods.sigmoid_threshold as Sigmoid
 
 all_methods = {
     'prob_threshold':   BT.ProbabilityThreshold,
@@ -169,7 +169,7 @@ all_methods = {
     'mseaeknn':         KNN.MSEKNNSVM,
     'vaeaeknn':         KNN.VAEKNNSVM,
     'binclass':         BinClass.BinaryClassifier,
-    'binclass_sigmoid': BinClassSigmoid.SigmoidThresholdClassifier,
+    'sigmoid':          Sigmoid.SigmoidThresholdClassifier,
     'deep_ensemble':    DE.DeepEnsemble,
     'odin':             ODIN.ODIN,
     'reconst_thresh':   RE.ReconstructionThreshold,
@@ -214,7 +214,10 @@ def get_ref_wae(dataset):
 
 def get_method(name, args):
     elements = name.split('/')
-    instance = all_methods[elements[0]](args)
+    try:
+        instance = all_methods[elements[0]](args)
+    except (KeyError):
+        print("CONFIG ERROR: We don't recognise the method name {}".format(elements[0]))
     if len(elements) > 1:
         instance.default_model = int(elements[1])
     return instance

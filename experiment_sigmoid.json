@@ -33,6 +33,6 @@
   "method_tasks": [
     "prob_threshold/0",
     "binclass/0",
-    "binclass_sigmoid/0"
+    "sigmoid/0"
   ]
 }

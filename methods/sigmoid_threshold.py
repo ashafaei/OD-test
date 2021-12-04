@@ -16,31 +16,36 @@ from torchinfo import summary
 
 class SigmoidThresholdWrapper(nn.Module):
     """ The wrapper class for H.
-        We add a layer at the end of any classifier. This module takes the |y| dimensional output
-        and maps it to a one-dimensional prediction.
+       
     """
     def __init__(self, base_model):
         super(SigmoidThresholdWrapper, self).__init__()
         self.base_model = base_model
         output_size = base_model.output_size()[1].item()
+        """
         self.H = nn.Sequential(
                     nn.BatchNorm1d(output_size),
-                    nn.Linear(output_size, output_size),
-                    nn.Sigmoid()
+                    nn.Linear(output_size, output_size)
             )
+        self.sigmoid = nn.Sigmoid()
+        """
+        self.H = nn.Sigmoid()
 
     def forward(self, x):
         base_output = self.base_model.forward(x, softmax=False)
         output = self.H(base_output)
+        #output = self.sigmoid(output)
         return output
     
     def preferred_name(self):
         return self.base_model.__class__.__name__
     
     def classify(self, x):
-        p = base_output.exp().max(1)[0].unsqueeze_(1)
-        print(p)
-        return (p>0.5).long()
+        # we simply take the maximum. This is the basic prediction of the network
+        #print("x before:{}".format(x))
+        p = x.max(1)[1].unsqueeze_(1)
+        #print("x after:{}".format(p))
+        return p.long()
 
     def get_output_device(self):
         return self.base_model.get_output_device()
@@ -54,6 +59,28 @@ class SigmoidThresholdClassifier(ProbabilityThreshold):
         if len(self.add_identifier) > 0:
             output = output + "/" + self.add_identifier
         return output
+
+    def propose_H(self, dataset):
+        config = self.get_base_config(dataset)
+
+        from models import get_ref_model_path
+        h_path = get_ref_model_path(self.args, config.model.__class__.__name__, dataset.name)
+        best_h_path = path.join(h_path, 'model.best.pth')
+
+        trainer = IterativeTrainer(config, self.args)
+
+        if not path.isfile(best_h_path):      
+            raise NotImplementedError("Please use model_setup to pretrain the networks first!")
+        else:
+            print('Loading H1 model from %s'%best_h_path)
+            config.model.load_state_dict(torch.load(best_h_path))
+        
+        trainer.run_epoch(0, phase='all')
+        test_average_acc = config.logger.get_measure('all_accuracy').mean_epoch(epoch=0)
+        print("All average accuracy %s"%(test_average_acc*100))
+
+        self.base_model = config.model
+        self.base_model.eval()
 
     def get_H_config(self, dataset, will_train=True):
         print("Preparing training D1+D2 (H)")
@@ -77,7 +104,7 @@ class SigmoidThresholdClassifier(ProbabilityThreshold):
         input_size = im.size() #datasets in pytorch are assumed to be uniform size
 
         # Set up the criterion
-        criterion = nn.BCEWithLogitsLoss().to(self.args.device)
+        criterion = nn.CrossEntropyLoss().to(self.args.device)
         criterion.size_average = True
 
         # Set up the model
@@ -89,7 +116,7 @@ class SigmoidThresholdClassifier(ProbabilityThreshold):
         #print("model before")
         #summary(model, input_size=(self.args.batch_size, input_size[0], input_size[1], input_size[2]), depth=10)
 
-        model = BinaryModelWrapper(model).to(self.args.device)
+        model = SigmoidThresholdWrapper(model).to(self.args.device)
 
         #print("model after")
         #summary(model, input_size=(self.args.batch_size, input_size[0], input_size[1], input_size[2]), depth=10)
@@ -115,7 +142,7 @@ class SigmoidThresholdClassifier(ProbabilityThreshold):
                         }
         config.criterion = criterion
         config.classification = True
-        config.cast_float_label = True
+        config.cast_float_label = False
         config.stochastic_gradient = True
         config.visualize = not self.args.no_visualize
         config.model = model
@@ -131,9 +158,6 @@ class SigmoidThresholdClassifier(ProbabilityThreshold):
                 config.__setattr__(key, value)
 
         return config
-
-    def propose_H(self, dataset):
-        raise NotImplementedError("You know, you're not supposed to treat me like this!")
 
     def train_H(self, dataset):
         # Wrap the (mixture)dataset in SubDataset so to easily
