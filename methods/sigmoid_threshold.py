@@ -150,11 +150,11 @@ class SigmoidThresholdClassifier(ProbabilityThreshold):
 
         done_path = h_path + '.done'
         will_train = self.args.force_train_h or not path.isfile(done_path)
-
+        
         h_config = self.get_H_config(dataset)
 
         trainer = IterativeTrainer(h_config, self.args)
-
+        """
         if will_train:
             print('Training from scratch')
             best_accuracy = -1
@@ -189,7 +189,7 @@ class SigmoidThresholdClassifier(ProbabilityThreshold):
         # Load the best model.
         print('Loading H model from %s'%h_path)
         h_config.model.load_state_dict(torch.load(h_path))
-        
+        """
         trainer.run_epoch(0, phase='testU')
         test_average_acc = h_config.logger.get_measure('testU_accuracy').mean_epoch(epoch=0)
         print("Valid/Test average accuracy %s"%('%.4f%%'%(test_average_acc*100)))
