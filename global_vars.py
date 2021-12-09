@@ -157,7 +157,7 @@ import methods.odin as ODIN
 import methods.reconstruction_error as RE
 import methods.pixelcnn as PCNN
 import methods.openmax as OM
-import methods.sigmoid_threshold as Sigmoid
+import methods.sd_threshold as SD
 
 all_methods = {
     'prob_threshold':   BT.ProbabilityThreshold,
@@ -169,7 +169,7 @@ all_methods = {
     'mseaeknn':         KNN.MSEKNNSVM,
     'vaeaeknn':         KNN.VAEKNNSVM,
     'binclass':         BinClass.BinaryClassifier,
-    'sigmoid':          Sigmoid.SigmoidThresholdClassifier,
+    'sd_threshold':     SD.SDThreshold,
     'deep_ensemble':    DE.DeepEnsemble,
     'odin':             ODIN.ODIN,
     'reconst_thresh':   RE.ReconstructionThreshold,

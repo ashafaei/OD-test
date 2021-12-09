@@ -151,6 +151,7 @@ class IterativeTrainer(object):
 
             if classification:
                 pred = []
+                #print("prediction:{}".format(prediction))
                 if prediction.size(1) == 1:
                     # For binary classification, we do this to make the
                     # prediction code consistent with the max.

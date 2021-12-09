@@ -31,8 +31,6 @@
     "TinyImagenet"
   ],
   "method_tasks": [
-    "prob_threshold/0",
-    "binclass/0",
-    "sigmoid/0"
+    "sd_threshold/0"
   ]
 }
