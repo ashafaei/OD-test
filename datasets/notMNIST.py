@@ -137,7 +137,7 @@ class NotMNIST(AbstractDomainInterface):
         D2: 9362 Valid, 9362 Test. (indices chosen at random)
     """
 
-    def __init__(self):
+    def __init__(self,drop_class=None):
         super(NotMNIST, self).__init__()
         
         im_transformer  = transforms.Compose([transforms.ToTensor()])

@@ -122,7 +122,12 @@ if __name__ == "__main__":
 
                     # Stage 2: Train for h \in H
                     d1_valid = ds1.get_D1_valid()
-                    d2_valid = ds2.get_D2_valid(ds1)
+                    if(args.unseen_class_test):
+                        # if we're running in "unseen class" mode, we validate on the dropped class in d1, not on d2
+                        # we can use all the dropped from the training and validation sets, because they were not used in training and we know they're OOD
+                        d2_valid = ds1.get_D1_valid_dropped() + ds1.get_D1_train_dropped()
+                    else:
+                        d2_valid = ds2.get_D2_valid(ds1)
 
                     # Adjust the sizes.
                     d1_valid_len = len(d1_valid)
@@ -147,7 +152,12 @@ if __name__ == "__main__":
 
                     # Stage 2: Train for h \in H
                     d1_valid = ds1.get_D1_valid()
-                    d2_valid = ds2.get_D2_valid(ds1)
+                    if(args.unseen_class_test):
+                        # if we're running in "unseen class" mode, we validate on the dropped class in d1, not on d2
+                        # we can use all the dropped from the training and validation sets, because they were not used in training and we know they're OOD
+                        d2_valid = ds1.get_D1_valid_dropped() + ds1.get_D1_train_dropped()
+                    else:
+                        d2_valid = ds2.get_D2_valid(ds1)
 
                     # Adjust the sizes. Make sure this method does not see more valid data as other methods.
                     d1_valid_len = len(d1_valid)
@@ -187,7 +197,12 @@ if __name__ == "__main__":
 
                     # Stage 3: Eval h on test data of d3
                     d1_test = ds1.get_D1_test()
-                    d2_test = ds3.get_D2_test(ds1)
+                    if(args.unseen_class_test):
+                        # if we're running in "unseen class" mode, we validate on the dropped class in d1, not on d2
+                        # we can use all the dropped from the training and validation sets, because they were not used in training and we know they're OOD
+                        d2_test = ds1.get_D1_test_dropped(ds1)
+                    else:
+                        d2_test = ds3.get_D2_test(ds1)
 
                     # Adjust the sizes.
                     d1_test_len = len(d1_test)

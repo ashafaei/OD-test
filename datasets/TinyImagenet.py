@@ -214,7 +214,7 @@ class TinyImagenet(AbstractDomainInterface):
         D2: 10,000 Valid + 100,000 train (shuffled), 10,000 Test.
     """
 
-    def __init__(self, downsample=None):
+    def __init__(self, downsample=None,drop_class=None):
         super(TinyImagenet, self).__init__()
         
         im_transformer = None
@@ -253,18 +253,6 @@ class TinyImagenet(AbstractDomainInterface):
         self.D2_valid_ind = train_indices.int()
         self.D2_test_ind  = torch.arange(0, len(self.ds_valid)).int()
 
-        """
-        CIFAR100:
-                 15:snail with 77:snail
-                 34:lion, king of beasts, Panthera leo with 43:lion
-                 38:bee with 6:bee
-                 41:cockroach, roach with 24:cockroach
-                 55:chimpanzee, chimp, Pan troglodytes with 21:chimpanzee
-                 164:tractor with 89:tractor
-                 177:plate with 61:plate
-                 185:mushroom with 51:mushroom
-                 186:orange with 53:orange
-        """
         self.filter_rules = {
             'CIFAR100': [15, 34, 38, 41, 55, 164, 177, 185, 186]
         }

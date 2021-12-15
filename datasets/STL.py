@@ -10,7 +10,7 @@ class STL10(AbstractDomainInterface):
         D2:    5,000 valid + 8,000 test.
     """
 
-    def __init__(self, downsample=None):
+    def __init__(self, downsample=None,drop_class=None):
         super(STL10, self).__init__()
 
         im_transformer = None
@@ -35,6 +35,22 @@ class STL10(AbstractDomainInterface):
                                         split='test',
                                         transform=im_transformer,
                                         download=True)
+
+        if(drop_class!=None):
+            new_D1_train_ind = []
+            for i in self.D1_train_ind:
+                _,label = self.ds_train[i]
+                if label!=drop_class:
+                    new_D1_train_ind.append(i)
+            self.D1_train_ind = torch.Tensor(new_D1_train_ind)
+
+        if(drop_class!=None):
+            new_D1_valid_ind = []
+            for i in self.D1_valid_ind:
+                _,label = self.ds_train[i]
+                if label!=drop_class:
+                    new_D1_valid_ind.append(i)
+            self.D1_valid_ind = torch.Tensor(new_D1_valid_ind)
     
     def get_D1_train(self):
         return SubDataset(self.name, self.ds_train, self.D1_train_ind)

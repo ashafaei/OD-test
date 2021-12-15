@@ -18,17 +18,11 @@ class CIFAR10(AbstractDomainInterface):
         D2 (Dv, Dt): 50,000 valid + 10,000 test.
     """
 
-    def __init__(self):
+    def __init__(self,drop_class=None):
         super(CIFAR10, self).__init__()
         
         im_transformer  = transforms.Compose([transforms.ToTensor()])
         root_path       = './workspace/datasets/cifar10'
-        self.D1_train_ind = torch.arange(0, 40000).int()
-        self.D1_valid_ind = torch.arange(40000, 50000).int()
-        self.D1_test_ind  = torch.arange(0, 10000).int()
-
-        self.D2_valid_ind = torch.arange(0, 50000).int()
-        self.D2_test_ind  = torch.arange(0, 10000).int()
 
         self.ds_train   = datasets.CIFAR10(root_path,
                                         train=True,
@@ -38,7 +32,15 @@ class CIFAR10(AbstractDomainInterface):
                                         train=False,
                                         transform=im_transformer,
                                         download=True)
-    
+
+        
+        self.D1_train_ind = torch.arange(0, 40000).int()
+        self.D1_valid_ind = torch.arange(40000, 50000).int()
+        self.D1_test_ind  = torch.arange(0, 10000).int()
+
+        self.D2_valid_ind = torch.arange(0, 50000).int()
+        self.D2_test_ind  = torch.arange(0, 10000).int()
+
     def get_D1_train(self):
         return SubDataset(self.name, self.ds_train, self.D1_train_ind)
     def get_D1_valid(self):
@@ -119,14 +121,14 @@ class CIFAR100(AbstractDomainInterface):
         assert self.is_compatible(D1)
         target_indices = self.D2_valid_ind
         if D1.name in self.filter_rules:
-            target_indices = filter_indices(self.ds_train, target_indices, self.filter_rules[D1.name])
+            target_indices = self.filter_indices(self.ds_train, target_indices, self.filter_rules[D1.name])
         return SubDataset(self.name, self.ds_train, target_indices, label=1, transform=D1.conformity_transform())
 
     def get_D2_test(self, D1):
         assert self.is_compatible(D1)
         target_indices = self.D2_test_ind
         if D1.name in self.filter_rules:
-            target_indices = filter_indices(self.ds_test, target_indices, self.filter_rules[D1.name])
+            target_indices = self.filter_indices(self.ds_test, target_indices, self.filter_rules[D1.name])
         return SubDataset(self.name, self.ds_test, target_indices, label=1, transform=D1.conformity_transform())
 
     def conformity_transform(self):

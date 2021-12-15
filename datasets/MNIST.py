@@ -10,7 +10,7 @@ class MNIST(AbstractDomainInterface):
         Dv, Dt: 60,000 valid + 10,000 test.
     """
 
-    def __init__(self):
+    def __init__(self,drop_class=None):
         super(MNIST, self).__init__()
 
         im_transformer  = transforms.Compose([transforms.ToTensor()])
@@ -31,14 +31,47 @@ class MNIST(AbstractDomainInterface):
                                         train=False,
                                         transform=im_transformer,
                                         download=True)
-
+  
+        self.filter_rules = {}
+        if(drop_class is not None):
+            self.filter_rules['MNIST'] = []
+            self.filter_rules['MNIST'].append(drop_class)
     
     def get_D1_train(self):
-        return SubDataset(self.name, self.ds_train, self.D1_train_ind)
+        target_indices = self.D1_train_ind
+        if self.name in self.filter_rules:
+            target_indices = self.filter_indices(self.ds_train, target_indices, self.filter_rules[self.name])
+        return SubDataset(self.name, self.ds_train, target_indices)
+
+    def get_D1_train_dropped(self):
+        target_indices = self.D1_train_ind
+        if self.name in self.filter_rules:
+            target_indices = self.filter_indices(self.ds_train, target_indices, self.filter_rules[self.name], True)
+        return SubDataset(self.name, self.ds_train, target_indices, label=1)
+
     def get_D1_valid(self):
-        return SubDataset(self.name, self.ds_train, self.D1_valid_ind, label=0)
+        target_indices = self.D1_valid_ind
+        if self.name in self.filter_rules:
+            target_indices = self.filter_indices(self.ds_train, target_indices, self.filter_rules[self.name])
+        return SubDataset(self.name, self.ds_train, target_indices, label=0)
+
+    def get_D1_valid_dropped(self):
+        target_indices = self.D1_valid_ind
+        if self.name in self.filter_rules:
+            target_indices = self.filter_indices(self.ds_train, target_indices, self.filter_rules[self.name], True)
+        return SubDataset(self.name, self.ds_train, target_indices, label=1)
+
     def get_D1_test(self):
-        return SubDataset(self.name, self.ds_test, self.D1_test_ind, label=0)
+        target_indices = self.D1_test_ind
+        if self.name in self.filter_rules:
+            target_indices = self.filter_indices(self.ds_test, target_indices, self.filter_rules[self.name])
+        return SubDataset(self.name, self.ds_test, target_indices, label=0)
+
+    def get_D1_test_dropped(self):
+        target_indices = self.D1_test_ind
+        if self.name in self.filter_rules:
+            target_indices = self.filter_indices(self.ds_test, target_indices, self.filter_rules[self.name],True)
+        return SubDataset(self.name, self.ds_test, target_indices, label=1)
 
     def get_D2_valid(self, D1):
         assert self.is_compatible(D1)
@@ -49,7 +82,11 @@ class MNIST(AbstractDomainInterface):
         return SubDataset(self.name, self.ds_test, self.D2_test_ind, label=1, transform=D1.conformity_transform())
 
     def get_num_classes(self):
-        return 10
+        classes = 10
+        if self.name in self.filter_rules:
+            dropped_classes = len(self.filter_rules[self.name])
+            classes = classes - dropped_classes
+        return classes
 
     def conformity_transform(self):
         return transforms.Compose([transforms.ToPILImage(),

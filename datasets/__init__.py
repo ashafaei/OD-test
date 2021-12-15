@@ -95,6 +95,18 @@ class AbstractDomainInterface(object):
     def __init__(self):
         self.name = self.__class__.__name__
 
+    def filter_indices(self, dataset, indices, filter_label, flip = False):
+        #breakpoint()
+        accept = []
+        for ind in indices:
+            _, label = dataset[ind]
+            s = label not in filter_label 
+            if flip: 
+                s = not s
+            if s:
+                accept.append(ind)
+        return torch.IntTensor(accept)
+
     """
         D1's are used for the reference datasets.
 
@@ -107,11 +119,18 @@ class AbstractDomainInterface(object):
         raise NotImplementedError("%s has no implementation for this function."%(self.__class__.__name__))
     def get_D1_test(self):
         raise NotImplementedError("%s has no implementation for this function."%(self.__class__.__name__))
+    def get_D1_train_dropped(self):
+        raise NotImplementedError("%s has no implementation for this function."%(self.__class__.__name__))
+    def get_D1_valid_dropped(self):
+        raise NotImplementedError("%s has no implementation for this function."%(self.__class__.__name__))
+    def get_D1_test_dropped(self):
+        raise NotImplementedError("%s has no implementation for this function."%(self.__class__.__name__))
 
     def get_train_sampler(self):
         return None
 
     def calculate_D1_weighting(self):
+        breakpoint()
         train_set = self.get_D1_train()
         nc = self.get_num_classes()
         count = [0] * nc                                                      

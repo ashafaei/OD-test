@@ -1,4 +1,3 @@
-from __future__ import print_function
 import os,sys,inspect
 
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
@@ -58,7 +57,7 @@ if __name__ == "__main__":
             if skippable and not needs_processing(args, Global.all_datasets[dataset], ref_list[dataset], suffix=suffix):
                 print('Skipped')
                 continue
-            ds = Global.all_datasets[dataset]()
+            ds = Global.all_datasets[dataset](drop_class = args.drop_class)
             for model_builder in ref_list[dataset]:
                 model_builder.add('split_size',(int)(args.batch_size / 4))
                 model = model_builder()
