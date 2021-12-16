@@ -94,6 +94,7 @@ class AbstractDomainInterface(object):
     """
     def __init__(self):
         self.name = self.__class__.__name__
+        self.filter_rules = None
 
     def filter_indices(self, dataset, indices, filter_label, flip = False):
         #breakpoint()
@@ -130,16 +131,20 @@ class AbstractDomainInterface(object):
         return None
 
     def calculate_D1_weighting(self):
-        breakpoint()
+        #breakpoint()
         train_set = self.get_D1_train()
         nc = self.get_num_classes()
+        if(self.filter_rules is not None):
+            nc += len(self.filter_rules[self.name]) # re-add the dropped classes
         count = [0] * nc                                                      
         for item in train_set:                                                         
             count[item[1]] += 1                                                     
         self.train_class_weight = [0.] * nc                                      
-        for i in range(nc):                                                   
-            self.train_class_weight[i] = 1.0/float(count[i])
+        for i in range(nc):
+            if(i not in self.filter_rules[self.name]):
+                self.train_class_weight[i] = 1.0/float(count[i])
 
+        # at this point all the dropped classes should be 0.0, which is correct
         return self.train_class_weight
 
     """
