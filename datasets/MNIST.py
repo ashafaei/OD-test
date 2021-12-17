@@ -13,6 +13,9 @@ class MNIST(AbstractDomainInterface):
     def __init__(self,drop_class=None):
         super(MNIST, self).__init__()
 
+        if(drop_class is not None):
+            self.name = self.name + "_drop_" + str(drop_class)
+
         im_transformer  = transforms.Compose([transforms.ToTensor()])
         root_path       = './workspace/datasets/mnist'
         self.D1_train_ind = torch.arange(0, 50000).int()
@@ -34,8 +37,8 @@ class MNIST(AbstractDomainInterface):
   
         self.filter_rules = {}
         if(drop_class is not None):
-            self.filter_rules['MNIST'] = []
-            self.filter_rules['MNIST'].append(drop_class)
+            self.filter_rules[self.name] = []
+            self.filter_rules[self.name].append(drop_class)
     
     def get_D1_train(self):
         target_indices = self.D1_train_ind
