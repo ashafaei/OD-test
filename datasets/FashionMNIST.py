@@ -11,8 +11,8 @@ class FashionMNIST(AbstractDomainInterface):
         D2: 60,000 valid + 10,000 test.
     """
 
-    def __init__(self,drop_class=None):
-        super(FashionMNIST, self).__init__()
+    def __init__(self, drop_class=None):
+        super(FashionMNIST, self).__init__(drop_class = drop_class)
 
         im_transformer  = transforms.Compose([transforms.ToTensor()])
         root_path       = './workspace/datasets/fmnist'
@@ -31,22 +31,6 @@ class FashionMNIST(AbstractDomainInterface):
                                         train=False,
                                         transform=im_transformer,
                                         download=True)
-
-        if(drop_class!=None):
-            new_D1_train_ind = []
-            for i in self.D1_train_ind:
-                _,label = self.ds_train[i]
-                if label!=drop_class:
-                    new_D1_train_ind.append(i)
-            self.D1_train_ind = torch.Tensor(new_D1_train_ind)
-
-        if(drop_class!=None):
-            new_D1_valid_ind = []
-            for i in self.D1_valid_ind:
-                _,label = self.ds_train[i]
-                if label!=drop_class:
-                    new_D1_valid_ind.append(i)
-            self.D1_valid_ind = torch.Tensor(new_D1_valid_ind)
     
     def get_D1_train(self):
         return SubDataset(self.name, self.ds_train, self.D1_train_ind)

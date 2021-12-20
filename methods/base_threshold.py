@@ -73,7 +73,7 @@ class ProbabilityThreshold(AbstractMethodInterface):
 
         # Set up the model
         import global_vars as Global
-        model = Global.get_ref_classifier(dataset.name)[self.default_model]().to(self.args.device)
+        model = Global.get_ref_classifier(dataset.base_name)[self.default_model]().to(self.args.device)
         self.add_identifier = model.__class__.__name__
         if hasattr(model, 'preferred_name'):
             self.add_identifier = model.preferred_name()
@@ -104,7 +104,7 @@ class ProbabilityThreshold(AbstractMethodInterface):
         best_h_path = path.join(h_path, 'model.best.pth')
 
         trainer = IterativeTrainer(config, self.args)
-
+        
         if not path.isfile(best_h_path):      
             raise NotImplementedError("Please use model_setup to pretrain the networks first!")
         else:
@@ -199,7 +199,7 @@ class ProbabilityThreshold(AbstractMethodInterface):
         # Wrap the (mixture)dataset in SubDataset so to easily
         # split it later.
         from datasets import SubDataset
-        dataset = SubDataset('%s-%s'%(self.args.D1, self.args.D2), dataset, torch.arange(len(dataset)).int())
+        dataset = SubDataset('%s-%s'%(self.args.D1, self.args.D2), '%s-%s'%(self.args.D1, self.args.D2), dataset, torch.arange(len(dataset)).int())
         
         h_path = path.join(self.args.experiment_path, '%s'%(self.__class__.__name__),
                                                       '%d'%(self.default_model),

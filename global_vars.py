@@ -13,11 +13,17 @@ import datasets.noise as noise
 import datasets.STL as STL
 import datasets.TinyImagenet as TI
 
+"""
 all_dataset_classes = [ MNIST.MNIST, FMNIST.FashionMNIST, NMNIST.NotMNIST,
                         CIFAR.CIFAR10, CIFAR.CIFAR100,
                         STL.STL10, TI.TinyImagenet,
                         noise.UniformNoise, noise.NormalNoise,
                         STL.STL10d32, TI.TinyImagenetd32]
+"""
+
+all_dataset_classes = [ MNIST.MNIST, FMNIST.FashionMNIST,
+                        CIFAR.CIFAR10
+                        ]
 
 """
     Not all the datasets can be used as a Dv, Dt (aka D2) for each dataset.

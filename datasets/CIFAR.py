@@ -18,8 +18,8 @@ class CIFAR10(AbstractDomainInterface):
         D2 (Dv, Dt): 50,000 valid + 10,000 test.
     """
 
-    def __init__(self,drop_class=None):
-        super(CIFAR10, self).__init__()
+    def __init__(self, drop_class=None):
+        super(CIFAR10, self).__init__(drop_class = drop_class)
         
         im_transformer  = transforms.Compose([transforms.ToTensor()])
         root_path       = './workspace/datasets/cifar10'

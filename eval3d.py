@@ -1,5 +1,3 @@
-from __future__ import print_function
-
 import os
 import torch
 
@@ -9,7 +7,6 @@ import global_vars as Global
 import json
 from json.decoder import JSONDecodeError
 #########################################################
-
 d1_tasks, d2_tasks, d3_tasks, method_tasks = [], [], [], []
 
 json_file = args.exp
@@ -86,7 +83,7 @@ if __name__ == "__main__":
     for m in [d1_tasks, d2_tasks, d3_tasks]:
         for d in m:
             if d not in ds_cache:
-                ds_cache[d] = Global.all_datasets[d]()
+                ds_cache[d] = Global.all_datasets[d](drop_class = args.drop_class)
     # If results exists already, just continue where left off.
     results_path = os.path.join(args.experiment_path, 'results.pth')
     if os.path.exists(results_path) and not args.force_run:
@@ -122,24 +119,48 @@ if __name__ == "__main__":
 
                     # Stage 2: Train for h \in H
                     d1_valid = ds1.get_D1_valid()
+                    valid_mixture = None
                     if(args.unseen_class_test):
                         # if we're running in "unseen class" mode, we validate on the dropped class in d1, not on d2
                         # we can use all the dropped from the training and validation sets, because they were not used in training and we know they're OOD
-                        d2_valid = ds1.get_D1_valid_dropped() + ds1.get_D1_train_dropped()
+                        d1_valid_dropped = ds1.get_D1_valid_dropped()
+                        d1_train_dropped = ds1.get_D1_train_dropped()
+
+                        # Adjust the sizes.
+                        d1_len = len(d1_valid)
+                        d1_valid_len = len(d1_valid_dropped)
+                        d1_train_len = len(d1_train_dropped)
+                        final_len = min(d1_len, d1_valid_len + d1_train_len)
+                        
+                        d1_valid.trim_dataset(final_len)
+                        # we can't use trim_dataset on a concatdataset
+                        if(d1_valid_len + d1_train_len > final_len):
+                            ratio = (d1_valid_len + d1_train_len)  / final_len
+                            new_valid_len = d1_valid_len * ratio
+                            new_train_len = d1_train_len * ratio
+                            while (new_valid_len + new_train_len > final_len):
+                                new_train_len = new_train_len - 1
+                                
+                            d1_valid_len = new_valid_len
+                            d1_train_len = new_train_len
+                        d1_valid_dropped.trim_dataset(d1_valid_len)
+                        d1_train_dropped.trim_dataset(d1_train_len)
+
+                        valid_mixture = d1_valid + d1_valid_dropped + d1_train_dropped
                     else:
                         d2_valid = ds2.get_D2_valid(ds1)
 
-                    # Adjust the sizes.
-                    d1_valid_len = len(d1_valid)
-                    d2_valid_len = len(d2_valid)
-                    final_len = min(d1_valid_len, d2_valid_len)
-                    print("Adjusting %s and %s to %s"%(d1_valid_len,
-                                                    d2_valid_len,
-                                                    final_len))
-                    d1_valid.trim_dataset(final_len)
-                    d2_valid.trim_dataset(final_len)
-                    valid_mixture = d1_valid + d2_valid
-                    print("Final valid size: %d+%d=%d"%(len(d1_valid), len(d2_valid), len(valid_mixture)))
+                        # Adjust the sizes.
+                        d1_valid_len = len(d1_valid)
+                        d2_valid_len = len(d2_valid)
+                        final_len = min(d1_valid_len, d2_valid_len)
+                        print("Adjusting %s and %s to %s"%(d1_valid_len,
+                                                        d2_valid_len,
+                                                        final_len))
+                        d1_valid.trim_dataset(final_len)
+                        d2_valid.trim_dataset(final_len)
+                        valid_mixture = d1_valid + d2_valid
+                        
                 else:
                     print('Binary evaluation mode')
                     # There's no stage one; the method would do everything in the 
@@ -152,25 +173,48 @@ if __name__ == "__main__":
 
                     # Stage 2: Train for h \in H
                     d1_valid = ds1.get_D1_valid()
+                    valid_mixture = None
                     if(args.unseen_class_test):
                         # if we're running in "unseen class" mode, we validate on the dropped class in d1, not on d2
                         # we can use all the dropped from the training and validation sets, because they were not used in training and we know they're OOD
-                        d2_valid = ds1.get_D1_valid_dropped() + ds1.get_D1_train_dropped()
+                        d1_valid_dropped = ds1.get_D1_valid_dropped()
+                        d1_train_dropped = ds1.get_D1_train_dropped()
+
+                        # Adjust the sizes.
+                        d1_valid_len = len(d1_valid_dropped)
+                        d1_train_len = len(d1_train_dropped)
+                        final_len = min(d1_valid_len, d1_valid_len + d1_train_len)
+                        
+                        d1_valid.trim_dataset(final_len)
+                        # we can't use trim_dataset on a concatdataset
+                        if(d1_valid_len + d1_train_len > final_len):
+                            ratio = (d1_valid_len + d1_train_len)  / final_len
+                            new_valid_len = d1_valid_len * ratio
+                            new_train_len = d1_train_len * ratio
+                            while (new_valid_len + new_train_len > final_len):
+                                new_train_len = new_train_len - 1
+                                
+                            d1_valid_len = new_valid_len
+                            d1_train_len = new_train_len
+                        d1_valid_dropped.trim_dataset(d1_valid_len)
+                        d1_train_dropped.trim_dataset(d1_train_len)
+
+                        valid_mixture = d1_valid + d1_valid_dropped + d1_train_dropped
                     else:
                         d2_valid = ds2.get_D2_valid(ds1)
 
-                    # Adjust the sizes. Make sure this method does not see more valid data as other methods.
-                    d1_valid_len = len(d1_valid)
-                    d2_valid_len = len(d2_valid)
-                    final_len = min(d1_valid_len, d2_valid_len)
-                    print("Adjusting %s and %s to %s"%(d1_valid_len,
-                                                    d2_valid_len,
-                                                    final_len))
-                    d1_valid.trim_dataset(final_len)
-                    d2_valid.trim_dataset(final_len)
-                    valid_mixture = d1_train + d1_valid + d2_valid
+                        # Adjust the sizes.
+                        d1_valid_len = len(d1_valid)
+                        d2_valid_len = len(d2_valid)
+                        final_len = min(d1_valid_len, d2_valid_len)
+                        print("Adjusting %s and %s to %s"%(d1_valid_len,
+                                                        d2_valid_len,
+                                                        final_len))
+                        d1_valid.trim_dataset(final_len)
+                        d2_valid.trim_dataset(final_len)
+                        valid_mixture = d1_valid + d2_valid
 
-                    print("Final valid size: %d+%d=%d"%(len(d1_valid), len(d2_valid), len(valid_mixture)))
+                 
 
                 train_acc = BT.train_H(valid_mixture)
 
@@ -200,7 +244,7 @@ if __name__ == "__main__":
                     if(args.unseen_class_test):
                         # if we're running in "unseen class" mode, we validate on the dropped class in d1, not on d2
                         # we can use all the dropped from the training and validation sets, because they were not used in training and we know they're OOD
-                        d2_test = ds1.get_D1_test_dropped(ds1)
+                        d2_test = ds1.get_D1_test_dropped()
                     else:
                         d2_test = ds3.get_D2_test(ds1)
 

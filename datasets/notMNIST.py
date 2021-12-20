@@ -137,8 +137,8 @@ class NotMNIST(AbstractDomainInterface):
         D2: 9362 Valid, 9362 Test. (indices chosen at random)
     """
 
-    def __init__(self,drop_class=None):
-        super(NotMNIST, self).__init__()
+    def __init__(self, drop_class=None):
+        super(NotMNIST, self).__init__(drop_class = drop_class)
         
         im_transformer  = transforms.Compose([transforms.ToTensor()])
         root_path       = './workspace/datasets/notmnist'

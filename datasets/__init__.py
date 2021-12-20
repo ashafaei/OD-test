@@ -22,14 +22,15 @@ class SubDataset(data.Dataset):
         When optimizing for threshold, for instance, you don't need to run the underlying network for each input entry.
         Using the index, you can just fetch the cached network output. See the implementation for examples.
     """
-    def __init__(self, name, parent_dataset, indices, label=None, transform=None, cached=False):
+    def __init__(self, name, base_name, parent_dataset, indices, label=None, transform=None, cached=False):
         self.parent_dataset = parent_dataset
         self.name = name
+        self.base_name = base_name
         self.indices = indices
         self.label = label
         self.transform = transform
         self.cached = cached
-    
+        
     def __len__(self):
         return self.indices.numel()
     
@@ -61,9 +62,9 @@ class SubDataset(data.Dataset):
             Randomly split the data into approximately p, 1-p sets.
         """
         p1 = torch.FloatTensor(self.indices.numel()).fill_(p).bernoulli().byte()
-        d1 = SubDataset(self.name, self.parent_dataset, self.indices[p1], label=self.label,
+        d1 = SubDataset(self.name, self.name, self.parent_dataset, self.indices[p1], label=self.label,
                         transform=self.transform, cached=self.cached)
-        d2 = SubDataset(self.name, self.parent_dataset, self.indices[1-p1], label=self.label,
+        d2 = SubDataset(self.name, self.name, self.parent_dataset, self.indices[1-p1], label=self.label,
                         transform=self.transform, cached=self.cached)
         return d1, d2
 
@@ -92,9 +93,14 @@ class AbstractDomainInterface(object):
         All the datasets used in this project must implement this interface.
         P.S: I really hate the way python handles inheritence and abstractions.
     """
-    def __init__(self):
-        self.name = self.__class__.__name__
+    def __init__(self, drop_class=None):
+        self.base_name = self.__class__.__name__
+        self.drop_class = drop_class
         self.filter_rules = None
+        if(self.drop_class is not None):
+            self.name = self.base_name + "_drop_" + str(drop_class)
+        else:
+            self.name = self.base_name
 
     def filter_indices(self, dataset, indices, filter_label, flip = False):
         #breakpoint()
@@ -182,9 +188,9 @@ class AbstractDomainInterface(object):
     """
     def is_compatible(self, D1):
         import global_vars as Global
-        
-        if self.name in Global.d2_compatiblity:
-            return D1.name in Global.d2_compatiblity[self.name]
+
+        if self.base_name in Global.d2_compatiblity:
+            return D1.base_name in Global.d2_compatiblity[self.base_name]
         else:
             raise NotImplementedError("%s has no implementation for this function."%(self.__class__.__name__))
 

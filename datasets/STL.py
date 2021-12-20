@@ -10,8 +10,8 @@ class STL10(AbstractDomainInterface):
         D2:    5,000 valid + 8,000 test.
     """
 
-    def __init__(self, downsample=None,drop_class=None):
-        super(STL10, self).__init__()
+    def __init__(self, downsample=None, drop_class=None):
+        super(STL10, self).__init__(drop_class = drop_class)
 
         im_transformer = None
         self.downsample = downsample
@@ -82,5 +82,5 @@ class STL10(AbstractDomainInterface):
         return 10
 
 class STL10d32(STL10):
-    def __init__(self):
-        super(STL10d32, self).__init__(downsample=32)
+    def __init__(self,drop_class=None):
+        super(STL10d32, self).__init__(downsample=32,drop_class=drop_class)

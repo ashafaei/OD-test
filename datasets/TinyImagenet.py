@@ -214,8 +214,8 @@ class TinyImagenet(AbstractDomainInterface):
         D2: 10,000 Valid + 100,000 train (shuffled), 10,000 Test.
     """
 
-    def __init__(self, downsample=None,drop_class=None):
-        super(TinyImagenet, self).__init__()
+    def __init__(self, downsample=None, drop_class=None):
+        super(TinyImagenet, self).__init__(drop_class = drop_class)
         
         im_transformer = None
         self.downsample = downsample
@@ -293,5 +293,5 @@ class TinyImagenet(AbstractDomainInterface):
         return 200
 
 class TinyImagenetd32(TinyImagenet):
-    def __init__(self):
-        super(TinyImagenetd32, self).__init__(downsample=32)
+    def __init__(self,drop_class=None):
+        super(TinyImagenetd32, self).__init__(downsample=32,drop_class=drop_class)
