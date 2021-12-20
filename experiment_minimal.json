@@ -2,11 +2,6 @@
   "name": "master_json",
   "d1_tasks": [
     "MNIST",
-    "FashionMNIST",
-    "CIFAR10",
-    "CIFAR100",
-    "STL10",
-    "TinyImagenet"
   ],
   "d2_tasks": [
     "UniformNoise",
@@ -20,8 +15,6 @@
     "TinyImagenet"
   ],
   "d3_tasks": [
-    "UniformNoise",
-    "NormalNoise",
     "MNIST",
     "FashionMNIST",
     "NotMNIST",
@@ -31,11 +24,6 @@
     "TinyImagenet"
   ],
   "method_tasks": [
-    "prob_threshold/0",
-    "prob_threshold/1",
-    "prob_threshold/2",
-    "sd_threshold/0",
-    "sd_threshold/1",
-    "sd_threshold/2"
+    "prob_threshold/0"
   ]
 }
