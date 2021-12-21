@@ -31,11 +31,6 @@ class MNIST(AbstractDomainInterface):
                                         train=False,
                                         transform=im_transformer,
                                         download=True)
-  
-        self.filter_rules = {}
-        if(self.drop_class is not None):
-            self.filter_rules[self.base_name] = []
-            self.filter_rules[self.base_name].append(self.drop_class)
     
     def get_D1_train(self):
         target_indices = self.D1_train_ind

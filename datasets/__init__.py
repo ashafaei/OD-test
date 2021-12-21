@@ -101,6 +101,10 @@ class AbstractDomainInterface(object):
             self.name = self.base_name + "_drop_" + str(drop_class)
         else:
             self.name = self.base_name
+        self.filter_rules = {}
+        if(self.drop_class is not None):
+            self.filter_rules[self.base_name] = []
+            self.filter_rules[self.base_name].append(self.drop_class)
 
     def filter_indices(self, dataset, indices, filter_label, flip = False):
         #breakpoint()
