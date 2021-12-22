@@ -110,6 +110,7 @@ class AbstractDomainInterface(object):
         #breakpoint()
         accept = []
         for ind in indices:
+            ind = int(ind)
             _, label = dataset[ind]
             s = label not in filter_label 
             if flip: 
