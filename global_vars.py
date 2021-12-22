@@ -13,7 +13,7 @@ import datasets.noise as noise
 import datasets.STL as STL
 import datasets.TinyImagenet as TI
 
-"""
+
 all_dataset_classes = [ MNIST.MNIST, FMNIST.FashionMNIST, NMNIST.NotMNIST,
                         CIFAR.CIFAR10, CIFAR.CIFAR100,
                         STL.STL10, TI.TinyImagenet,
@@ -25,7 +25,7 @@ all_dataset_classes = [ MNIST.MNIST, FMNIST.FashionMNIST,
                         CIFAR.CIFAR10
                         ]
 
-"""
+
     Not all the datasets can be used as a Dv, Dt (aka D2) for each dataset.
     The list below specifies which datasets can be used as the D2 for the other datasets.
     For instance, STL10 and CIFAR10 cannot face each other because they have 9 out 10 classes
@@ -93,12 +93,12 @@ class ModelFactory(object):
 """
 
 dataset_reference_classifiers = {
-    'MNIST':                  [ModelFactory(CLS.Scaled_VGG, scale=(1,28,28), classes=10, epochs=60), ModelFactory(CLS.Scaled_Resnet, scale=(1,28,28), classes=10, epochs=60), ModelFactory(CLS.Scaled_ResNext, scale=(1,28,28), classes=10, epochs=60)],
+#    'MNIST':                  [ModelFactory(CLS.Scaled_VGG, scale=(1,28,28), classes=10, epochs=60), ModelFactory(CLS.Scaled_Resnet, scale=(1,28,28), classes=10, epochs=60), ModelFactory(CLS.Scaled_ResNext, scale=(1,28,28), classes=10, epochs=60)],
 #    'FashionMNIST':           [ModelFactory(CLS.Scaled_VGG, scale=(1,28,28), classes=10, epochs=60), ModelFactory(CLS.Scaled_Resnet, scale=(1,28,28), classes=10, epochs=60), ModelFactory(CLS.Scaled_ResNext, scale=(1,28,28), classes=10, epochs=60)],
 #    'CIFAR10':                [ModelFactory(CLS.Scaled_VGG, scale=(3,32,32), classes=10, epochs=60), ModelFactory(CLS.Scaled_Resnet, scale=(3,32,32), classes=10, epochs=60), ModelFactory(CLS.Scaled_ResNext, scale=(3,32,32), classes=10, epochs=60)],
 #    'CIFAR100':               [ModelFactory(CLS.Scaled_VGG, scale=(3,32,32), classes=100, epochs=60), ModelFactory(CLS.Scaled_Resnet, scale=(3,32,32), classes=100, epochs=60), ModelFactory(CLS.Scaled_ResNext, scale=(3,32,32), classes=100, epochs=60)],
-#    'STL10':                  [ModelFactory(CLS.Scaled_VGG, scale=(3, 96, 96), classes=10, epochs=60), ModelFactory(CLS.Scaled_Resnet, scale=(3, 96, 96), classes=10, epochs=60), ModelFactory(CLS.Scaled_ResNext, scale=(3, 96, 96), classes=10, epochs=60)],
-#    'TinyImagenet':           [ModelFactory(CLS.Scaled_VGG, scale=(3, 64, 64), classes=200, epochs=60), ModelFactory(CLS.Scaled_Resnet, scale=(3, 64, 64), classes=200, epochs=60), ModelFactory(CLS.Scaled_ResNext, scale=(3, 64, 64), classes=200, epochs=60)],
+    'STL10':                  [ModelFactory(CLS.Scaled_VGG, scale=(3, 96, 96), classes=10, epochs=60), ModelFactory(CLS.Scaled_Resnet, scale=(3, 96, 96), classes=10, epochs=60), ModelFactory(CLS.Scaled_ResNext, scale=(3, 96, 96), classes=10, epochs=60)],
+    'TinyImagenet':           [ModelFactory(CLS.Scaled_VGG, scale=(3, 64, 64), classes=200, epochs=60), ModelFactory(CLS.Scaled_Resnet, scale=(3, 64, 64), classes=200, epochs=60), ModelFactory(CLS.Scaled_ResNext, scale=(3, 64, 64), classes=200, epochs=60)],
 }
 
 dataset_reference_autoencoders = {

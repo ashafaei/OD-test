@@ -98,7 +98,7 @@ class STL10(AbstractDomainInterface):
 
     def get_num_classes(self):
         classes = 10
-        if self.name in self.filter_rules:
+        if self.base_name in self.filter_rules:
             dropped_classes = len(self.filter_rules[self.base_name])
             classes = classes - dropped_classes
         return classes

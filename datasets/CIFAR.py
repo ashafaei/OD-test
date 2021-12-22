@@ -87,7 +87,7 @@ class CIFAR10(AbstractDomainInterface):
 
     def get_num_classes(self):
         classes = 10
-        if self.name in self.filter_rules:
+        if self.base_name in self.filter_rules:
             dropped_classes = len(self.filter_rules[self.base_name])
             classes = classes - dropped_classes
         return classes
@@ -106,8 +106,8 @@ class CIFAR100(AbstractDomainInterface):
         D2 (Dv , Dt): 50,000 valid + 10,000 test.
     """
 
-    def __init__(self):
-        super(CIFAR100, self).__init__()
+    def __init__(self, drop_class=None):
+        super(CIFAR100, self).__init__(drop_class = drop_class)
         
         im_transformer  = transforms.Compose([transforms.ToTensor()])
         root_path       = './workspace/datasets/cifar100'
@@ -181,7 +181,7 @@ class CIFAR100(AbstractDomainInterface):
 
     def get_num_classes(self):
         classes = 100
-        if self.name in self.filter_rules:
+        if self.base_name in self.filter_rules:
             dropped_classes = len(self.filter_rules[self.base_name])
             classes = classes - dropped_classes
         return classes
