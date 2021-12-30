@@ -292,7 +292,7 @@ class TinyImagenet(AbstractDomainInterface):
         return SubDataset(self.name, self.base_name, self.ds_test, target_indices, label=1)
 
     def get_num_classes(self):
-        classes = 10
+        classes = 200
         if self.base_name in self.filter_rules:
             dropped_classes = len(self.filter_rules[self.base_name])
             classes = classes - dropped_classes
