@@ -5,8 +5,6 @@ import torch.nn.functional as F
 import torchvision.models.vgg as VGG
 import torchvision.models.resnet as Resnet
 
-import torchinfo
-
 class Scaled_VGG(nn.Module):
 
     #channel-aware VGG builder
@@ -73,7 +71,7 @@ class Scaled_VGG(nn.Module):
 
         self.model = self.model.to(self.dev1)
 
-        torchinfo.summary(self.model, col_names=["kernel_size", "input_size", "output_size", "num_params"], input_size=(32, self.scale[0], self.scale[1], self.scale[2]))
+        #torchinfo.summary(self.model, col_names=["kernel_size", "input_size", "output_size", "num_params"], input_size=(32, self.scale[0], self.scale[1], self.scale[2]))
 
         if(init_weights):
             self.model._initialize_weights()
@@ -93,8 +91,9 @@ class Scaled_VGG(nn.Module):
         return output
 
     def get_info(self,args):
-        self.batch_size = args.batch_size
-        self.info = torchinfo.summary(self.model, input_size=(self.batch_size, self.scale[0], self.scale[1], self.scale[2]), verbose=0)
+        #self.batch_size = args.batch_size
+        #self.info = torchinfo.summary(self.model, input_size=(self.batch_size, self.scale[0], self.scale[1], self.scale[2]), verbose=0)
+        self.info = None
         return self.info
 
     def output_size(self):

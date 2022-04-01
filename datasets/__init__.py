@@ -145,14 +145,14 @@ class AbstractDomainInterface(object):
         #breakpoint()
         train_set = self.get_D1_train()
         nc = self.get_num_classes()
-        if(self.filter_rules is not None):
+        if(self.filter_rules and self.filter_rules is not None):
             nc += len(self.filter_rules[self.base_name]) # re-add the dropped classes
         count = [0] * nc                                                      
         for item in train_set:                                                         
             count[item[1]] += 1                                                     
         self.train_class_weight = [0.] * nc                                      
         for i in range(nc):
-            if(i not in self.filter_rules[self.base_name]):
+            if(not self.filter_rules or self.filter_rules is None or (i not in self.filter_rules[self.base_name])):
                 self.train_class_weight[i] = 1.0/float(count[i])
 
         # at this point all the dropped classes should be 0.0, which is correct
