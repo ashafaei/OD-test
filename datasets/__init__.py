@@ -147,7 +147,7 @@ class AbstractDomainInterface(object):
 
         # if we have any filtered classes
         if(self.filter_rules and self.filter_rules is not None):
-            if(self.filter_rules[self.base_name] is not None):
+            if(self.base_name in self.filter_rules):
                 nc += len(self.filter_rules[self.base_name]) # re-add the dropped classes
         count = [0] * nc                                                      
         for item in train_set:                                                         
@@ -157,8 +157,9 @@ class AbstractDomainInterface(object):
             if(not self.filter_rules or self.filter_rules is None):
                 self.train_class_weight[i] = 1.0/float(count[i])
             else: 
-                if(i not in self.filter_rules[self.base_name]):
-                    self.train_class_weight[i] = 1.0/float(count[i])
+                if(self.base_name in self.filter_rules):
+                    if(i not in self.filter_rules[self.base_name]):
+                        self.train_class_weight[i] = 1.0/float(count[i])
 
         # at this point all the dropped classes should be 0.0, which is correct
         return self.train_class_weight
