@@ -144,7 +144,6 @@ class AbstractDomainInterface(object):
     def calculate_D1_weighting(self):
         train_set = self.get_D1_train()
         nc = self.get_num_classes()
-
         # if we have any filtered classes
         if(self.filter_rules and self.filter_rules is not None):
             if(self.base_name in self.filter_rules):
@@ -152,7 +151,7 @@ class AbstractDomainInterface(object):
         count = [0] * nc                                                      
         for item in train_set:                                                         
             count[item[1]] += 1                                                     
-        self.train_class_weight = [0.] * nc                                      
+        self.train_class_weight = [0.] * nc
         for i in range(nc):
             if(not self.filter_rules or self.filter_rules is None):
                 self.train_class_weight[i] = 1.0/float(count[i])
@@ -160,7 +159,9 @@ class AbstractDomainInterface(object):
                 if(self.base_name in self.filter_rules):
                     if(i not in self.filter_rules[self.base_name]):
                         self.train_class_weight[i] = 1.0/float(count[i])
-
+                else:
+                    self.train_class_weight[i] = 1.0/float(count[i])
+        import pdb; pdb.set_trace();
         # at this point all the dropped classes should be 0.0, which is correct
         return self.train_class_weight
 
