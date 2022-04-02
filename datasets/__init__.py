@@ -161,7 +161,7 @@ class AbstractDomainInterface(object):
                         self.train_class_weight[i] = 1.0/float(count[i])
                 else:
                     self.train_class_weight[i] = 1.0/float(count[i])
-        import pdb; pdb.set_trace();
+        
         # at this point all the dropped classes should be 0.0, which is correct
         return self.train_class_weight
 
